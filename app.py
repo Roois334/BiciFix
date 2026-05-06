@@ -1,9 +1,14 @@
 from flask import Flask, render_template, request, session, redirect, url_for, flash
 from config import Config
 import pymysql, pymysql.cursors
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
+
+# Zona horaria Colombia (UTC-5, sin horario de verano)
+TZ_COL = timezone(timedelta(hours=-5))
+def now_col():
+    return datetime.now(TZ_COL).replace(tzinfo=None)
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -403,11 +408,12 @@ def solicitar():
             # ── Validación fecha/hora en servidor ──
             try:
                 fecha_obj = datetime.strptime(f"{fec} {hor}", "%Y-%m-%d %H:%M")
-                ahora     = datetime.now()
-                if fecha_obj.date() < date.today():
+                ahora     = now_col()
+                hoy_col   = ahora.date()
+                if fecha_obj.date() < hoy_col:
                     flash("La fecha no puede ser anterior a hoy.", "error")
                     error = True
-                elif fecha_obj.date() == date.today() and fecha_obj.time() < ahora.time().replace(second=0, microsecond=0):
+                elif fecha_obj.date() == hoy_col and fecha_obj.time() < ahora.time().replace(second=0, microsecond=0):
                     flash("La hora no puede ser anterior a la hora actual.", "error")
                     error = True
             except ValueError:
@@ -845,7 +851,7 @@ def mecanico_pausa():
     minutos= int(request.form.get("minutos", 60))
     motivo = request.form.get("motivo", "Pausa").strip() or "Pausa"
     minutos= max(15, min(minutos, 240))  # entre 15 min y 4 horas
-    ahora  = datetime.now()
+    ahora  = now_col()
     fin    = ahora + timedelta(minutes=minutos)
     conn = get_db(); cur = conn.cursor()
     # Desactivar pausas anteriores activas
@@ -894,7 +900,7 @@ def mecanico_programar_pausa():
     if fin <= inicio:
         flash("La hora de fin debe ser despues de la hora de inicio.", "error")
         return redirect("/mecanico")
-    if inicio < datetime.now():
+    if inicio < now_col():
         flash("No puedes programar pausas en el pasado.", "error")
         return redirect("/mecanico")
     conn = get_db(); cur = conn.cursor()
