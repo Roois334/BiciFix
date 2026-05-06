@@ -2,426 +2,155 @@
 {% block title %}Mi Perfil — BiciFix{% endblock %}
 {% block content %}
 
-<style>
-/* ── HERO PERFIL ─────────────────────────────────────────── */
-.perfil-hero {
-  position: relative;
-  border-radius: 20px;
-  overflow: hidden;
-  margin-bottom: 28px;
-  background: linear-gradient(135deg, #0a2e1a 0%, #0d3d22 50%, #0a2e1a 100%);
-  border: 1px solid rgba(0,200,83,.18);
-  box-shadow: 0 8px 40px rgba(0,0,0,.35);
-  animation: fadeUp .5s ease both;
-}
-.perfil-hero-bg {
-  position: absolute; inset: 0;
-  background: radial-gradient(ellipse at 70% 50%, rgba(0,200,83,.12) 0%, transparent 70%);
-  pointer-events: none;
-}
-.perfil-hero-inner {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 28px;
-  padding: 36px 40px;
-}
-.perfil-avatar-wrap {
-  position: relative;
-  flex-shrink: 0;
-}
-.perfil-avatar-big {
-  width: 90px; height: 90px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--va) 0%, #00a352 100%);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 2.6rem; font-weight: 800;
-  color: #fff;
-  border: 3px solid rgba(0,200,83,.4);
-  box-shadow: 0 0 0 6px rgba(0,200,83,.08), 0 8px 24px rgba(0,0,0,.3);
-  letter-spacing: -1px;
-}
-.perfil-avatar-badge {
-  position: absolute; bottom: 2px; right: 2px;
-  width: 22px; height: 22px;
-  border-radius: 50%;
-  background: var(--va);
-  border: 2px solid #0a2e1a;
-  display: flex; align-items: center; justify-content: center;
-}
-.perfil-avatar-badge svg { width: 11px; height: 11px; color: #fff; stroke: #fff; }
-.perfil-hero-info { flex: 1; min-width: 0; }
-.perfil-hero-name {
-  font-size: 1.7rem; font-weight: 800;
-  color: #fff; line-height: 1.15;
-  margin-bottom: 4px;
-  letter-spacing: -.5px;
-}
-.perfil-hero-email {
-  font-size: .88rem; color: rgba(255,255,255,.5);
-  margin-bottom: 12px;
-  display: flex; align-items: center; gap: 6px;
-}
-.perfil-hero-email svg { opacity: .6; }
-.perfil-hero-tags { display: flex; gap: 8px; flex-wrap: wrap; }
-.perfil-tag {
-  display: inline-flex; align-items: center; gap: 5px;
-  padding: 5px 14px;
-  border-radius: 99px;
-  font-size: .72rem; font-weight: 700;
-  letter-spacing: .03em; text-transform: uppercase;
-}
-.perfil-tag-role {
-  background: rgba(0,200,83,.15);
-  color: var(--va);
-  border: 1px solid rgba(0,200,83,.25);
-}
-.perfil-tag-fecha {
-  background: rgba(255,255,255,.06);
-  color: rgba(255,255,255,.45);
-  border: 1px solid rgba(255,255,255,.1);
-}
-.perfil-hero-stats {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 6px;
-  flex-shrink: 0;
-}
-.perfil-stat-item {
-  text-align: right;
-}
-.perfil-stat-val {
-  font-size: 1.4rem; font-weight: 800; color: var(--va); line-height: 1;
-}
-.perfil-stat-lbl {
-  font-size: .68rem; color: rgba(255,255,255,.4); font-weight: 500;
-  text-transform: uppercase; letter-spacing: .04em;
-}
+<div class="page-header animate-in">
+  <div class="page-header-info">
+    <h1 class="page-title"><i class="ti ti-user"></i> Mi Perfil</h1>
+    <p class="page-sub">Consulta y actualiza tu información personal.</p>
+  </div>
+</div>
 
-/* ── SECCIÓN TÍTULO ────────────────────────────────────────── */
-.section-label {
-  display: flex; align-items: center; gap: 10px;
-  font-size: .72rem; font-weight: 700; text-transform: uppercase;
-  letter-spacing: .08em; color: var(--va);
-  margin-bottom: 14px;
-}
-.section-label::after {
-  content: ''; flex: 1; height: 1px;
-  background: linear-gradient(to right, rgba(0,200,83,.2), transparent);
-}
-
-/* ── CARDS REDISEÑADAS ───────────────────────────────────── */
-.perfil-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 22px;
-}
-@media (max-width: 768px) { .perfil-grid { grid-template-columns: 1fr; } }
-
-.perfil-card {
-  background: var(--cs);
-  border: 1px solid var(--brd);
-  border-radius: 16px;
-  overflow: hidden;
-  transition: border-color .2s, box-shadow .2s;
-  animation: fadeUp .5s ease both;
-}
-.perfil-card:hover {
-  border-color: rgba(0,200,83,.25);
-  box-shadow: 0 4px 24px rgba(0,0,0,.2);
-}
-.perfil-card-header {
-  padding: 18px 24px 0;
-  display: flex; align-items: center; gap: 10px;
-}
-.perfil-card-icon {
-  width: 36px; height: 36px;
-  border-radius: 10px;
-  background: rgba(0,200,83,.1);
-  border: 1px solid rgba(0,200,83,.2);
-  display: flex; align-items: center; justify-content: center;
-  color: var(--va);
-  font-size: 1rem;
-}
-.perfil-card-title {
-  font-size: .95rem; font-weight: 700; color: var(--ct);
-}
-.perfil-card-body { padding: 20px 24px 24px; }
-
-/* ── INPUTS MEJORADOS ────────────────────────────────────── */
-.pf2-group { margin-bottom: 16px; }
-.pf2-group:last-of-type { margin-bottom: 20px; }
-.pf2-label {
-  display: flex; align-items: center; gap: 6px;
-  font-size: .72rem; font-weight: 600;
-  color: rgba(255,255,255,.5);
-  text-transform: uppercase; letter-spacing: .05em;
-  margin-bottom: 7px;
-}
-.pf2-label i { font-size: .85rem; color: var(--va); opacity: .7; }
-.pf2-input-wrap { position: relative; }
-.pf2-input {
-  width: 100%; padding: 11px 14px;
-  background: rgba(255,255,255,.04);
-  border: 1px solid rgba(255,255,255,.1);
-  border-radius: 10px;
-  color: var(--ct); font-size: .9rem;
-  transition: border-color .2s, background .2s, box-shadow .2s;
-  outline: none;
-  font-family: inherit;
-}
-.pf2-input:focus {
-  border-color: rgba(0,200,83,.5);
-  background: rgba(0,200,83,.04);
-  box-shadow: 0 0 0 3px rgba(0,200,83,.08);
-}
-.pf2-input::placeholder { color: rgba(255,255,255,.2); }
-
-/* ── BOTONES ─────────────────────────────────────────────── */
-.btn-pf-primary {
-  width: 100%; padding: 12px;
-  background: linear-gradient(135deg, var(--va), #00a352);
-  color: #fff; border: none; border-radius: 10px;
-  font-size: .88rem; font-weight: 700;
-  cursor: pointer; letter-spacing: .02em;
-  transition: opacity .2s, transform .15s, box-shadow .2s;
-  display: flex; align-items: center; justify-content: center; gap: 7px;
-  box-shadow: 0 4px 16px rgba(0,200,83,.25);
-}
-.btn-pf-primary:hover {
-  opacity: .92; transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(0,200,83,.35);
-}
-.btn-pf-primary:active { transform: translateY(0); }
-
-.btn-pf-outline {
-  width: 100%; padding: 12px;
-  background: transparent;
-  color: var(--va); border: 1.5px solid rgba(0,200,83,.35);
-  border-radius: 10px; font-size: .88rem; font-weight: 700;
-  cursor: pointer; letter-spacing: .02em;
-  transition: background .2s, border-color .2s, transform .15s;
-  display: flex; align-items: center; justify-content: center; gap: 7px;
-}
-.btn-pf-outline:hover {
-  background: rgba(0,200,83,.08); border-color: var(--va);
-  transform: translateY(-1px);
-}
-
-.btn-pf-danger {
-  width: 100%; padding: 11px;
-  background: rgba(239,83,80,.08);
-  color: #EF5350; border: 1.5px solid rgba(239,83,80,.25);
-  border-radius: 10px; font-size: .86rem; font-weight: 700;
-  cursor: pointer; letter-spacing: .02em;
-  transition: background .2s, border-color .2s;
-  display: flex; align-items: center; justify-content: center; gap: 7px;
-  text-decoration: none; margin-top: 10px;
-}
-.btn-pf-danger:hover {
-  background: rgba(239,83,80,.15); border-color: #EF5350;
-}
-
-/* ── PASSWORD EYE ────────────────────────────────────────── */
-.pf-wrap2 { position: relative; }
-.pf-input2 { padding-right: 44px !important; }
-.pf-eye2 {
-  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-  background: none; border: none; cursor: pointer;
-  color: rgba(255,255,255,.35); padding: 4px;
-  display: flex; align-items: center; border-radius: 6px;
-  transition: color .18s; z-index: 1;
-}
-.pf-eye2:hover { color: var(--va); }
-
-/* ── FORTALEZA CONTRASEÑA ────────────────────────────────── */
-.pf-strength2 { margin-top: 10px; display: none; }
-.pf-bars2 { display: flex; gap: 4px; margin-bottom: 6px; }
-.pf-bar2 { flex: 1; height: 3px; border-radius: 99px; background: rgba(255,255,255,.08); transition: background .25s; }
-.pf-bar2.pw-w { background: #EF5350; }
-.pf-bar2.pw-m { background: #FFD600; }
-.pf-bar2.pw-s { background: var(--va); }
-.pf-slabel2 { font-size: .67rem; font-weight: 600; color: rgba(255,255,255,.4); }
-.pf-reqs2 { margin-top: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 5px 12px; }
-.pf-req2 { display: flex; align-items: center; gap: 5px; font-size: .68rem; color: rgba(255,255,255,.4); transition: color .2s; }
-.pf-req2.met { color: var(--va); }
-.pf-req2 .rcirc { stroke: rgba(255,255,255,.3); }
-.pf-req2 .rchk  { opacity: 0; }
-.pf-req2.met .rcirc { stroke: var(--va); }
-.pf-req2.met .rchk  { opacity: 1; }
-
-/* ── MATCH BADGE ─────────────────────────────────────────── */
-.pf-match-row { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
-.pf-err2 { font-size: .68rem; font-weight: 600; color: #EF5350; display: none; }
-.pf-ok2  { font-size: .68rem; font-weight: 600; color: var(--va); display: none; }
-.pf2-input.ok-border  { border-color: rgba(0,200,83,.5) !important; }
-.pf2-input.err-border { border-color: #EF5350 !important; }
-
-/* ── DIVIDER ─────────────────────────────────────────────── */
-.pf-divider {
-  height: 1px; background: rgba(255,255,255,.07);
-  margin: 18px 0;
-}
-
-/* ── ANIMACIÓN ───────────────────────────────────────────── */
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(16px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-.perfil-card:nth-child(2) { animation-delay: .08s; }
-</style>
-
-<!-- HERO -->
-<div class="perfil-hero">
-  <div class="perfil-hero-bg"></div>
-  <div class="perfil-hero-inner">
-    <div class="perfil-avatar-wrap">
-      <div class="perfil-avatar-big">{{ user.nombre[0].upper() }}</div>
-      <div class="perfil-avatar-badge">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="20 6 9 17 4 12"/>
-        </svg>
-      </div>
-    </div>
-
-    <div class="perfil-hero-info">
-      <div class="perfil-hero-name">{{ user.nombre }} {{ user.apellido }}</div>
-      <div class="perfil-hero-email">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-        {{ user.email }}
-      </div>
-      <div class="perfil-hero-tags">
-        <span class="perfil-tag perfil-tag-role">
-          <i class="ti ti-{% if user.rol == 'admin' %}shield-check{% elif user.rol == 'mecanico' %}tool{% else %}user{% endif %}"></i>
-          {% if user.rol == 'admin' %}Administrador{% elif user.rol == 'mecanico' %}Mecánico{% else %}Cliente{% endif %}
-        </span>
-        {% if user.ciudad %}
-        <span class="perfil-tag perfil-tag-fecha">
-          <i class="ti ti-map-pin"></i> {{ user.ciudad }}
-        </span>
-        {% endif %}
-        {% if user.telefono %}
-        <span class="perfil-tag perfil-tag-fecha">
-          <i class="ti ti-phone"></i> {{ user.telefono }}
-        </span>
-        {% endif %}
-      </div>
+<div class="perfil-header animate-in">
+  <div>
+    <div class="perfil-nombre">{{ user.nombre }} {{ user.apellido }}</div>
+    <div class="perfil-email">{{ user.email }}</div>
+    <div style="margin-top:10px;">
+      <span class="pd-role role-{{ user.rol }}" style="font-size:.72rem;padding:4px 14px;">
+        {% if user.rol == 'admin' %}Administrador
+        {% elif user.rol == 'mecanico' %}Mecánico
+        {% else %}Cliente{% endif %}
+      </span>
     </div>
   </div>
 </div>
 
-<!-- GRID PRINCIPAL -->
-<div class="perfil-grid">
+<div class="grid-2 animate-in">
 
   <!-- ACTUALIZAR DATOS -->
-  <div class="perfil-card">
-    <div class="perfil-card-header">
-      <div class="perfil-card-icon"><i class="ti ti-user-edit"></i></div>
-      <div class="perfil-card-title">Información personal</div>
-    </div>
-    <div class="perfil-card-body">
-      <div class="section-label">Datos de la cuenta</div>
-      <form method="POST" action="/perfil/actualizar">
-        <div class="pf2-group">
-          <label class="pf2-label"><i class="ti ti-user"></i> Nombre</label>
-          <input type="text" name="nombre" class="pf2-input" value="{{ user.nombre }}" required placeholder="Tu nombre">
-        </div>
-        <div class="pf2-group">
-          <label class="pf2-label"><i class="ti ti-user"></i> Apellido</label>
-          <input type="text" name="apellido" class="pf2-input" value="{{ user.apellido }}" required placeholder="Tu apellido">
-        </div>
-        <div class="pf2-group">
-          <label class="pf2-label"><i class="ti ti-phone"></i> Teléfono</label>
-          <input type="tel" name="telefono" class="pf2-input" value="{{ user.telefono or '' }}" placeholder="Ej. 3001234567">
-        </div>
-        <div class="pf2-group">
-          <label class="pf2-label"><i class="ti ti-map-pin"></i> Ciudad</label>
-          <input type="text" name="ciudad" class="pf2-input" value="{{ user.ciudad or '' }}" placeholder="Tu ciudad">
-        </div>
-        <button type="submit" class="btn-pf-primary">
-          <i class="ti ti-device-floppy"></i> Guardar cambios
-        </button>
-      </form>
-    </div>
+  <div class="card">
+    <div class="card-header"><span class="card-title">Actualizar datos</span></div>
+    <form method="POST" action="/perfil/actualizar">
+      <div class="form-group">
+        <label class="form-label">Nombre</label>
+        <input type="text" name="nombre" class="form-input" value="{{ user.nombre }}" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Apellido</label>
+        <input type="text" name="apellido" class="form-input" value="{{ user.apellido }}" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Teléfono</label>
+        <input type="tel" name="telefono" class="form-input" value="{{ user.telefono or '' }}">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Ciudad</label>
+        <input type="text" name="ciudad" class="form-input" value="{{ user.ciudad or '' }}">
+      </div>
+      <button type="submit" class="btn btn-primary btn-full">Guardar cambios</button>
+    </form>
   </div>
 
-  <!-- SEGURIDAD -->
-  <div class="perfil-card">
-    <div class="perfil-card-header">
-      <div class="perfil-card-icon"><i class="ti ti-lock"></i></div>
-      <div class="perfil-card-title">Seguridad</div>
-    </div>
-    <div class="perfil-card-body">
-      <div class="section-label">Cambiar contraseña</div>
-      <form method="POST" action="/perfil/cambiar-password" id="pwForm2" novalidate>
+  <!-- CAMBIAR CONTRASEÑA -->
+  <div class="card">
+    <div class="card-header"><span class="card-title">Cambiar contraseña</span></div>
+    <form method="POST" action="/perfil/cambiar-password" id="pwForm" novalidate>
 
-        <div class="pf2-group">
-          <label class="pf2-label"><i class="ti ti-key"></i> Contraseña actual</label>
-          <div class="pf-wrap2">
-            <input type="password" name="actual" id="pf2-actual" class="pf2-input pf-input2" placeholder="••••••••" required autocomplete="current-password">
-            <button type="button" class="pf-eye2" onclick="pfToggle2('pf2-actual','peo2-0','pec2-0')">
-              <svg id="peo2-0" viewBox="0 0 24 24" fill="none" width="17" height="17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-              <svg id="pec2-0" viewBox="0 0 24 24" fill="none" width="17" height="17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-            </button>
+      <!-- Contraseña actual -->
+      <div class="form-group">
+        <label class="form-label">Contraseña actual</label>
+        <div class="pf-wrap">
+          <input type="password" name="actual" id="pf-actual" class="form-input pf-input" placeholder="••••••••" required autocomplete="current-password">
+          <button type="button" class="pf-eye" onclick="pfToggle('pf-actual','peo0','pec0')">
+            <svg id="peo0" viewBox="0 0 24 24" fill="none" width="17" height="17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            <svg id="pec0" viewBox="0 0 24 24" fill="none" width="17" height="17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Nueva contraseña -->
+      <div class="form-group">
+        <div class="pf-label-row">
+          <label class="form-label" style="margin:0">Nueva contraseña</label>
+          <span class="pf-err" id="pf-err-nueva">No cumple los requisitos</span>
+        </div>
+        <div class="pf-wrap">
+          <input type="password" name="nueva" id="pf-nueva" class="form-input pf-input" placeholder="Mínimo 6 caracteres" required autocomplete="new-password">
+          <button type="button" class="pf-eye" onclick="pfToggle('pf-nueva','peo1','pec1')">
+            <svg id="peo1" viewBox="0 0 24 24" fill="none" width="17" height="17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            <svg id="pec1" viewBox="0 0 24 24" fill="none" width="17" height="17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+          </button>
+        </div>
+        <!-- Barra fortaleza -->
+        <div class="pf-strength" id="pf-strength">
+          <div class="pf-bars">
+            <div class="pf-bar" id="pb1"></div><div class="pf-bar" id="pb2"></div>
+            <div class="pf-bar" id="pb3"></div><div class="pf-bar" id="pb4"></div>
+          </div>
+          <div class="pf-slabel" id="pf-slabel">Escribe tu contraseña</div>
+          <div class="pf-reqs">
+            <div class="pf-req" id="preq-len"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9" class="req-circle"/><path d="M9 12l2 2 4-4" class="req-check" stroke="currentColor"/></svg>Mínimo 6 caracteres</div>
+            <div class="pf-req" id="preq-upper"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9" class="req-circle"/><path d="M9 12l2 2 4-4" class="req-check" stroke="currentColor"/></svg>Una mayúscula</div>
+            <div class="pf-req" id="preq-num"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9" class="req-circle"/><path d="M9 12l2 2 4-4" class="req-check" stroke="currentColor"/></svg>Un número</div>
+            <div class="pf-req" id="preq-lower"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9" class="req-circle"/><path d="M9 12l2 2 4-4" class="req-check" stroke="currentColor"/></svg>Una minúscula</div>
           </div>
         </div>
+      </div>
 
-        <div class="pf2-group">
-          <label class="pf2-label"><i class="ti ti-lock-plus"></i> Nueva contraseña</label>
-          <div class="pf-wrap2">
-            <input type="password" name="nueva" id="pf2-nueva" class="pf2-input pf-input2" placeholder="Mínimo 6 caracteres" required autocomplete="new-password">
-            <button type="button" class="pf-eye2" onclick="pfToggle2('pf2-nueva','peo2-1','pec2-1')">
-              <svg id="peo2-1" viewBox="0 0 24 24" fill="none" width="17" height="17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-              <svg id="pec2-1" viewBox="0 0 24 24" fill="none" width="17" height="17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-            </button>
-          </div>
-          <div class="pf-strength2" id="pf2-strength">
-            <div class="pf-bars2">
-              <div class="pf-bar2" id="pb2-1"></div><div class="pf-bar2" id="pb2-2"></div>
-              <div class="pf-bar2" id="pb2-3"></div><div class="pf-bar2" id="pb2-4"></div>
-            </div>
-            <div class="pf-slabel2" id="pf2-slabel">Escribe tu contraseña</div>
-            <div class="pf-reqs2">
-              <div class="pf-req2" id="p2req-len"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9" class="rcirc"/><path d="M9 12l2 2 4-4" class="rchk" stroke="currentColor"/></svg>Mínimo 6 caracteres</div>
-              <div class="pf-req2" id="p2req-upper"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9" class="rcirc"/><path d="M9 12l2 2 4-4" class="rchk" stroke="currentColor"/></svg>Una mayúscula</div>
-              <div class="pf-req2" id="p2req-num"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9" class="rcirc"/><path d="M9 12l2 2 4-4" class="rchk" stroke="currentColor"/></svg>Un número</div>
-              <div class="pf-req2" id="p2req-lower"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9" class="rcirc"/><path d="M9 12l2 2 4-4" class="rchk" stroke="currentColor"/></svg>Una minúscula</div>
-            </div>
-          </div>
+      <!-- Confirmar -->
+      <div class="form-group">
+        <div class="pf-label-row">
+          <label class="form-label" style="margin:0">Confirmar nueva</label>
+          <span class="pf-err" id="pf-err-conf">No coinciden</span>
+          <span class="pf-ok"  id="pf-ok-conf">Coinciden ✓</span>
         </div>
-
-        <div class="pf2-group">
-          <div class="pf-match-row">
-            <label class="pf2-label" style="margin:0"><i class="ti ti-lock-check"></i> Confirmar nueva</label>
-            <span class="pf-err2" id="pf2-err-conf">No coinciden</span>
-            <span class="pf-ok2"  id="pf2-ok-conf">✓ Coinciden</span>
-          </div>
-          <div class="pf-wrap2">
-            <input type="password" name="confirmar" id="pf2-conf" class="pf2-input pf-input2" placeholder="Repite la nueva contraseña" required autocomplete="new-password">
-            <button type="button" class="pf-eye2" onclick="pfToggle2('pf2-conf','peo2-2','pec2-2')">
-              <svg id="peo2-2" viewBox="0 0 24 24" fill="none" width="17" height="17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-              <svg id="pec2-2" viewBox="0 0 24 24" fill="none" width="17" height="17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-            </button>
-          </div>
+        <div class="pf-wrap">
+          <input type="password" name="confirmar" id="pf-conf" class="form-input pf-input" placeholder="Repite la nueva contraseña" required autocomplete="new-password">
+          <button type="button" class="pf-eye" onclick="pfToggle('pf-conf','peo2','pec2')">
+            <svg id="peo2" viewBox="0 0 24 24" fill="none" width="17" height="17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            <svg id="pec2" viewBox="0 0 24 24" fill="none" width="17" height="17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+          </button>
         </div>
+      </div>
 
-        <button type="submit" class="btn-pf-outline">
-          <i class="ti ti-shield-check"></i> Cambiar contraseña
-        </button>
-      </form>
+      <button type="submit" class="btn btn-outline btn-full">Cambiar contraseña</button>
+    </form>
 
-      <div class="pf-divider"></div>
-      <a href="/logout" class="btn-pf-danger">
-        <i class="ti ti-logout"></i> Cerrar sesión
-      </a>
-    </div>
+    <div class="separator"></div>
+    <a href="/logout" class="btn btn-danger btn-full">Cerrar sesión</a>
   </div>
-
 </div>
 
+<style>
+.pf-wrap { position: relative; }
+.pf-input { padding-right: 44px !important; }
+.pf-eye {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; cursor: pointer; color: var(--gs); padding: 4px;
+  display: flex; align-items: center; border-radius: 6px; transition: color .18s, background .18s; z-index:1;
+}
+.pf-eye:hover { color: var(--va); background: rgba(0,200,83,.08); }
+.pf-label-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.pf-err { font-size:.68rem; font-weight:600; color:#EF5350; display:none; }
+.pf-ok  { font-size:.68rem; font-weight:600; color:var(--va); display:none; }
+.pf-strength { margin-top:8px; display:none; }
+.pf-bars { display:flex; gap:4px; margin-bottom:5px; }
+.pf-bar  { flex:1; height:3px; border-radius:99px; background:rgba(255,255,255,.08); transition:background .25s; }
+.pf-bar.pw-w { background:#EF5350; }
+.pf-bar.pw-m { background:#FFD600; }
+.pf-bar.pw-s { background:var(--va); }
+.pf-slabel { font-size:.67rem; font-weight:600; color:var(--gs); }
+.pf-reqs { margin-top:10px; display:grid; grid-template-columns:1fr 1fr; gap:5px 12px; }
+.pf-req  { display:flex; align-items:center; gap:5px; font-size:.68rem; color:var(--gs); transition:color .2s; }
+.pf-req .req-circle { stroke:var(--gs); }
+.pf-req .req-check  { opacity:0; }
+.pf-req.met { color:var(--va); }
+.pf-req.met .req-circle { stroke:var(--va); }
+.pf-req.met .req-check  { opacity:1; }
+.form-input.pf-ok-b  { border-color:var(--va) !important; }
+.form-input.pf-err-b { border-color:#EF5350 !important; }
+</style>
+
 <script>
-function pfToggle2(iId, oId, cId) {
+function pfToggle(iId, oId, cId) {
   const inp = document.getElementById(iId);
   const eo  = document.getElementById(oId);
   const ec  = document.getElementById(cId);
@@ -429,68 +158,79 @@ function pfToggle2(iId, oId, cId) {
   else { inp.type='password'; eo.style.display='block'; ec.style.display='none'; }
 }
 
-const pwN2   = document.getElementById('pf2-nueva');
-const pfBs2  = ['pb2-1','pb2-2','pb2-3','pb2-4'].map(id => document.getElementById(id));
-const pfSL2  = document.getElementById('pf2-slabel');
-const pfSB2  = document.getElementById('pf2-strength');
+const pwNueva = document.getElementById('pf-nueva');
+const pfBars  = ['pb1','pb2','pb3','pb4'].map(id => document.getElementById(id));
+const pfSLbl  = document.getElementById('pf-slabel');
+const pfStrBx = document.getElementById('pf-strength');
+const pfErrN  = document.getElementById('pf-err-nueva');
 
-function pfReq2(id, met) { document.getElementById(id).classList.toggle('met', met); }
+function pfReq(id, met) {
+  document.getElementById(id).classList.toggle('met', met);
+}
 
-function pfStr2(pw) {
+function pfStrength(pw) {
   const hasLen   = pw.length >= 6;
   const hasUpper = /[A-ZÁÉÍÓÚÜ]/.test(pw);
   const hasLower = /[a-záéíóúü]/.test(pw);
   const hasNum   = /\d/.test(pw);
   const hasSpec  = /[^a-zA-Z0-9áéíóúüÁÉÍÓÚÜñÑ]/.test(pw);
-  pfReq2('p2req-len',   hasLen);
-  pfReq2('p2req-upper', hasUpper);
-  pfReq2('p2req-lower', hasLower);
-  pfReq2('p2req-num',   hasNum);
-  return { score: [hasLen,hasUpper,hasLower,hasNum,hasSpec].filter(Boolean).length, hasLen, hasUpper };
+  pfReq('preq-len',   hasLen);
+  pfReq('preq-upper', hasUpper);
+  pfReq('preq-lower', hasLower);
+  pfReq('preq-num',   hasNum);
+  const score = [hasLen,hasUpper,hasLower,hasNum,hasSpec].filter(Boolean).length;
+  return { score, hasLen, hasUpper, hasLower, hasNum };
 }
 
-pwN2.addEventListener('focus', () => pfSB2.style.display = 'block');
-pwN2.addEventListener('input', () => {
-  const pw = pwN2.value;
-  if (!pw) { pfBs2.forEach(b => b.className='pf-bar2'); pfSL2.textContent='Escribe tu contraseña'; return; }
-  const { score } = pfStr2(pw);
-  const cls  = score<=2?'pw-w':score<=3?'pw-m':'pw-s';
+pwNueva.addEventListener('focus', () => pfStrBx.style.display = 'block');
+pwNueva.addEventListener('input', () => {
+  const pw = pwNueva.value;
+  if (!pw) { pfBars.forEach(b => b.className='pf-bar'); pfSLbl.textContent='Escribe tu contraseña'; return; }
+  const { score } = pfStrength(pw);
+  const cls = score<=2?'pw-w':score<=3?'pw-m':'pw-s';
   const fill = score<=2?score:score<=3?3:4;
-  pfBs2.forEach((b,i) => b.className = 'pf-bar2'+(i<fill?' '+cls:''));
-  pfSL2.textContent = ['','Muy débil','Débil','Regular','Fuerte','Muy fuerte'][Math.min(score,5)];
-  pfChkConf2();
+  pfBars.forEach((b,i) => b.className = 'pf-bar'+(i<fill?' '+cls:''));
+  pfSLbl.textContent = ['','Muy débil','Débil','Regular','Fuerte','Muy fuerte'][Math.min(score,5)];
+  pfCheckConf();
 });
-pwN2.addEventListener('blur', () => {
-  const pw = pwN2.value; if (!pw) return;
-  const { hasLen, hasUpper } = pfStr2(pw);
+pwNueva.addEventListener('blur', () => {
+  const pw = pwNueva.value; if (!pw) return;
+  const { hasLen, hasUpper } = pfStrength(pw);
   const ok = hasLen && hasUpper;
-  pwN2.classList.toggle('err-border', !ok);
-  pwN2.classList.toggle('ok-border',   ok);
+  pwNueva.classList.toggle('pf-err-b', !ok);
+  pwNueva.classList.toggle('pf-ok-b',   ok);
+  pfErrN.style.display = ok ? 'none' : 'inline';
 });
 
-const pfC2    = document.getElementById('pf2-conf');
-const pfEC2   = document.getElementById('pf2-err-conf');
-const pfOC2   = document.getElementById('pf2-ok-conf');
+const pfConf    = document.getElementById('pf-conf');
+const pfErrConf = document.getElementById('pf-err-conf');
+const pfOkConf  = document.getElementById('pf-ok-conf');
 
-function pfChkConf2() {
-  const conf = pfC2.value; if (!conf) return;
-  const match = pwN2.value === conf;
-  pfC2.classList.toggle('ok-border',  match);
-  pfC2.classList.toggle('err-border', !match);
-  pfEC2.style.display = match ? 'none'   : 'inline';
-  pfOC2.style.display  = match ? 'inline' : 'none';
+function pfCheckConf() {
+  const conf = pfConf.value; if (!conf) return;
+  const match = pwNueva.value === conf;
+  pfConf.classList.toggle('pf-ok-b',  match);
+  pfConf.classList.toggle('pf-err-b', !match);
+  pfErrConf.style.display = match ? 'none'   : 'inline';
+  pfOkConf.style.display  = match ? 'inline' : 'none';
 }
-pfC2.addEventListener('input', pfChkConf2);
-pfC2.addEventListener('blur',  pfChkConf2);
+pfConf.addEventListener('input', pfCheckConf);
+pfConf.addEventListener('blur',  pfCheckConf);
 
-document.getElementById('pwForm2').addEventListener('submit', function(e) {
-  const actual = document.getElementById('pf2-actual').value;
-  const nueva  = pwN2.value;
-  const conf   = pfC2.value;
+document.getElementById('pwForm').addEventListener('submit', function(e) {
+  const actual = document.getElementById('pf-actual').value;
+  const nueva  = pwNueva.value;
+  const conf   = pfConf.value;
   if (!actual || !nueva || !conf) { e.preventDefault(); return; }
-  const { hasLen, hasUpper } = pfStr2(nueva);
-  if (!hasLen || !hasUpper) { e.preventDefault(); pwN2.classList.add('err-border'); pwN2.focus(); return; }
-  if (nueva !== conf) { e.preventDefault(); pfC2.classList.add('err-border'); pfC2.focus(); }
+  const { hasLen, hasUpper } = pfStrength(nueva);
+  if (!hasLen || !hasUpper) {
+    e.preventDefault();
+    pwNueva.classList.add('pf-err-b'); pfErrN.style.display='inline'; pwNueva.focus(); return;
+  }
+  if (nueva !== conf) {
+    e.preventDefault();
+    pfConf.classList.add('pf-err-b'); pfErrConf.style.display='inline'; pfConf.focus();
+  }
 });
 </script>
 
