@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% block title %}Mis Ordenes — BiciFix{% endblock %}
+{% block content %}
+<div class="page-header animate-in">
+  <div class="page-header-info">
+    <h1 class="page-title"><i class="ti ti-clipboard-list"></i> Mis Órdenes</h1>
+    <p class="page-sub">Sigue el estado de todos tus servicios en tiempo real.</p>
+  </div>
+</div>
+
+{% set orden_estados_taller   = ['pendiente','asignada','proceso','completada'] %}
+{% set etiquetas_taller       = ['Pendiente','Confirmada','En proceso','Completada'] %}
+{% set orden_estados_domicilio = ['pendiente','asignada','en_camino','proceso','completada'] %}
+{% set etiquetas_domicilio    = ['Pendiente','Asignada','En camino','En proceso','Completada'] %}
+{% set orden_estados_recogida  = ['pendiente','asignada','en_camino','proceso','completada'] %}
+{% set etiquetas_recogida     = ['Pendiente','Asignada','Recogida','En proceso','Completada'] %}
+
+{% for o in ordenes %}
+<div class="card animate-in" style="margin-bottom:18px;">
+
+  <!-- Cabecera -->
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px;">
+    <div>
+      <div style="font-weight:700;color:var(--bl);font-size:1rem;">
+        {{ o.servicio_nombre }}
+        <span style="color:var(--gs);font-size:.8rem;font-weight:400;">#{{ o.id }}</span>
+      </div>
+      <div style="font-size:.81rem;color:var(--gs);margin-top:4px;">
+        {{ o.fecha_servicio|string|truncate(10,True,"") }} &nbsp;·&nbsp; {{ o.ubicacion }}
+      </div>
+      {% if o.mecanico_nombre %}
+      <div style="font-size:.81rem;color:var(--vn);margin-top:3px;font-weight:600;">
+        Mecanico: {{ o.mecanico_nombre }}
+      </div>
+      {% endif %}
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+      <!-- Badge estado -->
+      <span style="font-size:.7rem;font-weight:700;padding:4px 10px;border-radius:99px;
+        {% if o.estado == 'pendiente' %}background:rgba(255,214,0,.12);color:var(--am);border:1px solid rgba(255,214,0,.25);
+        {% elif o.estado == 'asignada' %}background:rgba(0,200,83,.1);color:var(--va);border:1px solid rgba(0,200,83,.25);
+        {% elif o.estado == 'en_camino' %}background:rgba(33,150,243,.1);color:#64b5f6;border:1px solid rgba(33,150,243,.25);
+        {% elif o.estado == 'proceso' %}background:rgba(105,240,174,.08);color:var(--vn);border:1px solid rgba(105,240,174,.25);
+        {% elif o.estado == 'completada' %}background:rgba(0,200,83,.15);color:var(--va);border:1px solid rgba(0,200,83,.3);
+        {% else %}background:rgba(239,83,80,.1);color:#ff8a80;border:1px solid rgba(239,83,80,.25);{% endif %}">
+        {{ o.estado|replace('_',' ')|capitalize }}
+      </span>
+      <!-- Precio -->
+      <span style="color:var(--va);font-weight:700;font-size:.95rem;">
+        {{ o.precio_final|cop }}
+      </span>
+      <!-- Botón cancelar (solo si está pendiente o asignada) -->
+      {% if o.estado in ['pendiente', 'asignada'] %}
+      <form method="POST" action="/cancelar-orden/{{ o.id }}"
+            onsubmit="return confirm('¿Seguro que deseas cancelar esta orden?')">
+        <button type="submit" style="
+          background:rgba(255,82,82,.08);
+          border:1px solid rgba(255,82,82,.25);
+          color:#ff5252;
+          font-size:.68rem;font-weight:700;
+          padding:4px 12px;border-radius:99px;
+          cursor:pointer;transition:all .18s;
+          letter-spacing:.03em;">
+          Cancelar orden
+        </button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Timeline dinámico según tipo de atención -->
+  {% set tipo = o.tipo_atencion if o.tipo_atencion else 'taller' %}
+  {% if tipo == 'taller' %}
+    {% set pasos = [('pendiente','Pendiente'),('asignada','Confirmada'),('proceso','En proceso'),('completada','Completada')] %}
+  {% elif tipo == 'recogida' %}
+    {% set pasos = [('pendiente','Pendiente'),('asignada','Asignada'),('en_camino','Recogida'),('proceso','En proceso'),('completada','Completada')] %}
+  {% else %}
+    {% set pasos = [('pendiente','Pendiente'),('asignada','Asignada'),('en_camino','En camino'),('proceso','En proceso'),('completada','Completada')] %}
+  {% endif %}
+  {% set estados_lista = pasos | map(attribute=0) | list %}
+  {% set idx_actual = estados_lista.index(o.estado) if o.estado in estados_lista else 0 %}
+  <div class="timeline">
+    {% for val, label in pasos %}
+      {% set idx = loop.index0 %}
+      <div class="tl-step">
+        <div class="tl-dot
+          {% if idx < idx_actual %}done
+          {% elif idx == idx_actual and o.estado == 'completada' %}done active
+          {% elif idx == idx_actual %}active
+          {% endif %}">
+          {% if idx < idx_actual or (idx == idx_actual and o.estado == 'completada') %}&#10003;
+          {% else %}{{ loop.index }}{% endif %}
+        </div>
+        <div class="tl-label {% if idx == idx_actual %}active{% endif %}" style="font-size:.65rem;">{{ label }}</div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <!-- Observaciones del mecanico si existen -->
+  {% if o.observaciones_mecanico %}
+  <div style="margin-top:14px;padding:10px 14px;background:rgba(0,200,83,.05);border:1px solid rgba(0,200,83,.15);border-radius:8px;">
+    <p style="margin:0;font-size:.72rem;font-weight:700;color:var(--va);text-transform:uppercase;letter-spacing:.04em;">Nota del mecanico</p>
+    <p style="margin:4px 0 0;font-size:.82rem;color:var(--gt);">{{ o.observaciones_mecanico }}</p>
+  </div>
+  {% endif %}
+
+  <!-- Calificar si completada y sin calificacion -->
+  {% if o.estado == 'completada' and not o.calificacion %}
+  <div style="margin-top:14px;padding:14px;background:rgba(255,214,0,.05);border-radius:10px;border:1px solid rgba(255,214,0,.18);">
+    <p style="color:var(--am);font-size:.84rem;margin:0 0 10px;font-weight:600;">Califica este servicio</p>
+    <form method="POST" action="/calificar/{{ o.id }}" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+      <select name="puntuacion" class="form-select" style="width:auto;">
+        <option value="5">5 estrellas — Excelente</option>
+        <option value="4">4 estrellas — Muy bueno</option>
+        <option value="3">3 estrellas — Bueno</option>
+        <option value="2">2 estrellas — Regular</option>
+        <option value="1">1 estrella  — Malo</option>
+      </select>
+      <input type="text" name="comentario" class="form-input" placeholder="Comentario opcional..." style="flex:1;min-width:180px;">
+      <button type="submit" class="btn btn-primary btn-sm">Calificar</button>
+    </form>
+  </div>
+  {% endif %}
+
+</div>
+{% else %}
+<div class="empty-state animate-in">
+  <div class="es-icon">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--va)" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg>
+  </div>
+  <div class="es-title">Sin ordenes aun</div>
+  <div class="es-sub">Solicita tu primer servicio y lo veras aqui.</div>
+  <a href="/solicitar" class="btn btn-neon" style="margin-top:20px;">Solicitar servicio</a>
+</div>
+{% endfor %}
+{% endblock %}

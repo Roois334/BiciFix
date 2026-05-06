@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Servicios — BiciFix Admin{% endblock %}
+{% block content %}
+<div class="page-header animate-in">
+  <div class="page-header-info">
+    <h1 class="page-title"><i class="ti ti-tool"></i> Catálogo de Servicios</h1>
+    <p class="page-sub">Gestiona los servicios disponibles en la plataforma.</p>
+  </div>
+  <div class="page-header-actions">
+    <button onclick="document.getElementById('modal-nuevo').style.display='flex'" class="btn btn-neon">+ Nuevo servicio</button>
+  </div>
+</div>
+<div class="card animate-in">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Icono</th><th>Servicio</th><th>Precio min</th><th>Precio max</th><th>Tiempo</th><th>Estado</th><th>Acciones</th></tr></thead>
+      <tbody>
+        {% for s in servicios %}
+        <tr>
+          <td style="font-size:1.3rem;color:var(--va);">{{ s.icono }}</td>
+          <td class="td-main">{{ s.nombre }}</td>
+          <td style="color:var(--va);">{{ s.precio_min|cop }}</td>
+          <td style="color:var(--va);">{{ s.precio_max|cop }}</td>
+          <td>{{ s.tiempo_estimado }}</td>
+          <td><span class="badge badge-{{ 'activo' if s.activo else 'inactivo' }}">{{ 'Activo' if s.activo else 'Inactivo' }}</span></td>
+          <td>
+            <form method="POST" action="/admin/servicio/{{ s.id }}/toggle" style="display:inline;">
+              <button class="btn btn-sm {{ 'btn-danger' if s.activo else 'btn-primary' }}">{{ 'Desactivar' if s.activo else 'Activar' }}</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+<div id="modal-nuevo" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;align-items:center;justify-content:center;">
+  <div class="card" style="width:100%;max-width:480px;max-height:90vh;overflow-y:auto;">
+    <div class="card-header">
+      <span class="card-title">Nuevo servicio</span>
+      <button onclick="document.getElementById('modal-nuevo').style.display='none'" class="btn btn-sm btn-outline">&times;</button>
+    </div>
+    <form method="POST" action="/admin/servicio/nuevo">
+      <div class="form-group"><label class="form-label">Icono (emoji)</label><input type="text" name="icono" class="form-input" placeholder="icono" maxlength="4"></div>
+      <div class="form-group"><label class="form-label">Nombre</label><input type="text" name="nombre" class="form-input" required></div>
+      <div class="form-group"><label class="form-label">Descripción</label><textarea name="descripcion" class="form-textarea"></textarea></div>
+      <div class="grid-2" style="gap:14px;">
+        <div class="form-group"><label class="form-label">Precio mín (pesos COP)</label><input type="number" name="precio_min" class="form-input" required></div>
+        <div class="form-group"><label class="form-label">Precio máx (pesos COP)</label><input type="number" name="precio_max" class="form-input" required></div>
+      </div>
+      <div class="form-group"><label class="form-label">Tiempo estimado</label><input type="text" name="tiempo_estimado" class="form-input" placeholder="45 min"></div>
+      <button type="submit" class="btn btn-neon btn-full">Crear servicio</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

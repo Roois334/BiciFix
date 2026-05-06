@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+{% block title %}Orden #{{ orden.id }} — BiciFix{% endblock %}
+{% block content %}
+
+{% set tipo = orden.tipo_atencion if orden.tipo_atencion else 'taller' %}
+
+{% if tipo == 'taller' %}
+  {% set tipo_label = 'Cliente va al taller' %}
+  {% set tipo_icon_color = '#69f0ae' %}
+  {% set tipo_bg = 'rgba(105,240,174,.1)' %}
+  {% set tipo_border = 'rgba(105,240,174,.3)' %}
+  {% set pasos = [('pendiente','Pendiente'),('asignada','Confirmada'),('proceso','En proceso'),('completada','Completada')] %}
+  {% set botones = [('asignada','Confirmada','Orden recibida','rgba(0,200,83,.06)','rgba(0,200,83,.12)','rgba(0,200,83,.5)','var(--va)'),('proceso','En proceso','Trabajando en la bici','rgba(105,240,174,.06)','rgba(105,240,174,.12)','rgba(105,240,174,.5)','var(--vn)'),('completada','Completada','Servicio terminado','rgba(0,200,83,.06)','rgba(0,200,83,.15)','rgba(0,200,83,.55)','var(--va)')] %}
+{% elif tipo == 'recogida' %}
+  {% set tipo_label = 'Recogida a domicilio' %}
+  {% set tipo_icon_color = '#64b5f6' %}
+  {% set tipo_bg = 'rgba(33,150,243,.1)' %}
+  {% set tipo_border = 'rgba(33,150,243,.3)' %}
+  {% set pasos = [('pendiente','Pendiente'),('asignada','Asignada'),('en_camino','Recogida'),('proceso','En proceso'),('completada','Completada')] %}
+  {% set botones = [('asignada','Asignada','Orden confirmada','rgba(0,200,83,.06)','rgba(0,200,83,.12)','rgba(0,200,83,.5)','var(--va)'),('en_camino','Recogida','Yendo a recoger la bici','rgba(33,150,243,.06)','rgba(33,150,243,.12)','rgba(33,150,243,.5)','#64b5f6'),('proceso','En proceso','Trabajando en la bici','rgba(105,240,174,.06)','rgba(105,240,174,.12)','rgba(105,240,174,.5)','var(--vn)'),('completada','Completada','Servicio terminado','rgba(0,200,83,.06)','rgba(0,200,83,.15)','rgba(0,200,83,.55)','var(--va)')] %}
+{% else %}
+  {% set tipo_label = 'Servicio a domicilio' %}
+  {% set tipo_icon_color = '#ffb74d' %}
+  {% set tipo_bg = 'rgba(255,183,77,.1)' %}
+  {% set tipo_border = 'rgba(255,183,77,.3)' %}
+  {% set pasos = [('pendiente','Pendiente'),('asignada','Asignada'),('en_camino','En camino'),('proceso','En proceso'),('completada','Completada')] %}
+  {% set botones = [('asignada','Asignada','Orden confirmada','rgba(0,200,83,.06)','rgba(0,200,83,.12)','rgba(0,200,83,.5)','var(--va)'),('en_camino','En camino','Yendo al cliente','rgba(33,150,243,.06)','rgba(33,150,243,.12)','rgba(33,150,243,.5)','#64b5f6'),('proceso','En proceso','Trabajando en la bici','rgba(105,240,174,.06)','rgba(105,240,174,.12)','rgba(105,240,174,.5)','var(--vn)'),('completada','Completada','Servicio terminado','rgba(0,200,83,.06)','rgba(0,200,83,.15)','rgba(0,200,83,.55)','var(--va)')] %}
+{% endif %}
+
+<div class="page-header animate-in">
+  <div class="page-header-info">
+    <h1 class="page-title"><i class="ti ti-clipboard-check"></i> Orden #{{ orden.id }}</h1>
+    <p class="page-sub">{{ orden.servicio_nombre }}</p>
+  </div>
+</div>
+
+<div class="grid-2 animate-in" style="align-items:start;">
+
+  <!-- COLUMNA IZQUIERDA: info de la orden -->
+  <div style="display:flex;flex-direction:column;gap:16px;">
+
+    <!-- Cliente -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Datos del cliente</span>
+        <!-- Badge tipo de atención -->
+        <span style="font-size:.7rem;font-weight:700;padding:4px 12px;border-radius:99px;
+          background:{{ tipo_bg }};color:{{ tipo_icon_color }};border:1px solid {{ tipo_border }};">
+          {{ tipo_label }}
+        </span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div>
+          <span style="color:var(--gs);font-size:.78rem;">Nombre</span>
+          <div style="font-weight:600;color:var(--bl);margin-top:2px;">{{ orden.cliente_nombre }}</div>
+        </div>
+        <div>
+          <span style="color:var(--gs);font-size:.78rem;">Telefono</span>
+          <div style="font-weight:600;color:var(--bl);margin-top:2px;">{{ orden.cliente_telefono }}</div>
+        </div>
+        <div>
+          <span style="color:var(--gs);font-size:.78rem;">Ubicacion del servicio</span>
+          <div style="font-weight:600;color:var(--bl);margin-top:2px;">{{ orden.ubicacion }}</div>
+        </div>
+        {% if orden.fecha_servicio %}
+        <div>
+          <span style="color:var(--gs);font-size:.78rem;">Fecha y hora</span>
+          <div style="font-weight:600;color:var(--bl);margin-top:2px;">{{ orden.fecha_servicio|string|truncate(10,True,"") }}</div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Bicicleta -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Bicicleta</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div>
+          <span style="color:var(--gs);font-size:.78rem;">Marca / Modelo</span>
+          <div style="font-weight:600;color:var(--bl);margin-top:2px;">{{ orden.bici_marca }} {{ orden.bici_modelo }}</div>
+        </div>
+        <div>
+          <span style="color:var(--gs);font-size:.78rem;">Tipo</span>
+          <div style="font-weight:600;color:var(--bl);margin-top:2px;">{{ orden.bici_tipo }}</div>
+        </div>
+        <div>
+          <span style="color:var(--gs);font-size:.78rem;">Color</span>
+          <div style="font-weight:600;color:var(--bl);margin-top:2px;">{{ orden.bici_color }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Descripcion del problema -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Problema reportado</span>
+      </div>
+      <p style="margin:0;font-size:.85rem;color:var(--gt);line-height:1.55;">{{ orden.descripcion_problema or 'Sin descripcion.' }}</p>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px;padding-top:12px;border-top:1px solid var(--c3);">
+        <span style="color:var(--gs);font-size:.8rem;">Precio del servicio</span>
+        <span style="color:var(--va);font-weight:700;font-size:1.05rem;">
+          {{ orden.precio_final|cop }}
+        </span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- COLUMNA DERECHA: estado -->
+  <div style="display:flex;flex-direction:column;gap:16px;">
+
+    <!-- Estado actual visual -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Estado actual</span>
+        <span style="
+          font-size:.7rem;font-weight:700;padding:4px 10px;border-radius:99px;
+          {% if orden.estado == 'pendiente' %}background:rgba(255,214,0,.12);color:var(--am);border:1px solid rgba(255,214,0,.25);
+          {% elif orden.estado == 'asignada' %}background:rgba(0,200,83,.1);color:var(--va);border:1px solid rgba(0,200,83,.25);
+          {% elif orden.estado == 'en_camino' %}background:rgba(33,150,243,.1);color:#64b5f6;border:1px solid rgba(33,150,243,.25);
+          {% elif orden.estado == 'proceso' %}background:rgba(105,240,174,.08);color:var(--vn);border:1px solid rgba(105,240,174,.25);
+          {% elif orden.estado == 'completada' %}background:rgba(0,200,83,.15);color:var(--va);border:1px solid rgba(0,200,83,.3);
+          {% else %}background:rgba(239,83,80,.1);color:#ff8a80;border:1px solid rgba(239,83,80,.25);{% endif %}
+        ">{{ orden.estado|replace('_',' ')|capitalize }}</span>
+      </div>
+
+      <!-- Timeline dinámico -->
+      {% set estados_lista = pasos | map(attribute=0) | list %}
+      {% set idx_actual = estados_lista.index(orden.estado) if orden.estado in estados_lista else 0 %}
+      <div class="timeline" style="margin:16px 0 8px;">
+        {% for val, label in pasos %}
+          {% set idx = loop.index0 %}
+          <div class="tl-step">
+            <div class="tl-dot {{ 'done' if idx < idx_actual else ('done active' if idx == idx_actual and orden.estado == 'completada' else ('active' if idx == idx_actual else '')) }}">
+              {% if idx < idx_actual or orden.estado == 'completada' %}&#10003;{% else %}{{ loop.index }}{% endif %}
+            </div>
+            <div class="tl-label {{ 'active' if idx == idx_actual }}">{{ label }}</div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- ACTUALIZAR ESTADO — botones dinámicos según tipo -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Actualizar estado</span>
+      </div>
+      <form method="POST" action="/mecanico/orden/{{ orden.id }}/estado" id="form-estado">
+        <input type="hidden" name="estado" id="estado-hidden" value="{{ orden.estado }}">
+
+        <div style="display:grid;grid-template-columns:{% if botones|length == 3 %}1fr 1fr 1fr{% else %}1fr 1fr{% endif %};gap:10px;margin-bottom:16px;">
+          {% for val, label, sublabel, bg_base, bg_sel, border_sel, color in botones %}
+          <div onclick="selEstado('{{ val }}')" id="card-{{ val }}"
+               data-bg-base="{{ bg_base }}" data-bg-sel="{{ bg_sel }}"
+               data-border-sel="{{ border_sel }}" data-color="{{ color }}"
+               style="padding:14px;border-radius:10px;cursor:pointer;border:2px solid transparent;
+                      background:{{ bg_base }};transition:all .2s;text-align:center;">
+            <div style="margin-bottom:6px;">
+              {% if val == 'asignada' %}
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="{{ color }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+                <polyline points="16 11 18 13 22 9"/>
+              </svg>
+              {% elif val == 'en_camino' %}
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="{{ color }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                {% if tipo == 'recogida' %}
+                <rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+                {% else %}
+                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                {% endif %}
+              </svg>
+              {% elif val == 'proceso' %}
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="{{ color }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/>
+              </svg>
+              {% elif val == 'completada' %}
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="{{ color }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+              </svg>
+              {% endif %}
+            </div>
+            <p style="margin:0;font-size:.78rem;font-weight:700;color:{{ color }};">{{ label }}</p>
+            <p style="margin:2px 0 0;font-size:.67rem;color:var(--gs);">{{ sublabel }}</p>
+          </div>
+          {% endfor %}
+        </div>
+
+        <!-- Observaciones -->
+        <div style="margin-bottom:14px;">
+          <label class="form-label">Observaciones tecnicas</label>
+          <textarea name="observaciones" class="form-textarea" placeholder="Describe el trabajo realizado, repuestos usados, recomendaciones..." style="min-height:90px;">{{ orden.observaciones_mecanico or '' }}</textarea>
+        </div>
+
+        <button type="submit" class="btn btn-neon btn-full" style="padding:12px;font-weight:700;">
+          Guardar cambios
+        </button>
+      </form>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const estadoActual = '{{ orden.estado }}';
+
+function selEstado(val) {
+  document.getElementById('estado-hidden').value = val;
+  document.querySelectorAll('[id^="card-"]').forEach(c => {
+    const k = c.id.replace('card-', '');
+    if (k === val) {
+      c.style.background  = c.dataset.bgSel;
+      c.style.borderColor = c.dataset.borderSel;
+      c.style.boxShadow   = '0 4px 16px ' + c.dataset.bgSel;
+      c.style.transform   = 'translateY(-2px)';
+    } else {
+      c.style.background  = c.dataset.bgBase;
+      c.style.borderColor = 'transparent';
+      c.style.boxShadow   = 'none';
+      c.style.transform   = '';
+    }
+  });
+}
+
+// Marcar estado actual al cargar
+const cards = document.querySelectorAll('[id^="card-"]');
+const keys = Array.from(cards).map(c => c.id.replace('card-',''));
+selEstado(keys.includes(estadoActual) ? estadoActual : keys[0]);
+</script>
+{% endblock %}

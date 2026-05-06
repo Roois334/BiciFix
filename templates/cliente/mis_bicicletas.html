@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Mis Bicicletas — BiciFix{% endblock %}
+{% block content %}
+<div class="page-header animate-in">
+  <div class="page-header-info">
+    <h1 class="page-title"><i class="ti ti-bike"></i> Mis Bicicletas</h1>
+    <p class="page-sub">Gestiona las bicicletas registradas en tu cuenta.</p>
+  </div>
+  <div class="page-header-actions">
+    <button onclick="document.getElementById('modal-bici').style.display='flex'" class="btn btn-neon">+ Agregar bicicleta</button>
+  </div>
+</div>
+{% if bicicletas %}
+<div class="bici-grid animate-in">
+  {% for b in bicicletas %}
+  <div class="bici-card">
+    <div class="bici-emoji"><i class="ti ti-bike" style="font-size:1.8rem;color:var(--va);"></i></div>
+    <div class="bici-nombre">{{ b.marca }} {{ b.modelo }}</div>
+    <div class="bici-info">{{ b.tipo }} · {{ b.color }} {% if b.anio %}· {{ b.anio }}{% endif %}</div>
+    {% if b.descripcion %}<p style="font-size:.8rem;color:var(--gs);margin-top:8px;">{{ b.descripcion }}</p>{% endif %}
+    <div style="margin-top:14px;display:flex;gap:8px;">
+      <a href="/solicitar?bici={{ b.id }}" class="btn btn-primary btn-sm" style="flex:1;justify-content:center;">Solicitar servicio</a>
+      <form method="POST" action="/mis-bicicletas/{{ b.id }}/eliminar" style="display:inline;">
+        <button class="btn btn-danger btn-sm" onclick="return confirm('¿Eliminar esta bicicleta?')">Eliminar</button>
+      </form>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state animate-in">
+  <div class="es-icon"><i class="ti ti-bike" style="font-size:2.5rem;color:var(--va);opacity:.6;"></i></div>
+  <div class="es-title">Sin bicicletas registradas</div>
+  <div class="es-sub">Agrega tu primera bicicleta para solicitar servicios.</div>
+</div>
+{% endif %}
+
+<div id="modal-bici" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;align-items:center;justify-content:center;">
+  <div class="card" style="width:100%;max-width:480px;">
+    <div class="card-header">
+      <span class="card-title"><i class="ti ti-bike"></i> Nueva bicicleta</span>
+      <button onclick="document.getElementById('modal-bici').style.display='none'" class="btn btn-sm btn-outline">&times;</button>
+    </div>
+    <form method="POST" action="/mis-bicicletas/agregar">
+      <div class="grid-2" style="gap:14px;">
+        <div class="form-group"><label class="form-label">Marca</label><input type="text" name="marca" class="form-input" placeholder="Trek, Giant, Specialized..." required></div>
+        <div class="form-group"><label class="form-label">Modelo</label><input type="text" name="modelo" class="form-input" placeholder="FX3, Talon..." required></div>
+        <div class="form-group"><label class="form-label">Color</label><input type="text" name="color" class="form-input" placeholder="Rojo, Negro..." required></div>
+        <div class="form-group"><label class="form-label">Año</label><input type="number" name="anio" class="form-input" placeholder="2022" min="1980" max="2026"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tipo de bicicleta</label>
+        <select name="tipo" class="form-select" required>
+          <option value="">-- Selecciona --</option>
+          <option value="Urbana">Urbana</option>
+          <option value="MTB">MTB (Montaña)</option>
+          <option value="Ruta">Ruta</option>
+          <option value="BMX">BMX</option>
+          <option value="Electrica">Eléctrica</option>
+          <option value="Otra">Otra</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Descripción adicional</label><textarea name="descripcion" class="form-textarea" placeholder="Notas sobre tu bicicleta..." style="min-height:70px;"></textarea></div>
+      <button type="submit" class="btn btn-neon btn-full">Agregar bicicleta</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% block title %}Perfil de {{ u.nombre }} — BiciFix Admin{% endblock %}
+{% block content %}
+
+<div class="page-header animate-in">
+  <div class="page-header-info">
+    <h1 class="page-title"><i class="ti ti-user-circle"></i> {{ u.nombre }} {{ u.apellido }}</h1>
+    <p class="page-sub">
+      <span style="font-size:.7rem;font-weight:700;padding:2px 9px;border-radius:99px;
+        {% if u.rol=='admin' %}background:rgba(239,83,80,.12);color:#ff8a80;border:1px solid rgba(239,83,80,.3);
+        {% elif u.rol=='mecanico' %}background:rgba(255,193,7,.12);color:#d4a017;border:1px solid rgba(255,193,7,.3);
+        {% else %}background:rgba(100,181,246,.12);color:#64b5f6;border:1px solid rgba(100,181,246,.3);{% endif %}">
+        {{ u.rol|capitalize }}
+      </span>
+      &nbsp;·&nbsp;
+      <span style="font-size:.78rem;
+        {% if u.activo %}color:var(--va){% else %}color:#ff8a80{% endif %}">
+        {{ 'Activo' if u.activo else 'Bloqueado' }}
+      </span>
+    </p>
+  </div>
+  <div class="page-header-actions">
+    <a href="/admin/usuarios" class="btn btn-outline btn-sm">← Volver</a>
+  </div>
+</div>
+
+<div class="grid-2 animate-in" style="align-items:start;">
+
+  <!-- Columna izquierda: datos del usuario -->
+  <div style="display:flex;flex-direction:column;gap:16px;">
+
+    <!-- Datos personales -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Datos personales</span>
+        <form method="POST" action="/admin/usuario/{{ u.id }}/toggle" style="display:inline;">
+          <button type="submit"
+            style="padding:5px 14px;border-radius:7px;font-size:.75rem;font-weight:700;cursor:pointer;border:1px solid;transition:opacity .15s;
+              {% if u.activo %}background:rgba(239,83,80,.1);border-color:rgba(239,83,80,.3);color:#ff8a80;
+              {% else %}background:rgba(0,200,83,.1);border-color:rgba(0,200,83,.3);color:var(--va);{% endif %}"
+            onmouseover="this.style.opacity='.7'" onmouseout="this.style.opacity='1'">
+            {{ 'Bloquear usuario' if u.activo else 'Activar usuario' }}
+          </button>
+        </form>
+      </div>
+
+      <!-- Avatar grande -->
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--c3);">
+        
+        <div>
+          <div style="font-size:1.1rem;font-weight:700;color:var(--bl);">{{ u.nombre }} {{ u.apellido }}</div>
+          <div style="font-size:.82rem;color:var(--gs);margin-top:2px;">ID #{{ u.id }}</div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div>
+          <span style="font-size:.74rem;color:var(--gs);font-weight:600;text-transform:uppercase;letter-spacing:.05em;">Correo</span>
+          <div style="font-size:.9rem;color:var(--bl);margin-top:3px;font-weight:500;">{{ u.email }}</div>
+        </div>
+        <div>
+          <span style="font-size:.74rem;color:var(--gs);font-weight:600;text-transform:uppercase;letter-spacing:.05em;">Teléfono</span>
+          <div style="font-size:.9rem;color:var(--bl);margin-top:3px;font-weight:500;">{{ u.telefono or "—" }}</div>
+        </div>
+        <div>
+          <span style="font-size:.74rem;color:var(--gs);font-weight:600;text-transform:uppercase;letter-spacing:.05em;">Ciudad</span>
+          <div style="font-size:.9rem;color:var(--bl);margin-top:3px;font-weight:500;">{{ u.ciudad or "—" }}</div>
+        </div>
+        <div>
+          <span style="font-size:.74rem;color:var(--gs);font-weight:600;text-transform:uppercase;letter-spacing:.05em;">Fecha de registro</span>
+          <div style="font-size:.9rem;color:var(--bl);margin-top:3px;font-weight:500;">{{ u.fecha_registro|fecha }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Datos extra si es mecánico -->
+    {% if u.rol == 'mecanico' %}
+    <div class="card">
+      <div class="card-header"><span class="card-title">Datos del mecánico</span></div>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div>
+          <span style="font-size:.74rem;color:var(--gs);font-weight:600;text-transform:uppercase;letter-spacing:.05em;">Zona de trabajo</span>
+          <div style="font-size:.9rem;color:var(--bl);margin-top:3px;font-weight:500;">{{ u.zona or "Sin asignar" }}</div>
+        </div>
+        <div style="display:flex;gap:20px;">
+          <div>
+            <span style="font-size:.74rem;color:var(--gs);font-weight:600;text-transform:uppercase;letter-spacing:.05em;">Calificación</span>
+            <div style="font-size:1.2rem;color:var(--am);margin-top:3px;font-weight:800;">
+              {{ u.calificacion_promedio or "N/A" }}
+              {% if u.calificacion_promedio %}<span style="font-size:.75rem;color:var(--gs);">/5.0</span>{% endif %}
+            </div>
+          </div>
+          <div>
+            <span style="font-size:.74rem;color:var(--gs);font-weight:600;text-transform:uppercase;letter-spacing:.05em;">Servicios totales</span>
+            <div style="font-size:1.2rem;color:var(--va);margin-top:3px;font-weight:800;">{{ u.total_servicios or 0 }}</div>
+          </div>
+        </div>
+        <div>
+          <span style="font-size:.74rem;color:var(--gs);font-weight:600;text-transform:uppercase;letter-spacing:.05em;">Estado operativo</span>
+          <div style="margin-top:4px;">
+            <span style="font-size:.75rem;font-weight:700;padding:3px 10px;border-radius:99px;
+              {% if u.estado_mecanico == 'disponible' %}background:rgba(0,200,83,.12);color:var(--va);border:1px solid rgba(0,200,83,.3);
+              {% elif u.estado_mecanico == 'ocupado' %}background:rgba(255,193,7,.12);color:#d4a017;border:1px solid rgba(255,193,7,.3);
+              {% else %}background:rgba(150,150,150,.1);color:var(--gs);border:1px solid rgba(150,150,150,.2);{% endif %}">
+              {{ (u.estado_mecanico or 'sin estado')|capitalize }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+
+  <!-- Columna derecha: historial de órdenes -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">
+        {% if u.rol == 'cliente' %}Últimas órdenes{% else %}Últimos servicios atendidos{% endif %}
+      </span>
+      <span style="font-size:.73rem;color:var(--gs);">Últimos 10</span>
+    </div>
+
+    {% if ordenes %}
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      {% for o in ordenes %}
+      <div style="padding:12px 14px;border-radius:9px;background:rgba(255,255,255,.03);border:1px solid var(--c3);">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px;">
+          <div style="font-size:.85rem;font-weight:600;color:var(--bl);">
+            {{ o.servicio_nombre }}
+            <span style="font-size:.75rem;color:var(--gs);font-weight:400;">#{{ o.id }}</span>
+          </div>
+          <span style="font-size:.67rem;font-weight:700;padding:2px 8px;border-radius:99px;white-space:nowrap;
+            {% if o.estado=='completada' %}background:rgba(0,200,83,.12);color:var(--va);border:1px solid rgba(0,200,83,.25);
+            {% elif o.estado=='pendiente' %}background:rgba(255,214,0,.1);color:var(--am);border:1px solid rgba(255,214,0,.2);
+            {% elif o.estado=='proceso' %}background:rgba(105,240,174,.08);color:var(--vn);border:1px solid rgba(105,240,174,.2);
+            {% elif o.estado=='cancelada' %}background:rgba(239,83,80,.1);color:#ff8a80;border:1px solid rgba(239,83,80,.2);
+            {% else %}background:rgba(100,181,246,.1);color:#64b5f6;border:1px solid rgba(100,181,246,.2);{% endif %}">
+            {{ o.estado|replace('_',' ')|capitalize }}
+          </span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div style="font-size:.76rem;color:var(--gs);">
+            {{ o.fecha_solicitud|string|truncate(10,True,"") }}
+            {% if u.rol == 'mecanico' and o.cliente_nombre %}
+              &nbsp;·&nbsp; {{ o.cliente_nombre }}
+            {% endif %}
+          </div>
+          <div style="font-size:.82rem;font-weight:700;color:var(--va);">
+            {{ o.precio_final|cop }}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align:center;padding:30px;color:var(--gs);font-size:.85rem;">
+      Sin órdenes registradas.
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

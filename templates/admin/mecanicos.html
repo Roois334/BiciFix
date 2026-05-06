@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Mecánicos — BiciFix Admin{% endblock %}
+{% block content %}
+<div class="page-header animate-in">
+  <div class="page-header-info">
+    <h1 class="page-title"><i class="ti ti-tool"></i> Gestión de Mecánicos</h1>
+    <p class="page-sub">Estado, zonas y desempeño de cada mecánico.</p>
+  </div>
+</div>
+<div class="card animate-in">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Mecánico</th>
+          <th>Correo</th>
+          <th>Zona</th>
+          <th>Calificación</th>
+          <th>Servicios</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for m in mecanicos %}
+        <tr>
+          <td class="td-main">{{ m.nombre }} {{ m.apellido }}</td>
+          <td>{{ m.email }}</td>
+          <td>{{ m.zona or "Sin zona" }}</td>
+          <td style="color:var(--am);font-weight:600;">{{ m.calificacion_promedio or "N/A" }}</td>
+          <td>{{ m.total_servicios }}</td>
+          <td><span class="badge badge-{{ m.estado_mecanico }}">{{ m.estado_mecanico|capitalize }}</span></td>
+          <td><a href="/admin/mecanico/{{ m.id }}" class="btn btn-outline btn-sm">Ver perfil</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

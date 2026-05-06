@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Historial — BiciFix{% endblock %}
+{% block content %}
+<div class="page-header animate-in">
+  <div class="page-header-info">
+    <h1 class="page-title"><i class="ti ti-history"></i> Mi Historial</h1>
+    <p class="page-sub">Todos los servicios que has realizado.</p>
+  </div>
+</div>
+<div class="card animate-in">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>#</th><th>Servicio</th><th>Cliente</th><th>Fecha</th><th>Precio</th><th>Calificación</th><th>Estado</th></tr></thead>
+      <tbody>
+        {% for o in ordenes %}
+        <tr>
+          <td class="td-main">#{{ o.id }}</td>
+          <td>{{ o.servicio_nombre }}</td>
+          <td>{{ o.cliente_nombre }}</td>
+          <td>{{ o.fecha_servicio|fecha }}</td>
+          <td style="color:var(--va);">{{ o.precio_final|cop }}</td>
+          <td>{% if o.calificacion %}<span style="color:var(--am);">{{ o.calificacion }} <i class="ti ti-star" style="color:var(--am);font-size:.85rem;"></i></span>{% else %}<span style="color:var(--gs);">Sin calificar</span>{% endif %}</td>
+          <td><span class="badge badge-{{ o.estado }}">{{ o.estado|capitalize }}</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

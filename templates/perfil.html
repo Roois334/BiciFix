@@ -1,0 +1,237 @@
+{% extends "base.html" %}
+{% block title %}Mi Perfil — BiciFix{% endblock %}
+{% block content %}
+
+<div class="page-header animate-in">
+  <div class="page-header-info">
+    <h1 class="page-title"><i class="ti ti-user"></i> Mi Perfil</h1>
+    <p class="page-sub">Consulta y actualiza tu información personal.</p>
+  </div>
+</div>
+
+<div class="perfil-header animate-in">
+  <div>
+    <div class="perfil-nombre">{{ user.nombre }} {{ user.apellido }}</div>
+    <div class="perfil-email">{{ user.email }}</div>
+    <div style="margin-top:10px;">
+      <span class="pd-role role-{{ user.rol }}" style="font-size:.72rem;padding:4px 14px;">
+        {% if user.rol == 'admin' %}Administrador
+        {% elif user.rol == 'mecanico' %}Mecánico
+        {% else %}Cliente{% endif %}
+      </span>
+    </div>
+  </div>
+</div>
+
+<div class="grid-2 animate-in">
+
+  <!-- ACTUALIZAR DATOS -->
+  <div class="card">
+    <div class="card-header"><span class="card-title">Actualizar datos</span></div>
+    <form method="POST" action="/perfil/actualizar">
+      <div class="form-group">
+        <label class="form-label">Nombre</label>
+        <input type="text" name="nombre" class="form-input" value="{{ user.nombre }}" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Apellido</label>
+        <input type="text" name="apellido" class="form-input" value="{{ user.apellido }}" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Teléfono</label>
+        <input type="tel" name="telefono" class="form-input" value="{{ user.telefono or '' }}">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Ciudad</label>
+        <input type="text" name="ciudad" class="form-input" value="{{ user.ciudad or '' }}">
+      </div>
+      <button type="submit" class="btn btn-primary btn-full">Guardar cambios</button>
+    </form>
+  </div>
+
+  <!-- CAMBIAR CONTRASEÑA -->
+  <div class="card">
+    <div class="card-header"><span class="card-title">Cambiar contraseña</span></div>
+    <form method="POST" action="/perfil/cambiar-password" id="pwForm" novalidate>
+
+      <!-- Contraseña actual -->
+      <div class="form-group">
+        <label class="form-label">Contraseña actual</label>
+        <div class="pf-wrap">
+          <input type="password" name="actual" id="pf-actual" class="form-input pf-input" placeholder="••••••••" required autocomplete="current-password">
+          <button type="button" class="pf-eye" onclick="pfToggle('pf-actual','peo0','pec0')">
+            <svg id="peo0" viewBox="0 0 24 24" fill="none" width="17" height="17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            <svg id="pec0" viewBox="0 0 24 24" fill="none" width="17" height="17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Nueva contraseña -->
+      <div class="form-group">
+        <div class="pf-label-row">
+          <label class="form-label" style="margin:0">Nueva contraseña</label>
+          <span class="pf-err" id="pf-err-nueva">No cumple los requisitos</span>
+        </div>
+        <div class="pf-wrap">
+          <input type="password" name="nueva" id="pf-nueva" class="form-input pf-input" placeholder="Mínimo 6 caracteres" required autocomplete="new-password">
+          <button type="button" class="pf-eye" onclick="pfToggle('pf-nueva','peo1','pec1')">
+            <svg id="peo1" viewBox="0 0 24 24" fill="none" width="17" height="17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            <svg id="pec1" viewBox="0 0 24 24" fill="none" width="17" height="17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+          </button>
+        </div>
+        <!-- Barra fortaleza -->
+        <div class="pf-strength" id="pf-strength">
+          <div class="pf-bars">
+            <div class="pf-bar" id="pb1"></div><div class="pf-bar" id="pb2"></div>
+            <div class="pf-bar" id="pb3"></div><div class="pf-bar" id="pb4"></div>
+          </div>
+          <div class="pf-slabel" id="pf-slabel">Escribe tu contraseña</div>
+          <div class="pf-reqs">
+            <div class="pf-req" id="preq-len"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9" class="req-circle"/><path d="M9 12l2 2 4-4" class="req-check" stroke="currentColor"/></svg>Mínimo 6 caracteres</div>
+            <div class="pf-req" id="preq-upper"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9" class="req-circle"/><path d="M9 12l2 2 4-4" class="req-check" stroke="currentColor"/></svg>Una mayúscula</div>
+            <div class="pf-req" id="preq-num"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9" class="req-circle"/><path d="M9 12l2 2 4-4" class="req-check" stroke="currentColor"/></svg>Un número</div>
+            <div class="pf-req" id="preq-lower"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9" class="req-circle"/><path d="M9 12l2 2 4-4" class="req-check" stroke="currentColor"/></svg>Una minúscula</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Confirmar -->
+      <div class="form-group">
+        <div class="pf-label-row">
+          <label class="form-label" style="margin:0">Confirmar nueva</label>
+          <span class="pf-err" id="pf-err-conf">No coinciden</span>
+          <span class="pf-ok"  id="pf-ok-conf">Coinciden ✓</span>
+        </div>
+        <div class="pf-wrap">
+          <input type="password" name="confirmar" id="pf-conf" class="form-input pf-input" placeholder="Repite la nueva contraseña" required autocomplete="new-password">
+          <button type="button" class="pf-eye" onclick="pfToggle('pf-conf','peo2','pec2')">
+            <svg id="peo2" viewBox="0 0 24 24" fill="none" width="17" height="17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            <svg id="pec2" viewBox="0 0 24 24" fill="none" width="17" height="17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-outline btn-full">Cambiar contraseña</button>
+    </form>
+
+    <div class="separator"></div>
+    <a href="/logout" class="btn btn-danger btn-full">Cerrar sesión</a>
+  </div>
+</div>
+
+<style>
+.pf-wrap { position: relative; }
+.pf-input { padding-right: 44px !important; }
+.pf-eye {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; cursor: pointer; color: var(--gs); padding: 4px;
+  display: flex; align-items: center; border-radius: 6px; transition: color .18s, background .18s; z-index:1;
+}
+.pf-eye:hover { color: var(--va); background: rgba(0,200,83,.08); }
+.pf-label-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.pf-err { font-size:.68rem; font-weight:600; color:#EF5350; display:none; }
+.pf-ok  { font-size:.68rem; font-weight:600; color:var(--va); display:none; }
+.pf-strength { margin-top:8px; display:none; }
+.pf-bars { display:flex; gap:4px; margin-bottom:5px; }
+.pf-bar  { flex:1; height:3px; border-radius:99px; background:rgba(255,255,255,.08); transition:background .25s; }
+.pf-bar.pw-w { background:#EF5350; }
+.pf-bar.pw-m { background:#FFD600; }
+.pf-bar.pw-s { background:var(--va); }
+.pf-slabel { font-size:.67rem; font-weight:600; color:var(--gs); }
+.pf-reqs { margin-top:10px; display:grid; grid-template-columns:1fr 1fr; gap:5px 12px; }
+.pf-req  { display:flex; align-items:center; gap:5px; font-size:.68rem; color:var(--gs); transition:color .2s; }
+.pf-req .req-circle { stroke:var(--gs); }
+.pf-req .req-check  { opacity:0; }
+.pf-req.met { color:var(--va); }
+.pf-req.met .req-circle { stroke:var(--va); }
+.pf-req.met .req-check  { opacity:1; }
+.form-input.pf-ok-b  { border-color:var(--va) !important; }
+.form-input.pf-err-b { border-color:#EF5350 !important; }
+</style>
+
+<script>
+function pfToggle(iId, oId, cId) {
+  const inp = document.getElementById(iId);
+  const eo  = document.getElementById(oId);
+  const ec  = document.getElementById(cId);
+  if (inp.type === 'password') { inp.type='text'; eo.style.display='none'; ec.style.display='block'; }
+  else { inp.type='password'; eo.style.display='block'; ec.style.display='none'; }
+}
+
+const pwNueva = document.getElementById('pf-nueva');
+const pfBars  = ['pb1','pb2','pb3','pb4'].map(id => document.getElementById(id));
+const pfSLbl  = document.getElementById('pf-slabel');
+const pfStrBx = document.getElementById('pf-strength');
+const pfErrN  = document.getElementById('pf-err-nueva');
+
+function pfReq(id, met) {
+  document.getElementById(id).classList.toggle('met', met);
+}
+
+function pfStrength(pw) {
+  const hasLen   = pw.length >= 6;
+  const hasUpper = /[A-ZÁÉÍÓÚÜ]/.test(pw);
+  const hasLower = /[a-záéíóúü]/.test(pw);
+  const hasNum   = /\d/.test(pw);
+  const hasSpec  = /[^a-zA-Z0-9áéíóúüÁÉÍÓÚÜñÑ]/.test(pw);
+  pfReq('preq-len',   hasLen);
+  pfReq('preq-upper', hasUpper);
+  pfReq('preq-lower', hasLower);
+  pfReq('preq-num',   hasNum);
+  const score = [hasLen,hasUpper,hasLower,hasNum,hasSpec].filter(Boolean).length;
+  return { score, hasLen, hasUpper, hasLower, hasNum };
+}
+
+pwNueva.addEventListener('focus', () => pfStrBx.style.display = 'block');
+pwNueva.addEventListener('input', () => {
+  const pw = pwNueva.value;
+  if (!pw) { pfBars.forEach(b => b.className='pf-bar'); pfSLbl.textContent='Escribe tu contraseña'; return; }
+  const { score } = pfStrength(pw);
+  const cls = score<=2?'pw-w':score<=3?'pw-m':'pw-s';
+  const fill = score<=2?score:score<=3?3:4;
+  pfBars.forEach((b,i) => b.className = 'pf-bar'+(i<fill?' '+cls:''));
+  pfSLbl.textContent = ['','Muy débil','Débil','Regular','Fuerte','Muy fuerte'][Math.min(score,5)];
+  pfCheckConf();
+});
+pwNueva.addEventListener('blur', () => {
+  const pw = pwNueva.value; if (!pw) return;
+  const { hasLen, hasUpper } = pfStrength(pw);
+  const ok = hasLen && hasUpper;
+  pwNueva.classList.toggle('pf-err-b', !ok);
+  pwNueva.classList.toggle('pf-ok-b',   ok);
+  pfErrN.style.display = ok ? 'none' : 'inline';
+});
+
+const pfConf    = document.getElementById('pf-conf');
+const pfErrConf = document.getElementById('pf-err-conf');
+const pfOkConf  = document.getElementById('pf-ok-conf');
+
+function pfCheckConf() {
+  const conf = pfConf.value; if (!conf) return;
+  const match = pwNueva.value === conf;
+  pfConf.classList.toggle('pf-ok-b',  match);
+  pfConf.classList.toggle('pf-err-b', !match);
+  pfErrConf.style.display = match ? 'none'   : 'inline';
+  pfOkConf.style.display  = match ? 'inline' : 'none';
+}
+pfConf.addEventListener('input', pfCheckConf);
+pfConf.addEventListener('blur',  pfCheckConf);
+
+document.getElementById('pwForm').addEventListener('submit', function(e) {
+  const actual = document.getElementById('pf-actual').value;
+  const nueva  = pwNueva.value;
+  const conf   = pfConf.value;
+  if (!actual || !nueva || !conf) { e.preventDefault(); return; }
+  const { hasLen, hasUpper } = pfStrength(nueva);
+  if (!hasLen || !hasUpper) {
+    e.preventDefault();
+    pwNueva.classList.add('pf-err-b'); pfErrN.style.display='inline'; pwNueva.focus(); return;
+  }
+  if (nueva !== conf) {
+    e.preventDefault();
+    pfConf.classList.add('pf-err-b'); pfErrConf.style.display='inline'; pfConf.focus();
+  }
+});
+</script>
+
+{% endblock %}

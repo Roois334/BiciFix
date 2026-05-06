@@ -1,0 +1,274 @@
+{% extends "base.html" %}
+{% block title %}Mis Órdenes — BiciFix{% endblock %}
+{% block content %}
+<div class="page-header animate-in">
+  <div class="page-header-info">
+    <h1 class="page-title"><i class="ti ti-tool"></i> Mis Órdenes del Día</h1>
+    <p class="page-sub">Hola {{ session['usuario']['nombre'] }} — Aquí están tus servicios asignados.</p>
+  </div>
+</div>
+
+<!-- KPIs -->
+<div class="kpi-grid animate-in">
+  <div class="kpi-card kc-blue">
+    <div class="kpi-icon"><i class="ti ti-clipboard-list" aria-hidden="true"></i></div>
+    <div class="kpi-label">Órdenes hoy</div>
+    <div class="kpi-value">{{ stats.hoy }}</div>
+  </div>
+  <div class="kpi-card kc-amber">
+    <div class="kpi-icon"><i class="ti ti-clock-hour-4" aria-hidden="true"></i></div>
+    <div class="kpi-label">Pendientes</div>
+    <div class="kpi-value">{{ stats.pendientes }}</div>
+  </div>
+  <div class="kpi-card kc-teal">
+    <div class="kpi-icon"><i class="ti ti-circle-check" aria-hidden="true"></i></div>
+    <div class="kpi-label">Completadas hoy</div>
+    <div class="kpi-value">{{ stats.completadas }}</div>
+  </div>
+  <div class="kpi-card kc-amber">
+    <div class="kpi-icon"><i class="ti ti-star" aria-hidden="true"></i></div>
+    <div class="kpi-label">Mi calificación</div>
+    <div class="kpi-value">{{ stats.calificacion }}</div>
+  </div>
+</div>
+
+<!-- PANEL DE DISPONIBILIDAD -->
+<div class="card animate-in" style="margin-bottom:20px;">
+  <div class="card-header">
+    <span class="card-title"><i class="ti ti-clock-pause"></i> Mi disponibilidad</span>
+    {% if pausa_activa %}
+    <span style="display:flex;align-items:center;gap:6px;font-size:.72rem;font-weight:700;
+                 padding:4px 12px;border-radius:99px;
+                 background:rgba(255,145,0,.12);color:#ff9100;border:1px solid rgba(255,145,0,.3);">
+      <span style="width:7px;height:7px;border-radius:50%;background:#ff9100;
+                   animation:pulse-dot 1s infinite;display:inline-block;"></span>
+      En pausa
+    </span>
+    {% else %}
+    <span style="display:flex;align-items:center;gap:6px;font-size:.72rem;font-weight:700;
+                 padding:4px 12px;border-radius:99px;
+                 background:rgba(0,200,83,.12);color:var(--va);border:1px solid rgba(0,200,83,.3);">
+      <span style="width:7px;height:7px;border-radius:50%;background:var(--va);display:inline-block;"></span>
+      Disponible
+    </span>
+    {% endif %}
+  </div>
+
+  {% if pausa_activa %}
+  <div style="display:flex;gap:20px;align-items:center;flex-wrap:wrap;">
+    <div style="flex:1;padding:16px 20px;background:rgba(255,145,0,.07);
+                border:1px solid rgba(255,145,0,.22);border-radius:12px;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+        <div>
+          <p style="margin:0;font-weight:700;color:#ff9100;font-size:.95rem;">{{ pausa_activa.motivo }}</p>
+          <p style="margin:2px 0 0;font-size:.78rem;color:var(--gs);">
+            Regresa a las <strong style="color:var(--bl);">{{ pausa_activa.fin.strftime('%H:%M') }}</strong>
+          </p>
+        </div>
+      </div>
+      <div style="background:rgba(255,145,0,.15);border-radius:99px;height:6px;overflow:hidden;">
+        <div id="barra-pausa" style="height:100%;background:linear-gradient(90deg,#ff9100,#ffb74d);
+             border-radius:99px;transition:width 1s linear;"
+             data-inicio="{{ pausa_activa.inicio }}" data-fin="{{ pausa_activa.fin }}"></div>
+      </div>
+      <p style="margin:6px 0 0;font-size:.72rem;color:var(--gs);">
+        Tiempo restante: <span id="cuenta-regresiva" style="font-weight:700;color:#ff9100;"></span>
+      </p>
+    </div>
+    <form method="POST" action="/mecanico/pausa/cancelar">
+      <button type="submit" style="
+        background:rgba(0,200,83,.1);border:1px solid rgba(0,200,83,.3);
+        color:var(--va);font-weight:700;font-size:.82rem;
+        padding:11px 20px;border-radius:10px;cursor:pointer;transition:all .2s;white-space:nowrap;">
+        <i class="ti ti-player-play" style="margin-right:5px;"></i>Estoy de vuelta
+      </button>
+    </form>
+  </div>
+
+  {% else %}
+  <p style="margin:0 0 16px;font-size:.83rem;color:var(--gs);">
+    Programa tus pausas para que los clientes no puedan agendar citas en esos horarios.
+  </p>
+
+  <div>
+    <form method="POST" action="/mecanico/pausa/programar" style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;">
+      <div style="flex:1;min-width:150px;">
+        <label style="font-size:.72rem;color:var(--gs);font-weight:600;display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em;">Motivo</label>
+        <select name="motivo" class="form-select">
+          <option value="Almuerzo">🍽️ Almuerzo</option>
+          <option value="Descanso">☕ Descanso</option>
+          <option value="Diligencia personal">🚶 Diligencia personal</option>
+          <option value="Reunion">🤝 Reunión</option>
+          <option value="Otro">📌 Otro</option>
+        </select>
+      </div>
+      <div style="min-width:150px;">
+        <label style="font-size:.72rem;color:var(--gs);font-weight:600;display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em;">Fecha</label>
+        <input type="date" name="fecha" id="fecha-prog" class="form-select" style="cursor:pointer;" required>
+      </div>
+      <div style="min-width:130px;">
+        <label style="font-size:.72rem;color:var(--gs);font-weight:600;display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em;">Hora inicio</label>
+        <select name="hora_inicio" class="form-select" id="sel-inicio">
+          {% for h in range(8, 18) %}
+            <option value="{{ '%02d'|format(h) }}:00">{{ '%02d'|format(h) }}:00</option>
+            <option value="{{ '%02d'|format(h) }}:30">{{ '%02d'|format(h) }}:30</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div style="min-width:130px;">
+        <label style="font-size:.72rem;color:var(--gs);font-weight:600;display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em;">Hora fin</label>
+        <select name="hora_fin" class="form-select" id="sel-fin">
+          {% for h in range(8, 19) %}
+            <option value="{{ '%02d'|format(h) }}:00" {% if h == 13 %}selected{% endif %}>{{ '%02d'|format(h) }}:00</option>
+            {% if h < 18 %}
+            <option value="{{ '%02d'|format(h) }}:30">{{ '%02d'|format(h) }}:30</option>
+            {% endif %}
+          {% endfor %}
+        </select>
+      </div>
+      <button type="submit" style="
+        background:rgba(99,179,237,.1);border:1px solid rgba(99,179,237,.3);
+        color:#63b3ed;font-weight:700;font-size:.82rem;
+        padding:11px 18px;border-radius:10px;cursor:pointer;transition:all .2s;white-space:nowrap;height:40px;">
+        <i class="ti ti-calendar-plus" style="margin-right:5px;"></i>Agregar al calendario
+      </button>
+    </form>
+  </div>
+  {% endif %}
+</div>
+
+<!-- PAUSAS PROGRAMADAS -->
+{% if pausas_programadas %}
+<div class="card animate-in" style="margin-bottom:20px;">
+  <div class="card-header">
+    <span class="card-title"><i class="ti ti-calendar-event"></i> Pausas programadas</span>
+    <span style="font-size:.75rem;color:var(--gs);">Bloqueadas para nuevas citas</span>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:10px;">
+    {% for p in pausas_programadas %}
+    <div style="display:flex;align-items:center;gap:14px;padding:14px 18px;
+                background:rgba(99,179,237,.06);border:1px solid rgba(99,179,237,.2);
+                border-radius:12px;flex-wrap:wrap;">
+      <div style="width:38px;height:38px;border-radius:10px;background:rgba(99,179,237,.12);
+                  display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.2rem;">
+        {% if 'Almuerzo' in p.motivo %}🍽️
+        {% elif 'Descanso' in p.motivo %}☕
+        {% elif 'Reunion' in p.motivo %}🤝
+        {% elif 'Diligencia' in p.motivo %}🚶
+        {% else %}📌{% endif %}
+      </div>
+      <div style="flex:1;">
+        <p style="margin:0;font-weight:700;color:var(--bl);font-size:.9rem;">{{ p.motivo }}</p>
+        <p style="margin:2px 0 0;font-size:.78rem;color:var(--gs);">
+          <i class="ti ti-calendar" style="font-size:.75rem;"></i> {{ p.fecha_fmt }}
+          &nbsp;·&nbsp;
+          <i class="ti ti-clock" style="font-size:.75rem;"></i> {{ p.hora_inicio }} – {{ p.hora_fin }}
+        </p>
+      </div>
+      <span style="font-size:.72rem;font-weight:700;padding:4px 10px;border-radius:99px;
+                   background:rgba(99,179,237,.12);color:#63b3ed;white-space:nowrap;">
+        {% set ini_min = p.hora_inicio.split(':')[0]|int * 60 + p.hora_inicio.split(':')[1]|int %}
+        {% set fin_min = p.hora_fin.split(':')[0]|int * 60 + p.hora_fin.split(':')[1]|int %}
+        {{ fin_min - ini_min }} min
+      </span>
+      <form method="POST" action="/mecanico/pausa/eliminar/{{ p.id }}"
+            onsubmit="return confirm('¿Eliminar esta pausa programada?')">
+        <button type="submit" style="
+          background:rgba(245,101,101,.08);border:1px solid rgba(245,101,101,.25);
+          color:#fc8181;font-size:.78rem;font-weight:600;padding:7px 13px;
+          border-radius:8px;cursor:pointer;transition:all .2s;white-space:nowrap;">
+          <i class="ti ti-trash"></i> Eliminar
+        </button>
+      </form>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- ÓRDENES ASIGNADAS -->
+<div class="card animate-in">
+  <div class="card-header">
+    <span class="card-title"><i class="ti ti-clipboard-list"></i> Órdenes asignadas</span>
+  </div>
+  {% if ordenes %}
+  <div style="display:flex;flex-direction:column;gap:14px;">
+    {% for o in ordenes %}
+    <div style="padding:18px;background:rgba(27,94,32,.06);border-radius:12px;border:1px solid var(--n4);
+                display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+      <div>
+        <div style="font-weight:700;color:var(--bl);font-size:.95rem;">{{ o.servicio_nombre }}</div>
+        <div style="font-size:.82rem;color:var(--gs);margin-top:3px;display:flex;align-items:center;gap:6px;">
+          <i class="ti ti-user" style="font-size:.8rem;"></i> {{ o.cliente_nombre }}
+          &nbsp;·&nbsp;
+          <i class="ti ti-map-pin" style="font-size:.8rem;"></i> {{ o.ubicacion }}
+        </div>
+        <div style="font-size:.8rem;color:var(--gs);margin-top:2px;display:flex;align-items:center;gap:4px;">
+          <i class="ti ti-clock" style="font-size:.8rem;"></i> {{ o.fecha_servicio|fecha }}
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="badge badge-{{ o.estado }}">{{ o.estado|capitalize }}</span>
+        <a href="/mecanico/orden/{{ o.id }}" class="btn btn-primary btn-sm">Ver detalle</a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="es-icon"><i class="ti ti-mood-happy" style="font-size:2rem;color:var(--va);"></i></div>
+    <div class="es-title">Sin órdenes pendientes</div>
+    <div class="es-sub">Por ahora no tienes órdenes asignadas para hoy.</div>
+  </div>
+  {% endif %}
+</div>
+
+<script>
+// Fecha mínima: mañana
+(function() {
+  const fp = document.getElementById('fecha-prog');
+  if (!fp) return;
+  const manana = new Date();
+  manana.setDate(manana.getDate() + 1);
+  fp.min = manana.toISOString().split('T')[0];
+  fp.value = manana.toISOString().split('T')[0];
+})();
+
+// Validar hora fin > inicio
+const selI = document.getElementById('sel-inicio');
+const selF = document.getElementById('sel-fin');
+if (selI && selF) {
+  function ajustarFin() {
+    const ini = selI.value;
+    Array.from(selF.options).forEach(o => { o.disabled = o.value <= ini; });
+    if (selF.value <= ini) {
+      const next = Array.from(selF.options).find(o => !o.disabled);
+      if (next) selF.value = next.value;
+    }
+  }
+  selI.addEventListener('change', ajustarFin);
+  ajustarFin();
+}
+
+// Cuenta regresiva pausa activa
+const barra = document.getElementById('barra-pausa');
+const cuenta = document.getElementById('cuenta-regresiva');
+if (barra && cuenta) {
+  const fin    = new Date(barra.dataset.fin.replace(' ','T'));
+  const inicio = new Date(barra.dataset.inicio.replace(' ','T'));
+  const totalMs = fin - inicio;
+  function tick() {
+    const resto = fin - new Date();
+    if (resto <= 0) { cuenta.textContent = '¡Ya puedes regresar!'; barra.style.width='100%'; setTimeout(()=>location.reload(),2000); return; }
+    const m = Math.floor(resto/60000), s = Math.floor((resto%60000)/1000);
+    cuenta.textContent = m + ' min ' + String(s).padStart(2,'0') + ' seg';
+    barra.style.width = Math.min(100,((totalMs-resto)/totalMs)*100) + '%';
+  }
+  tick(); setInterval(tick, 1000);
+}
+</script>
+
+<style>
+@keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:.5;transform:scale(1.5);} }
+</style>
+{% endblock %}

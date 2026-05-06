@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block title %}Talleres Aliados — BiciFix{% endblock %}
+{% block content %}
+
+<div class="page-header animate-in">
+  <div class="page-header-info">
+    <h1 class="page-title"><i class="ti ti-building-store"></i> Talleres Aliados</h1>
+    <p class="page-sub">Encuentra el taller más cercano en tu municipio, revisa sus servicios y mecánicos disponibles.</p>
+  </div>
+</div>
+
+<!-- BUSCADOR -->
+<div class="animate-in" style="max-width:940px;margin:0 auto 28px;">
+  <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;">
+    <input type="text" id="buscador" placeholder="Buscar por nombre, barrio o municipio..."
+      class="form-input" style="flex:1;min-width:220px;" oninput="filtrarTalleres()">
+    <select id="filtroCiudad" class="form-select" style="width:auto;min-width:170px;" onchange="filtrarTalleres()">
+      <option value="">Todos los municipios</option>
+      {% set ciudades = talleres | map(attribute='ciudad') | unique | list %}
+      {% for ciudad in ciudades %}
+      <option value="{{ ciudad }}">{{ ciudad }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <p id="sin-resultados" style="display:none;color:var(--gs);margin-top:16px;text-align:center;">
+    No se encontraron talleres con ese filtro.
+  </p>
+</div>
+
+<!-- GRID -->
+<div id="grid-talleres" style="
+  max-width:940px;margin:0 auto;
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+  gap:22px;">
+
+  {% set fotos = [
+    'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80',
+    'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=600&q=80',
+    'https://images.unsplash.com/photo-1571068316344-75bc76f77890?w=600&q=80',
+    'https://images.unsplash.com/photo-1511994298241-608e28f14fde?w=600&q=80',
+    'https://images.unsplash.com/photo-1532298229144-0ec0c57515c7?w=600&q=80'
+  ] %}
+
+  {% for t in talleres %}
+  <a href="/talleres/{{ t.id }}" class="taller-card animate-in"
+     data-nombre="{{ t.nombre|lower }}"
+     data-barrio="{{ (t.barrio or '')|lower }}"
+     data-ciudad="{{ t.ciudad|lower }}"
+     style="display:flex;flex-direction:column;background:var(--c2);
+            border:1px solid var(--c3);border-radius:14px;overflow:hidden;
+            text-decoration:none;color:inherit;
+            transition:transform .22s,box-shadow .22s,border-color .22s;"
+     onmouseover="this.style.transform='translateY(-5px)';this.style.boxShadow='0 14px 36px rgba(0,200,83,.18)';this.style.borderColor='rgba(0,200,83,.45)'"
+     onmouseout="this.style.transform='';this.style.boxShadow='';this.style.borderColor='var(--c3)'">
+
+    <!-- FOTO -->
+    <div style="height:160px;position:relative;overflow:hidden;">
+      <img src="{{ fotos[loop.index0 % fotos|length] }}"
+           alt="{{ t.nombre }}"
+           loading="lazy"
+           style="width:100%;height:100%;object-fit:cover;
+                  transition:transform .4s;display:block;"
+           onmouseover="this.style.transform='scale(1.06)'"
+           onmouseout="this.style.transform='scale(1)'">
+      <!-- Overlay oscuro suave -->
+      <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.08) 0%,rgba(0,0,0,.45) 100%);"></div>
+      <!-- Badge municipio -->
+      <span style="position:absolute;top:10px;right:10px;
+        background:rgba(0,0,0,.55);backdrop-filter:blur(4px);
+        color:#fff;font-size:.63rem;font-weight:700;
+        padding:3px 9px;border-radius:99px;text-transform:uppercase;letter-spacing:.04em;">
+        {{ t.ciudad }}</span>
+      <!-- Badge estado -->
+      <span style="position:absolute;top:10px;left:10px;
+        background:{{ 'rgba(0,200,83,.82)' if t.activo else 'rgba(220,53,69,.82)' }};
+        backdrop-filter:blur(4px);color:#fff;
+        font-size:.63rem;font-weight:700;padding:3px 9px;border-radius:99px;">
+        {{ 'Abierto' if t.activo else 'Cerrado' }}</span>
+      <!-- Calificacion sobre foto -->
+      <div style="position:absolute;bottom:10px;right:10px;
+        background:rgba(0,0,0,.6);backdrop-filter:blur(4px);
+        padding:3px 9px;border-radius:99px;
+        display:flex;align-items:center;gap:4px;">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="#f5c518" stroke="none">
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+        </svg>
+        <span style="color:#fff;font-size:.72rem;font-weight:700;">{{ "%.1f"|format(t.calificacion) }}</span>
+        <span style="color:rgba(255,255,255,.65);font-size:.65rem;">({{ t.total_resenas }})</span>
+      </div>
+    </div>
+
+    <!-- CONTENIDO -->
+    <div style="padding:15px 17px;flex:1;display:flex;flex-direction:column;gap:4px;">
+      <h3 style="margin:0;font-size:.97rem;font-weight:700;color:var(--bl);">{{ t.nombre }}</h3>
+      <p style="margin:0;font-size:.78rem;color:var(--gs);">{{ t.barrio }}, {{ t.ciudad }}, Cundinamarca</p>
+      <p style="margin:0;font-size:.78rem;color:var(--gt);">{{ t.direccion }}</p>
+      <p style="margin:2px 0 0;font-size:.74rem;color:var(--gs);">{{ t.horario }}</p>
+
+      <!-- Stats -->
+      <div style="display:flex;gap:7px;margin-top:10px;flex-wrap:wrap;">
+        <span style="background:rgba(0,200,83,.08);border:1px solid rgba(0,200,83,.2);
+          color:var(--va);font-size:.69rem;font-weight:600;padding:3px 9px;border-radius:99px;">
+          {{ t.total_servicios }} servicios</span>
+        <span style="background:rgba(105,240,174,.05);border:1px solid rgba(105,240,174,.18);
+          color:var(--vn);font-size:.69rem;font-weight:600;padding:3px 9px;border-radius:99px;">
+          {{ t.total_mecanicos }} mecanico{{ 's' if t.total_mecanicos != 1 }}</span>
+      </div>
+
+      <!-- CTA -->
+      <div style="margin-top:auto;padding-top:13px;">
+        <span style="display:block;text-align:center;padding:9px;font-size:.8rem;
+          background:rgba(0,200,83,.07);border:1px solid rgba(0,200,83,.32);
+          color:var(--va);border-radius:8px;font-weight:600;">Ver taller</span>
+      </div>
+    </div>
+  </a>
+  {% else %}
+  <div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--gs);">
+    <p>No hay talleres registrados aun.</p>
+  </div>
+  {% endfor %}
+</div>
+
+<script>
+function filtrarTalleres() {
+  const texto  = document.getElementById('buscador').value.toLowerCase().trim();
+  const ciudad = document.getElementById('filtroCiudad').value.toLowerCase();
+  let visibles = 0;
+  document.querySelectorAll('.taller-card').forEach(card => {
+    const ok = (!texto  || card.dataset.nombre.includes(texto) || card.dataset.barrio.includes(texto) || card.dataset.ciudad.includes(texto))
+            && (!ciudad || card.dataset.ciudad === ciudad);
+    card.style.display = ok ? '' : 'none';
+    if (ok) visibles++;
+  });
+  document.getElementById('sin-resultados').style.display = visibles === 0 ? 'block' : 'none';
+}
+</script>
+{% endblock %}

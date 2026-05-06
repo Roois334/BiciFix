@@ -1,0 +1,1018 @@
+{% extends "base.html" %}
+{% block extra_head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+{% endblock %}
+
+{% block title %}Solicitar Servicio — BiciFix{% endblock %}
+{% block content %}
+<div class="page-header animate-in">
+  <div class="page-header-info">
+    <h1 class="page-title"><i class="ti ti-plus-circle"></i> Solicitar Servicio</h1>
+    <p class="page-sub">Elige tu servicio, cómo quieres la atención y agenda con tu mecánico.</p>
+  </div>
+</div>
+
+<div class="card animate-in" style="max-width:700px;margin:0 auto;">
+  <form method="POST" id="form-solicitar" style="display:flex;flex-direction:column;gap:22px;">
+
+    <!-- ══════════════════════════════════════════════════════
+         PASO 1 — DATOS DEL SERVICIO
+    ══════════════════════════════════════════════════════ -->
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <p style="margin:0;font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--va);font-weight:700;">Paso 1 — Datos del servicio</p>
+
+      <div class="form-group">
+        <label class="form-label">Tipo de servicio</label>
+        <select name="servicio_id" class="form-select" required onchange="actualizarPrecio(this)">
+          <option value="">-- Selecciona un servicio --</option>
+          {% for s in servicios %}
+          <option value="{{ s.id }}" data-min="{{ s.precio_min }}" data-max="{{ s.precio_max }}" data-tiempo="{{ s.tiempo_estimado }}">
+            {{ s.nombre }} — {{ s.precio_min|cop }} – {{ s.precio_max|cop }} · {{ s.tiempo_estimado }}
+          </option>
+          {% endfor %}
+        </select>
+        <div id="precio-info" style="display:none;margin-top:6px;padding:8px 12px;background:rgba(0,200,83,.07);border:1px solid rgba(0,200,83,.18);border-radius:8px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
+            <span style="color:var(--va);font-weight:600;font-size:.83rem;">Precio estimado: <span id="precio-rango"></span><span id="precio-extra" style="color:#d4a017;"></span></span>
+            <span id="tiempo-badge" style="display:none;background:rgba(0,200,83,.12);border:1px solid rgba(0,200,83,.25);border-radius:99px;padding:3px 10px;font-size:.75rem;color:var(--va);font-weight:600;"><span id="tiempo-texto"></span></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Mi bicicleta</label>
+        <select name="bici_id" id="bici-select" class="form-select" required onchange="validarBiciSeleccionada()">
+          <option value="">-- Selecciona tu bicicleta --</option>
+          {% for b in bicicletas %}
+          <option value="{{ b.id }}">{{ b.marca }} {{ b.modelo }} ({{ b.color }})</option>
+          {% endfor %}
+        </select>
+        <div id="bici-warning" style="display:none;margin-top:7px;padding:9px 13px;background:rgba(255,77,77,.07);border:1px solid rgba(255,77,77,.22);border-radius:8px;">
+          <p style="margin:0;font-size:.78rem;color:#ff6b6b;font-weight:600;" id="bici-warning-txt"></p>
+        </div>
+        {% if not bicicletas %}
+        <p class="form-hint">No tienes bicicletas registradas. <a href="/mis-bicicletas" class="auth-link">Agregar bicicleta</a></p>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Descripcion del problema</label>
+        <textarea name="descripcion" class="form-textarea" placeholder="Describe que le pasa a tu bicicleta..." required></textarea>
+      </div>
+    </div>
+
+    <hr style="border:none;border-top:1px solid var(--c3);margin:0;">
+
+    <!-- ══════════════════════════════════════════════════════
+         PASO 2 — TIPO DE ATENCION
+    ══════════════════════════════════════════════════════ -->
+    <div class="form-group">
+      <label class="form-label" style="font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--va);font-weight:700;">Paso 2 — Tipo de atencion</label>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
+
+        <label id="opt-taller" onclick="seleccionarAtencion('taller')" style="display:flex;flex-direction:column;align-items:center;gap:7px;padding:16px 8px;border-radius:10px;cursor:pointer;border:2px solid var(--c3);background:rgba(255,255,255,.02);transition:border-color .2s,background .2s;text-align:center;">
+          <input type="radio" name="tipo_atencion" value="taller" style="display:none;">
+          <svg id="ico-taller" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--gs)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <span style="font-size:.77rem;font-weight:700;color:var(--bl);">Lo llevo al taller</span>
+          <span style="font-size:.67rem;color:var(--gs);">Sin costo adicional</span>
+        </label>
+
+        <label id="opt-domicilio" onclick="seleccionarAtencion('domicilio')" style="display:flex;flex-direction:column;align-items:center;gap:7px;padding:16px 8px;border-radius:10px;cursor:pointer;border:2px solid var(--c3);background:rgba(255,255,255,.02);transition:border-color .2s,background .2s;text-align:center;">
+          <input type="radio" name="tipo_atencion" value="domicilio" style="display:none;">
+          <svg id="ico-domicilio" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--gs)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <span style="font-size:.77rem;font-weight:700;color:var(--bl);">El mecanico va donde estas</span>
+          <span style="font-size:.67rem;color:#d4a017;">+ $8.000 desplazamiento</span>
+        </label>
+
+        <label id="opt-recogida" onclick="seleccionarAtencion('recogida')" style="display:flex;flex-direction:column;align-items:center;gap:7px;padding:16px 8px;border-radius:10px;cursor:pointer;border:2px solid var(--c3);background:rgba(255,255,255,.02);transition:border-color .2s,background .2s;text-align:center;">
+          <input type="radio" name="tipo_atencion" value="recogida" style="display:none;">
+          <svg id="ico-recogida" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--gs)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+          <span style="font-size:.77rem;font-weight:700;color:var(--bl);">Pasamos a recoger</span>
+          <span style="font-size:.67rem;color:#d4a017;">+ $12.000 recogida y entrega</span>
+        </label>
+      </div>
+
+      <div id="aviso-costo" style="display:none;margin-top:8px;padding:8px 12px;background:rgba(255,193,7,.07);border:1px solid rgba(255,193,7,.22);border-radius:8px;">
+        <p style="margin:0;font-size:.78rem;color:#d4a017;font-weight:600;" id="aviso-costo-txt"></p>
+      </div>
+
+      <div id="bloque-direccion" style="display:none;margin-top:12px;">
+        <label class="form-label">Tu direccion</label>
+        <div style="position:relative;display:flex;gap:8px;margin-bottom:8px;">
+          <input type="text" id="input-ubicacion" class="form-input" placeholder="Escribe tu direccion o selecciona en el mapa..."
+                 style="flex:1;" oninput="buscarDireccion()" autocomplete="off">
+          <button type="button" onclick="usarUbicacionActual()"
+                  title="Usar mi ubicacion actual"
+                  style="padding:0 14px;border-radius:8px;background:rgba(0,200,83,.1);border:1px solid rgba(0,200,83,.3);
+                         color:var(--va);cursor:pointer;font-size:.82rem;font-weight:700;white-space:nowrap;transition:background .2s;"
+                  onmouseover="this.style.background='rgba(0,200,83,.2)'" onmouseout="this.style.background='rgba(0,200,83,.1)'">
+            Mi ubicacion
+          </button>
+        </div>
+        <div id="sugerencias-dir" style="display:none;position:relative;z-index:9999;margin-top:-4px;margin-bottom:8px;
+             background:#1a2a1a;border:1px solid rgba(0,200,83,.25);border-radius:8px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.4);">
+        </div>
+        <div id="mapa-picker" style="height:240px;border-radius:10px;overflow:hidden;border:1px solid rgba(0,200,83,.25);margin-bottom:6px;"></div>
+        <p class="form-hint" id="hint-direccion" style="margin-top:4px;font-size:.74rem;"></p>
+        <p style="font-size:.71rem;color:var(--gs);margin-top:3px;">Mueve el marcador para ajustar el punto exacto.</p>
+      </div>
+      <input type="hidden" name="ubicacion" id="ubicacion-hidden" value="">
+    </div>
+
+    <hr style="border:none;border-top:1px solid var(--c3);margin:0;">
+
+    <!-- ══════════════════════════════════════════════════════
+         PASO 3 — TALLER, MECANICO Y FECHA
+    ══════════════════════════════════════════════════════ -->
+    <div class="form-group">
+      <label class="form-label" style="font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--va);font-weight:700;">Paso 3 — Taller</label>
+      <select name="taller_id" id="taller-select" class="form-select" required onchange="cargarMecanicos(this.value)">
+        <option value="">-- Selecciona un taller --</option>
+        {% for t in talleres %}
+        <option value="{{ t.id }}" data-ciudad="{{ t.ciudad }}" data-direccion="{{ t.direccion }}" data-horario="{{ t.horario }}">
+          {{ t.nombre }} — {{ t.barrio }}, {{ t.ciudad }}
+        </option>
+        {% endfor %}
+      </select>
+      <div id="taller-info" style="display:none;margin-top:8px;padding:10px 14px;background:rgba(0,200,83,.05);border:1px solid rgba(0,200,83,.18);border-radius:8px;">
+        <p style="margin:0;font-size:.8rem;color:var(--gt);" id="taller-direccion"></p>
+        <p style="margin:3px 0 0;font-size:.76rem;color:var(--gs);" id="taller-horario"></p>
+      </div>
+    </div>
+
+    <!-- Mecánico + Calendario -->
+    <div class="form-group" id="bloque-mecanico" style="opacity:.4;pointer-events:none;transition:opacity .3s;">
+      <label class="form-label" style="font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--va);font-weight:700;">Mecanico y Fecha</label>
+      <select name="mecanico_id" id="mecanico-select" class="form-select" onchange="seleccionarMecanico(this)">
+        <option value="">-- Primero selecciona un taller --</option>
+      </select>
+
+      <!-- PANEL MECANICO + CALENDARIO -->
+      <div id="panel-mec" style="display:none;margin-top:14px;border:1px solid rgba(0,200,83,.22);border-radius:14px;overflow:hidden;background:rgba(0,200,83,.03);">
+
+        <!-- Header mecánico -->
+        <div style="padding:14px 18px;background:linear-gradient(135deg,rgba(0,200,83,.08),rgba(0,200,83,.04));border-bottom:1px solid rgba(0,200,83,.15);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div id="mec-avatar" style="width:40px;height:40px;border-radius:50%;background:var(--va);color:#000;font-weight:800;font-size:1.1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;"></div>
+            <div>
+              <p style="margin:0;font-weight:700;font-size:.93rem;color:var(--bl);" id="mec-nombre"></p>
+              <p style="margin:3px 0 0;font-size:.75rem;color:var(--gs);">
+                &#9733; <span id="mec-cal"></span>/5 &nbsp;&middot;&nbsp; <span id="mec-servicios"></span> servicios &nbsp;&middot;&nbsp; <span id="mec-zona"></span>
+              </p>
+            </div>
+          </div>
+          <span id="mec-estado-badge" style="font-size:.68rem;font-weight:700;padding:4px 11px;border-radius:99px;"></span>
+        </div>
+
+        <!-- Calendario -->
+        <div style="padding:18px;">
+
+          <!-- Titulo seccion -->
+          <p style="margin:0 0 14px;font-size:.72rem;font-weight:700;color:var(--va);text-transform:uppercase;letter-spacing:.07em;">
+            Selecciona fecha y hora para tu cita
+          </p>
+
+          <!-- Navegacion mes -->
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+            <button type="button" onclick="cambiarMes(-1)"
+              style="width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:1rem;font-weight:700;
+                     background:rgba(0,200,83,.1);border:1px solid rgba(0,200,83,.25);color:var(--va);
+                     display:flex;align-items:center;justify-content:center;transition:all .18s;"
+              onmouseover="this.style.background='rgba(0,200,83,.2)'" onmouseout="this.style.background='rgba(0,200,83,.1)'">&#8249;</button>
+            <span id="cal-mes-titulo" style="font-weight:800;font-size:.95rem;color:var(--bl);"></span>
+            <button type="button" onclick="cambiarMes(1)"
+              style="width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:1rem;font-weight:700;
+                     background:rgba(0,200,83,.1);border:1px solid rgba(0,200,83,.25);color:var(--va);
+                     display:flex;align-items:center;justify-content:center;transition:all .18s;"
+              onmouseover="this.style.background='rgba(0,200,83,.2)'" onmouseout="this.style.background='rgba(0,200,83,.1)'">&#8250;</button>
+          </div>
+
+          <!-- Cabecera dias semana -->
+          <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:6px;">
+            {% for d in ['Lun','Mar','Mie','Jue','Vie','Sab','Dom'] %}
+            <div style="text-align:center;font-size:.62rem;font-weight:700;color:var(--gs);padding:4px 0;text-transform:uppercase;">{{ d }}</div>
+            {% endfor %}
+          </div>
+
+          <!-- Grid de dias -->
+          <div id="cal-dias" style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px;"></div>
+
+          <!-- Leyenda -->
+          <div style="display:flex;gap:14px;margin-top:12px;flex-wrap:wrap;">
+            <span style="display:flex;align-items:center;gap:5px;font-size:.68rem;color:var(--gs);">
+              <span style="width:10px;height:10px;border-radius:3px;background:rgba(0,200,83,.25);display:inline-block;"></span>Disponible
+            </span>
+            <span style="display:flex;align-items:center;gap:5px;font-size:.68rem;color:var(--gs);">
+              <span style="width:10px;height:10px;border-radius:3px;background:rgba(255,193,7,.35);display:inline-block;"></span>Con citas
+            </span>
+            <span style="display:flex;align-items:center;gap:5px;font-size:.68rem;color:var(--gs);">
+              <span style="width:10px;height:10px;border-radius:3px;background:rgba(255,120,0,.3);display:inline-block;"></span>Tu cita
+            </span>
+            <span style="display:flex;align-items:center;gap:5px;font-size:.68rem;color:var(--gs);">
+              <span style="width:10px;height:10px;border-radius:3px;background:rgba(120,120,120,.18);display:inline-block;"></span>Sin espacio libre
+            </span>
+          </div>
+
+          <!-- Panel dia seleccionado -->
+          <div id="dia-seleccionado" style="display:none;margin-top:16px;border-radius:12px;border:1px solid rgba(0,200,83,.25);overflow:hidden;">
+            <!-- Titulo dia -->
+            <div style="padding:11px 16px;background:rgba(0,200,83,.08);border-bottom:1px solid rgba(0,200,83,.15);display:flex;align-items:center;justify-content:space-between;">
+              <p style="margin:0;font-size:.82rem;font-weight:700;color:var(--va);" id="dia-titulo"></p>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--va)" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </div>
+
+            <div style="padding:14px 16px;display:flex;flex-direction:column;gap:10px;">
+              <!-- Tus propias citas este día -->
+              <div id="panel-mis-citas" style="display:none;margin-bottom:10px;padding:10px 12px;
+                   background:rgba(255,120,0,.06);border:1px solid rgba(255,120,0,.2);border-radius:9px;">
+                <p style="margin:0 0 6px;font-size:.70rem;font-weight:700;color:#ff7800;text-transform:uppercase;letter-spacing:.05em;">
+                  🔒 Tus citas en este día
+                </p>
+                <div id="mis-citas-lista"></div>
+                <p style="margin:6px 0 0;font-size:.68rem;color:#ff7800;opacity:.8;">Los horarios naranja están bloqueados para ti.</p>
+              </div>
+
+              <!-- Citas existentes del mecánico -->
+              <div id="dia-citas"></div>
+
+              <!-- Horarios disponibles -->
+              <div>
+                <p style="margin:0 0 8px;font-size:.73rem;font-weight:700;color:var(--gs);text-transform:uppercase;letter-spacing:.05em;">Selecciona la hora:</p>
+                <div id="horarios-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:7px;"></div>
+              </div>
+
+              <!-- Hora fin estimada -->
+              <div id="hora-fin-info" style="display:none;padding:8px 12px;background:rgba(0,200,83,.07);border:1px solid rgba(0,200,83,.2);border-radius:8px;font-size:.76rem;color:var(--va);font-weight:600;"></div>
+            </div>
+          </div>
+
+          <input type="hidden" name="fecha" id="fecha-hidden">
+          <input type="hidden" name="hora"  id="hora-hidden">
+          <p id="fecha-req-error" style="display:none;color:#ff4d4d;font-size:.76rem;margin-top:8px;padding:8px 12px;background:rgba(255,77,77,.07);border:1px solid rgba(255,77,77,.2);border-radius:8px;">
+            Debes seleccionar una fecha y hora para continuar.
+          </p>
+        </div>
+      </div>
+
+      <div id="sin-mecanicos" style="display:none;font-size:.82rem;color:var(--gs);margin-top:6px;">
+        Este taller no tiene mecanicos asignados actualmente.
+      </div>
+    </div>
+
+    <!-- RESUMEN TOTAL A PAGAR -->
+    <div id="resumen-pago" style="display:none;border-radius:12px;border:1px solid rgba(0,200,83,.3);background:rgba(0,200,83,.05);overflow:hidden;">
+      <div style="padding:11px 16px;background:rgba(0,200,83,.1);border-bottom:1px solid rgba(0,200,83,.2);">
+        <p style="margin:0;font-size:.72rem;font-weight:700;color:var(--va);text-transform:uppercase;letter-spacing:.07em;">&#128179; Resumen del servicio</p>
+      </div>
+      <div style="padding:14px 16px;display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;justify-content:space-between;font-size:.82rem;gap:8px;">
+          <span style="color:var(--gs);white-space:nowrap;">Servicio</span>
+          <span id="res-servicio" style="color:var(--bl);font-weight:600;text-align:right;"></span>
+        </div>
+        <div id="res-tipo-row" style="display:none;justify-content:space-between;font-size:.82rem;">
+          <span style="color:var(--gs);">Tipo de atencion</span>
+          <span id="res-tipo" style="color:var(--bl);font-weight:600;"></span>
+        </div>
+        <div id="res-fecha-row" style="display:none;justify-content:space-between;font-size:.82rem;">
+          <span style="color:var(--gs);">Fecha y hora</span>
+          <span id="res-fecha" style="color:var(--bl);font-weight:600;"></span>
+        </div>
+        <div id="res-mecanico-row" style="display:none;justify-content:space-between;font-size:.82rem;">
+          <span style="color:var(--gs);">Mecanico</span>
+          <span id="res-mecanico" style="color:var(--bl);font-weight:600;"></span>
+        </div>
+        <hr style="border:none;border-top:1px solid rgba(0,200,83,.2);margin:4px 0;">
+        <div style="display:flex;justify-content:space-between;font-size:.82rem;">
+          <span style="color:var(--gs);">Precio del servicio</span>
+          <span id="res-precio-servicio" style="color:var(--bl);font-weight:600;"></span>
+        </div>
+        <div id="res-adicional-row" style="display:none;justify-content:space-between;font-size:.82rem;">
+          <span id="res-adicional-label" style="color:#d4a017;"></span>
+          <span id="res-adicional" style="color:#d4a017;font-weight:600;"></span>
+        </div>
+        <hr style="border:none;border-top:1px solid rgba(0,200,83,.3);margin:4px 0;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:.9rem;font-weight:700;color:var(--bl);">Total estimado</span>
+          <span id="res-total" style="font-size:1.05rem;font-weight:800;color:var(--va);"></span>
+        </div>
+        <p style="margin:0;font-size:.68rem;color:var(--gs);">* El precio final puede variar segun el diagnostico del mecanico.</p>
+      </div>
+    </div>
+
+    <button type="submit" class="btn btn-neon btn-full" style="padding:14px;font-size:.95rem;font-weight:700;">Confirmar solicitud de servicio</button>
+  </form>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// ── Variables globales ──────────────────────────────────────────────
+let citasOcupadas    = [];   // citas del mecánico seleccionado
+let citasCliente     = [];   // citas activas propias del cliente
+let biciConOrden     = new Set(); // IDs de bicis que ya tienen orden activa
+let mesActual        = new Date().getMonth();
+let anioActual       = new Date().getFullYear();
+let costoAdicional   = 0;
+let tipoAtencion     = '';
+let fechaSeleccionada = '';
+let horaSeleccionada  = '';
+let tiempoServicio    = '';
+const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+// ── Cargar citas activas del propio cliente al iniciar ─────────────
+(function cargarCitasCliente() {
+  fetch('/api/citas-cliente')
+    .then(r => r.json())
+    .then(data => {
+      citasCliente = data;
+      biciConOrden = new Set(data.map(c => String(c.bici_id)));
+      validarBiciSeleccionada();
+      if (fechaSeleccionada) renderSlotsHorario(fechaSeleccionada, citasDeDia(fechaSeleccionada));
+    })
+    .catch(() => {});
+})();
+// Slots cada 30 minutos de 08:00 a 18:00 (exclusive)
+const HORARIOS_DISPONIBLES = (() => {
+  const slots = [];
+  for (let h = 8; h < 18; h++) {
+    slots.push(String(h).padStart(2,'0') + ':00');
+    slots.push(String(h).padStart(2,'0') + ':30');
+  }
+  return slots; // 08:00 .. 17:30
+})();
+
+// ── PRECIO + TIEMPO ─────────────────────────────────────────────────
+function actualizarPrecio(sel) {
+  const opt    = sel.options[sel.selectedIndex];
+  const min    = opt.getAttribute('data-min');
+  const max    = opt.getAttribute('data-max');
+  const tiempo = opt.getAttribute('data-tiempo') || '';
+  tiempoServicio = tiempo;
+  nombreServicioActual = opt.textContent ? opt.textContent.split(' — ')[0].trim() : '';
+  const info = document.getElementById('precio-info');
+  if (min && max) {
+    precioMinServicio = parseInt(min);
+    precioMaxServicio = parseInt(max);
+    document.getElementById('precio-rango').textContent = formatCOP(parseInt(min)) + ' – ' + formatCOP(parseInt(max));
+    document.getElementById('precio-extra').textContent = costoAdicional > 0 ? ' + ' + formatCOP(costoAdicional) + ' adicional' : '';
+    if (tiempo) {
+      document.getElementById('tiempo-texto').textContent = tiempo;
+      document.getElementById('tiempo-badge').style.display = 'inline-flex';
+    } else {
+      document.getElementById('tiempo-badge').style.display = 'none';
+    }
+    info.style.display = 'block';
+    if (horaSeleccionada) mostrarHoraFin(horaSeleccionada, tiempo);
+    // Re-render slots del día si ya hay uno seleccionado
+    if (fechaSeleccionada) elegirDia(fechaSeleccionada);
+  } else {
+    precioMinServicio = 0; precioMaxServicio = 0; nombreServicioActual = '';
+    info.style.display = 'none';
+    tiempoServicio = '';
+  }
+  actualizarResumen();
+}
+
+function calcularHoraFin(horaInicio, tiempoStr) {
+  if (!tiempoStr) return null;
+  const nums = tiempoStr.match(/\d+/g);
+  if (!nums) return null;
+  const mins = Math.max(...nums.map(Number));
+  const [h, m] = horaInicio.split(':').map(Number);
+  const totalMins = h * 60 + m + mins;
+  const hFin = Math.floor(totalMins / 60) % 24;
+  const mFin = totalMins % 60;
+  return String(hFin).padStart(2,'0') + ':' + String(mFin).padStart(2,'0');
+}
+
+function mostrarHoraFin(hora, tiempo) {
+  const fin = calcularHoraFin(hora, tiempo);
+  const el  = document.getElementById('hora-fin-info');
+  if (fin && el) {
+    el.textContent = 'Duracion estimada: ' + (tiempo || '') + '  →  Finaliza aprox. ' + fin;
+    el.style.display = 'block';
+  } else if (el) {
+    el.style.display = 'none';
+  }
+}
+
+// ── TIPO DE ATENCION ────────────────────────────────────────────────
+function seleccionarAtencion(tipo) {
+  tipoAtencion = tipo;
+  ['taller','domicilio','recogida'].forEach(t => {
+    const el  = document.getElementById('opt-'  + t);
+    const ico = document.getElementById('ico-'  + t);
+    const act = t === tipo;
+    el.style.borderColor  = act ? 'var(--va)' : 'var(--c3)';
+    el.style.background   = act ? 'rgba(0,200,83,.08)' : 'rgba(255,255,255,.02)';
+    ico.setAttribute('stroke', act ? 'var(--va)' : 'var(--gs)');
+  });
+
+  costoAdicional = tipo === 'domicilio' ? 8000 : tipo === 'recogida' ? 12000 : 0;
+  const aviso    = document.getElementById('aviso-costo');
+  const avisoTxt = document.getElementById('aviso-costo-txt');
+  const bloque   = document.getElementById('bloque-direccion');
+
+  if (costoAdicional > 0) {
+    avisoTxt.textContent = tipo === 'domicilio'
+      ? '+ $8.000 por desplazamiento del mecanico a tu ubicacion.'
+      : '+ $12.000 por recogida y entrega de la bicicleta.';
+    aviso.style.display  = 'block';
+    bloque.style.display = 'block';
+    if (tipo === 'domicilio' || tipo === 'recogida') setTimeout(initMapa, 100);
+  } else {
+    aviso.style.display  = 'none';
+    bloque.style.display = 'none';
+  }
+
+  document.getElementById('precio-extra').textContent =
+    costoAdicional > 0 ? ' + ' + formatCOP(costoAdicional) + ' adicional' : '';
+  actualizarResumen();
+}
+
+// ── TALLER ──────────────────────────────────────────────────────────
+function cargarMecanicos(tallerId) {
+  const sel   = document.getElementById('taller-select');
+  const op    = sel.options[sel.selectedIndex];
+  const info  = document.getElementById('taller-info');
+  const sinM  = document.getElementById('sin-mecanicos');
+  const bloqM = document.getElementById('bloque-mecanico');
+
+  if (op && op.value) {
+    document.getElementById('taller-direccion').textContent = op.dataset.direccion || '';
+    document.getElementById('taller-horario').textContent   = op.dataset.horario   || '';
+    info.style.display = 'block';
+  } else {
+    info.style.display = 'none';
+  }
+
+  if (!tallerId) {
+    bloqM.style.opacity       = '.4';
+    bloqM.style.pointerEvents = 'none';
+    return;
+  }
+
+  bloqM.style.opacity       = '1';
+  bloqM.style.pointerEvents = 'auto';
+
+  const mecSel = document.getElementById('mecanico-select');
+  mecSel.innerHTML = '<option value="">Cargando mecanicos...</option>';
+  sinM.style.display = 'none';
+  document.getElementById('panel-mec').style.display = 'none';
+
+  fetch('/api/mecanicos-taller/' + tallerId)
+    .then(r => r.json())
+    .then(data => {
+      if (!data.length) {
+        mecSel.innerHTML = '<option value="">-- Sin mecanicos disponibles --</option>';
+        sinM.style.display = 'block';
+        return;
+      }
+      mecSel.innerHTML = '<option value="">-- Selecciona un mecanico (opcional) --</option>';
+      data.forEach(m => {
+        const o = document.createElement('option');
+        o.value = m.id;
+        o.textContent = m.nombre + ' ' + m.apellido + ' ' + m.calificacion + '/5 - ' + m.servicios + ' servicios';
+        Object.assign(o.dataset, { nombre: m.nombre, apellido: m.apellido, calificacion: m.calificacion, servicios: m.servicios, estado: m.estado, zona: m.zona });
+        mecSel.appendChild(o);
+      });
+    })
+    .catch(() => { mecSel.innerHTML = '<option value="">Error al cargar</option>'; });
+}
+
+// ── MECANICO ────────────────────────────────────────────────────────
+function seleccionarMecanico(sel) {
+  const opt   = sel.options[sel.selectedIndex];
+  const panel = document.getElementById('panel-mec');
+
+  if (!opt.value) { panel.style.display = 'none'; nombreMecanicoActual = ''; actualizarResumen(); return; }
+
+  document.getElementById('mec-avatar').textContent    = (opt.dataset.nombre || '?')[0].toUpperCase();
+  document.getElementById('mec-nombre').textContent    = opt.dataset.nombre + ' ' + opt.dataset.apellido;
+  document.getElementById('mec-cal').textContent       = opt.dataset.calificacion || '0.00';
+  document.getElementById('mec-servicios').textContent = opt.dataset.servicios    || '0';
+  document.getElementById('mec-zona').textContent      = opt.dataset.zona         || '';
+  // Badge estado
+  const badge = document.getElementById('mec-estado-badge');
+  const estado = opt.dataset.estado || 'disponible';
+  badge.textContent = estado === 'disponible' ? 'Disponible' : estado === 'ocupado' ? 'Ocupado' : 'No disponible';
+  badge.style.background = estado === 'disponible' ? 'rgba(0,200,83,.15)' : 'rgba(255,77,77,.12)';
+  badge.style.color = estado === 'disponible' ? 'var(--va)' : '#ff6b6b';
+  badge.style.border = estado === 'disponible' ? '1px solid rgba(0,200,83,.3)' : '1px solid rgba(255,77,77,.3)';
+  nombreMecanicoActual = opt.dataset.nombre + ' ' + opt.dataset.apellido;
+  panel.style.display = 'block';
+  actualizarResumen();
+
+  citasOcupadas = [];
+  fechaSeleccionada = '';
+  horaSeleccionada  = '';
+  document.getElementById('fecha-hidden').value = '';
+  document.getElementById('hora-hidden').value  = '';
+  document.getElementById('dia-seleccionado').style.display = 'none';
+
+  const tallerId = document.getElementById('taller-select').value;
+  fetch('/api/citas-mecanico/' + opt.value + '?taller_id=' + tallerId)
+    .then(r => r.json())
+    .then(data => {
+      citasOcupadas = data;
+      renderCalendario();
+      if (fechaSeleccionada) elegirDia(fechaSeleccionada);
+    })
+    .catch(() => { citasOcupadas = []; renderCalendario(); });
+
+  renderCalendario();
+}
+
+// ══════════════════════════════════════════════════════════════════════
+//  VALIDACIONES CLIENTE — bicicleta y conflictos de horario propios
+// ══════════════════════════════════════════════════════════════════════
+
+function validarBiciSeleccionada() {
+  const sel = document.getElementById('bici-select');
+  if (!sel) return;
+  const biciId   = sel.value;
+  const warn     = document.getElementById('bici-warning');
+  const warnTxt  = document.getElementById('bici-warning-txt');
+  if (!biciId) { warn.style.display = 'none'; return; }
+
+  if (biciConOrden.has(String(biciId))) {
+    const cita = citasCliente.find(c => String(c.bici_id) === String(biciId));
+    const cuando = cita ? ` agendada para el ${cita.fecha.split('-').reverse().join('/')} a las ${cita.hora} (${cita.servicio})` : '';
+    warnTxt.textContent = '⚠ Esta bicicleta ya tiene una orden activa' + cuando + '. Cancela esa orden antes de agendar otra.';
+    warn.style.display = 'block';
+  } else {
+    warn.style.display = 'none';
+  }
+}
+
+// Devuelve los slots del cliente que se solapan con un slot+duración dados
+function slotsConflictoCliente(fStr, durNuevoMins) {
+  const conflictos = new Set();
+  citasCliente.forEach(c => {
+    if (c.fecha !== fStr) return;
+    const inicioOcup = hhmm2mins((c.hora || '').slice(0, 5));
+    const finOcup    = inicioOcup + (parseInt(c.duracion_mins) || 60);
+    HORARIOS_DISPONIBLES.forEach(slot => {
+      const ini = hhmm2mins(slot);
+      const fin = ini + durNuevoMins;
+      if (ini < finOcup && fin > inicioOcup) conflictos.add(slot);
+    });
+  });
+  return conflictos;
+}
+
+// ══════════════════════════════════════════════════════════════════════
+//  CALENDARIO — reescrito sin pasar citas por onclick (usa citasOcupadas)
+// ══════════════════════════════════════════════════════════════════════
+
+// ── Fecha local como string YYYY-MM-DD (evita bug UTC de toISOString) ──
+function fechaLocalStr(d) {
+  d = d || new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+// ── HH:MM → minutos desde medianoche ──
+function hhmm2mins(hhmm) {
+  const [h, m] = (hhmm || '00:00').split(':').map(Number);
+  return h * 60 + m;
+}
+
+// ── Duración del servicio actualmente seleccionado, en múltiplos de 30 ──
+function duracionActualMins() {
+  if (!tiempoServicio) return 30;
+  const nums = tiempoServicio.match(/\d+/g);
+  if (!nums) return 30;
+  let m = Math.max(...nums.map(Number));
+  if (m <= 6 && nums.length === 1) m *= 60;          // "2 h" → 120
+  return Math.max(30, Math.ceil(m / 30) * 30);        // múltiplo de 30, min 30
+}
+
+// ── Set de slots bloqueados para un arreglo de citas ──
+function calcularSlotsNoDisponibles(citas, durNuevoMins) {
+  const bloqueados = new Set();
+  (citas || []).forEach(c => {
+    const inicioOcup = hhmm2mins((c.hora || '').slice(0, 5));
+    const finOcup    = inicioOcup + (parseInt(c.duracion_mins) || 60);
+    HORARIOS_DISPONIBLES.forEach(slot => {
+      const ini = hhmm2mins(slot);
+      const fin = ini + durNuevoMins;
+      if (ini < finOcup && fin > inicioOcup) bloqueados.add(slot);
+    });
+  });
+  return bloqueados;
+}
+
+// ── Citas de citasOcupadas para una fecha dada ──
+function citasDeDia(fStr) {
+  return citasOcupadas.filter(c => c.fecha === fStr);
+}
+
+function cambiarMes(delta) {
+  mesActual += delta;
+  if (mesActual > 11) { mesActual = 0; anioActual++; }
+  if (mesActual < 0)  { mesActual = 11; anioActual--; }
+  renderCalendario();
+}
+
+function renderCalendario() {
+  const hoy     = new Date();
+  const hoyStr  = fechaLocalStr(hoy);
+  const ahoraMins = hoy.getHours() * 60 + hoy.getMinutes();
+  const durNuevo  = duracionActualMins();
+
+  document.getElementById('cal-mes-titulo').textContent = MESES[mesActual] + ' ' + anioActual;
+
+  const primerDia = new Date(anioActual, mesActual, 1).getDay();
+  const totalDias = new Date(anioActual, mesActual + 1, 0).getDate();
+  const offset    = primerDia === 0 ? 6 : primerDia - 1;
+
+  let html = '';
+  for (let i = 0; i < offset; i++) html += '<div></div>';
+
+  for (let d = 1; d <= totalDias; d++) {
+    const fStr   = anioActual + '-' + String(mesActual+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+    const esPas  = fStr < hoyStr;
+    const esHoy  = fStr === hoyStr;
+    const esDom  = new Date(anioActual, mesActual, d).getDay() === 0;
+    const esSel  = fStr === fechaSeleccionada;
+    const citas  = citasDeDia(fStr);
+
+    // ¿Queda al menos un slot libre?
+    const bloqSlots = calcularSlotsNoDisponibles(citas, durNuevo);
+    const hayLibre  = !esPas && !esDom && HORARIOS_DISPONIBLES.some(slot => {
+      const sm = hhmm2mins(slot);
+      const pasado = esHoy && sm <= ahoraMins + 30;
+      return !pasado && !bloqSlots.has(slot);
+    });
+
+    const bloqueado = esPas || esDom || (!hayLibre && !esSel);
+
+    let bg, borde, color, cursor, fw;
+    fw = (esHoy || esSel) ? '800' : '500';
+
+    if (esSel) {
+      bg = 'var(--va)'; color = '#000'; borde = '2px solid var(--va)'; cursor = 'pointer';
+    } else if (bloqueado) {
+      bg = 'rgba(255,255,255,.03)'; color = 'rgba(255,255,255,.2)';
+      borde = '1px solid rgba(255,255,255,.05)'; cursor = 'default';
+    } else if (citas.length) {
+      bg = 'rgba(255,193,7,.18)'; color = '#e6b800';
+      borde = '1px solid rgba(255,193,7,.35)'; cursor = 'pointer';
+    } else {
+      bg = 'rgba(0,200,83,.14)'; color = 'var(--bl)';
+      borde = esHoy ? '2px solid var(--va)' : '1px solid rgba(0,200,83,.25)';
+      cursor = 'pointer';
+    }
+
+    const hoyStar = esHoy && !esSel ? `<span style="display:block;font-size:.45rem;color:var(--va);margin-top:1px;">HOY</span>` : '';
+
+    if (bloqueado) {
+      html += `<div style="text-align:center;padding:10px 2px;border-radius:10px;background:${bg};border:${borde};color:${color};font-size:.8rem;font-weight:${fw};line-height:1;">${d}${hoyStar}</div>`;
+    } else {
+      html += `<div data-fecha="${fStr}" onclick="elegirDia('${fStr}')"
+        style="text-align:center;padding:10px 2px;border-radius:10px;background:${bg};border:${borde};
+               color:${color};cursor:${cursor};font-size:.8rem;font-weight:${fw};line-height:1;
+               transition:transform .12s,box-shadow .12s;"
+        onmouseover="if('${fStr}'!==fechaSeleccionada){this.style.transform='scale(1.08)';this.style.boxShadow='0 4px 12px rgba(0,200,83,.25)'}"
+        onmouseout="this.style.transform='';this.style.boxShadow=''">${d}${hoyStar}</div>`;
+    }
+  }
+  document.getElementById('cal-dias').innerHTML = html;
+}
+
+// ── Elegir día — lee citas desde citasOcupadas (no desde onclick) ──
+function elegirDia(fStr) {
+  fechaSeleccionada = fStr;
+  document.getElementById('fecha-hidden').value = fStr;
+  document.getElementById('hora-hidden').value  = '';
+  document.getElementById('fecha-req-error').style.display = 'none';
+  horaSeleccionada = '';
+  renderCalendario();
+
+  const partes = fStr.split('-');
+  document.getElementById('dia-titulo').textContent =
+    partes[2] + ' de ' + MESES[parseInt(partes[1])-1] + ' de ' + partes[0];
+
+  const citas   = citasDeDia(fStr);
+  const citaDiv = document.getElementById('dia-citas');
+
+  if (citas.length) {
+    citaDiv.innerHTML =
+      '<p style="margin:0 0 8px;font-size:.72rem;font-weight:700;color:#e6b800;text-transform:uppercase;letter-spacing:.04em;">Citas existentes</p>' +
+      citas.map(c => {
+        const durMins = parseInt(c.duracion_mins) || 60;
+        const ini     = hhmm2mins((c.hora || '').slice(0,5));
+        const finStr  = String(Math.floor((ini+durMins)/60)).padStart(2,'0') + ':' + String((ini+durMins)%60).padStart(2,'0');
+        return `<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.06);">
+          <span style="background:rgba(255,193,7,.15);border:1px solid rgba(255,193,7,.3);border-radius:6px;
+                       padding:3px 9px;font-size:.73rem;font-weight:700;white-space:nowrap;color:#e6b800;">
+            ${(c.hora||'').slice(0,5)} – ${finStr}
+          </span>
+          <span style="font-size:.76rem;color:var(--gt);">${c.servicio}</span>
+        </div>`;
+      }).join('');
+  } else {
+    citaDiv.innerHTML = '<p style="margin:0;font-size:.78rem;color:var(--va);font-weight:600;">✓ Día completamente libre</p>';
+  }
+
+  renderSlotsHorario(fStr, citas);
+  document.getElementById('hora-fin-info').style.display = 'none';
+  document.getElementById('dia-seleccionado').style.display = 'block';
+}
+
+// ── Renderiza los botones de hora ──
+function renderSlotsHorario(fStr, citas) {
+  const hoy        = new Date();
+  const hoyStr     = fechaLocalStr(hoy);
+  const ahoraMins  = hoy.getHours() * 60 + hoy.getMinutes();
+  const durNuevo   = duracionActualMins();
+  const bloqMec    = calcularSlotsNoDisponibles(citas, durNuevo);      // conflictos mecánico
+  const bloqCli    = slotsConflictoCliente(fStr, durNuevo);            // conflictos propios cliente
+
+  const grid = document.getElementById('horarios-grid');
+  grid.innerHTML = HORARIOS_DISPONIBLES.map(h => {
+    const sm        = hhmm2mins(h);
+    const esPasado  = fStr === hoyStr && sm <= ahoraMins + 30;
+    const ocupMec   = bloqMec.has(h);
+    const ocupCli   = bloqCli.has(h);
+    const ocupado   = esPasado || ocupMec || ocupCli;
+    const esSel     = h === horaSeleccionada;
+
+    let bg, borde, color, cur, label;
+    if (esSel) {
+      bg = 'var(--va)'; borde = 'var(--va)'; color = '#000'; cur = 'pointer'; label = '';
+    } else if (esPasado) {
+      bg = 'rgba(255,255,255,.03)'; borde = 'rgba(255,255,255,.07)';
+      color = 'rgba(255,255,255,.18)'; cur = 'not-allowed'; label = 'Pasado';
+    } else if (ocupCli) {
+      // Naranja: conflicto con otra cita PROPIA del cliente
+      bg = 'rgba(255,120,0,.08)'; borde = 'rgba(255,120,0,.3)';
+      color = '#ff7800'; cur = 'not-allowed'; label = 'Tu cita';
+    } else if (ocupMec) {
+      // Gris: mecánico ocupado
+      bg = 'rgba(255,255,255,.03)'; borde = 'rgba(255,255,255,.07)';
+      color = 'rgba(255,255,255,.18)'; cur = 'not-allowed'; label = 'Ocupado';
+    } else {
+      bg = 'rgba(0,200,83,.12)'; borde = 'rgba(0,200,83,.3)';
+      color = 'var(--bl)'; cur = 'pointer'; label = '';
+    }
+
+    return `<button type="button"
+      ${ocupado ? 'disabled' : `onclick="elegirHora('${h}',this)"`}
+      style="padding:9px 4px;border-radius:9px;font-size:.76rem;font-weight:700;cursor:${cur};
+             background:${bg};border:1px solid ${borde};color:${color};
+             line-height:1.2;transition:background .12s,border-color .12s,transform .1s;"
+      ${!ocupado ? `onmouseover="this.style.transform='scale(1.06)'" onmouseout="this.style.transform=''"` : ''}
+    >${h}${label ? `<br><span style="font-size:.58rem;opacity:.7;">${label}</span>` : ''}</button>`;
+  }).join('');
+
+  // Panel de tus propias citas ese día
+  const misCitasDia = citasCliente.filter(c => c.fecha === fStr);
+  const panelMisCitas = document.getElementById('panel-mis-citas');
+  if (panelMisCitas) {
+    if (misCitasDia.length) {
+      panelMisCitas.style.display = 'block';
+      document.getElementById('mis-citas-lista').innerHTML = misCitasDia.map(c => {
+        const ini   = hhmm2mins((c.hora||'').slice(0,5));
+        const fin   = ini + (parseInt(c.duracion_mins)||60);
+        const finStr = String(Math.floor(fin/60)).padStart(2,'0') + ':' + String(fin%60).padStart(2,'0');
+        return `<div style="display:flex;align-items:center;gap:8px;padding:4px 0;">
+          <span style="background:rgba(255,120,0,.15);border:1px solid rgba(255,120,0,.3);border-radius:5px;
+                       padding:2px 8px;font-size:.72rem;font-weight:700;color:#ff7800;white-space:nowrap;">
+            ${(c.hora||'').slice(0,5)} – ${finStr}
+          </span>
+          <span style="font-size:.74rem;color:var(--gt);">${c.servicio}</span>
+          ${c.bici_label ? `<span style="font-size:.68rem;color:var(--gs);">· ${c.bici_label}</span>` : ''}
+        </div>`;
+      }).join('');
+    } else {
+      panelMisCitas.style.display = 'none';
+    }
+  }
+}
+
+function elegirHora(hora, btn) {
+  horaSeleccionada = hora;
+  document.getElementById('hora-hidden').value = hora;
+  // Reset todos
+  document.querySelectorAll('#horarios-grid button').forEach(b => {
+    if (!b.disabled) {
+      b.style.background  = 'rgba(0,200,83,.12)';
+      b.style.borderColor = 'rgba(0,200,83,.3)';
+      b.style.color       = 'var(--bl)';
+    }
+  });
+  btn.style.background  = 'var(--va)';
+  btn.style.borderColor = 'var(--va)';
+  btn.style.color       = '#000';
+  mostrarHoraFin(hora, tiempoServicio);
+  actualizarResumen();
+}
+
+// ── MAPA ─────────────────────────────────────────────────────────────
+let mapaIniciado  = false;
+let mapaLeaflet   = null;
+let marcador      = null;
+let busquedaTimer = null;
+const LAT_DEFAULT = 4.7110;
+const LNG_DEFAULT = -74.0721;
+
+function initMapa() {
+  if (mapaIniciado) { mapaLeaflet.invalidateSize(); return; }
+  mapaIniciado = true;
+  if (!window.L) {
+    const s = document.createElement('script');
+    s.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+    s.onload = crearMapa;
+    document.head.appendChild(s);
+  } else { crearMapa(); }
+}
+
+function crearMapa() {
+  mapaLeaflet = L.map('mapa-picker', { zoomControl:true, scrollWheelZoom:false }).setView([LAT_DEFAULT, LNG_DEFAULT], 13);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution:'© OpenStreetMap', maxZoom:19 }).addTo(mapaLeaflet);
+
+  const iconoVerde = L.divIcon({
+    className: '',
+    html: `<div style="width:32px;height:32px;background:var(--va);border-radius:50% 50% 50% 0;
+           transform:rotate(-45deg);border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.4);"></div>`,
+    iconSize:[32,32], iconAnchor:[16,32], popupAnchor:[0,-34]
+  });
+
+  marcador = L.marker([LAT_DEFAULT, LNG_DEFAULT], { draggable:true, icon:iconoVerde }).addTo(mapaLeaflet);
+  marcador.on('dragend', e => { const {lat,lng} = e.target.getLatLng(); geocodificacionInversa(lat,lng); });
+  mapaLeaflet.on('click', e => { marcador.setLatLng(e.latlng); geocodificacionInversa(e.latlng.lat, e.latlng.lng); });
+}
+
+function geocodificacionInversa(lat, lng) {
+  fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=es`)
+    .then(r => r.json())
+    .then(d => {
+      const dir = d.display_name || (lat.toFixed(5) + ', ' + lng.toFixed(5));
+      document.getElementById('input-ubicacion').value  = dir;
+      document.getElementById('ubicacion-hidden').value = dir;
+      document.getElementById('hint-direccion').textContent = dir;
+    })
+    .catch(() => {
+      const coord = lat.toFixed(5) + ', ' + lng.toFixed(5);
+      document.getElementById('ubicacion-hidden').value = coord;
+      document.getElementById('hint-direccion').textContent = coord;
+    });
+}
+
+function buscarDireccion() {
+  clearTimeout(busquedaTimer);
+  const q = document.getElementById('input-ubicacion').value.trim();
+  if (q.length < 3) { document.getElementById('sugerencias-dir').style.display = 'none'; return; }
+  busquedaTimer = setTimeout(() => {
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=5&accept-language=es&countrycodes=co`)
+      .then(r => r.json())
+      .then(results => {
+        const div = document.getElementById('sugerencias-dir');
+        if (!results.length) { div.style.display = 'none'; return; }
+        div.innerHTML = results.map(r =>
+          `<div onclick="elegirSugerencia(${r.lat},${r.lon},'${r.display_name.replace(/'/g,"\\'")}')"
+            style="padding:10px 14px;cursor:pointer;font-size:.8rem;color:var(--bl);border-bottom:1px solid rgba(0,200,83,.1);"
+            onmouseover="this.style.background='rgba(0,200,83,.08)'" onmouseout="this.style.background=''">
+            ${r.display_name}
+          </div>`).join('');
+        div.style.display = 'block';
+      });
+  }, 400);
+}
+
+function elegirSugerencia(lat, lon, nombre) {
+  document.getElementById('input-ubicacion').value  = nombre;
+  document.getElementById('ubicacion-hidden').value = nombre;
+  document.getElementById('hint-direccion').textContent = nombre;
+  document.getElementById('sugerencias-dir').style.display = 'none';
+  if (mapaLeaflet && marcador) {
+    const ll = L.latLng(lat, lon);
+    marcador.setLatLng(ll);
+    mapaLeaflet.setView(ll, 16);
+  }
+}
+
+function usarUbicacionActual() {
+  if (!navigator.geolocation) { alert('Tu navegador no soporta geolocalización.'); return; }
+  navigator.geolocation.getCurrentPosition(pos => {
+    const { latitude:lat, longitude:lng } = pos.coords;
+    if (!mapaIniciado) initMapa();
+    setTimeout(() => {
+      if (mapaLeaflet && marcador) {
+        const ll = L.latLng(lat, lng);
+        marcador.setLatLng(ll);
+        mapaLeaflet.setView(ll, 16);
+      }
+      geocodificacionInversa(lat, lng);
+    }, 300);
+  }, () => alert('No se pudo obtener tu ubicación. Verifica los permisos del navegador.'));
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('#bloque-direccion')) {
+    document.getElementById('sugerencias-dir').style.display = 'none';
+  }
+});
+
+// ── VALIDACION SUBMIT ───────────────────────────────────────────────
+// ── RESUMEN TOTAL A PAGAR ────────────────────────────────────────────
+let precioMinServicio = 0;
+let precioMaxServicio = 0;
+let nombreServicioActual = '';
+let nombreMecanicoActual = '';
+
+function formatCOP(n) {
+  return '$' + n.toLocaleString('es-CO');
+}
+
+function actualizarResumen() {
+  const resumen = document.getElementById('resumen-pago');
+  if (!precioMinServicio && !precioMaxServicio) { resumen.style.display = 'none'; return; }
+
+  resumen.style.display = 'block';
+
+  // Servicio
+  document.getElementById('res-servicio').textContent = nombreServicioActual;
+  document.getElementById('res-precio-servicio').textContent =
+    formatCOP(precioMinServicio) + ' – ' + formatCOP(precioMaxServicio);
+
+  // Tipo atencion
+  const tipoTextos = { taller: 'Lo llevo al taller', domicilio: 'El mecanico va donde estas', recogida: 'Pasamos a recoger' };
+  if (tipoAtencion) {
+    document.getElementById('res-tipo').textContent = tipoTextos[tipoAtencion] || tipoAtencion;
+    document.getElementById('res-tipo-row').style.display = 'flex';
+  } else {
+    document.getElementById('res-tipo-row').style.display = 'none';
+  }
+
+  // Costo adicional
+  if (costoAdicional > 0) {
+    document.getElementById('res-adicional-label').textContent =
+      costoAdicional === 8000 ? '+ Desplazamiento mecanico' : '+ Recogida y entrega';
+    document.getElementById('res-adicional').textContent = formatCOP(costoAdicional);
+    document.getElementById('res-adicional-row').style.display = 'flex';
+  } else {
+    document.getElementById('res-adicional-row').style.display = 'none';
+  }
+
+  // Fecha y hora
+  if (fechaSeleccionada && horaSeleccionada) {
+    const partes = fechaSeleccionada.split('-');
+    const MESES_RES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+    document.getElementById('res-fecha').textContent =
+      partes[2] + ' ' + MESES_RES[parseInt(partes[1])-1] + ' ' + partes[0] + ' a las ' + horaSeleccionada;
+    document.getElementById('res-fecha-row').style.display = 'flex';
+  } else {
+    document.getElementById('res-fecha-row').style.display = 'none';
+  }
+
+  // Mecánico
+  if (nombreMecanicoActual) {
+    document.getElementById('res-mecanico').textContent = nombreMecanicoActual;
+    document.getElementById('res-mecanico-row').style.display = 'flex';
+  } else {
+    document.getElementById('res-mecanico-row').style.display = 'none';
+  }
+
+  // Total
+  const totalMin = precioMinServicio + costoAdicional;
+  const totalMax = precioMaxServicio + costoAdicional;
+  document.getElementById('res-total').textContent =
+    totalMin === totalMax ? formatCOP(totalMin) : formatCOP(totalMin) + ' – ' + formatCOP(totalMax);
+}
+
+document.getElementById('form-solicitar').addEventListener('submit', function(e) {
+  // ── Validar bici sin orden activa ──
+  const biciId = (document.getElementById('bici-select') || {}).value || '';
+  if (biciId && biciConOrden.has(String(biciId))) {
+    alert('Esa bicicleta ya tiene una orden activa. Cancélala antes de agendar otra.');
+    e.preventDefault(); return;
+  }
+
+  // ── Validar tipo atención ──
+  if (!tipoAtencion) { alert('Selecciona como quieres el servicio (Paso 2).'); e.preventDefault(); return; }
+  if (tipoAtencion !== 'taller') {
+    const v = document.getElementById('ubicacion-hidden').value.trim() || document.getElementById('input-ubicacion').value.trim();
+    if (!v) { alert('Ingresa tu direccion o selecciona un punto en el mapa.'); e.preventDefault(); return; }
+    document.getElementById('ubicacion-hidden').value = v;
+  }
+
+  // ── Validar fecha/hora si hay mecánico ──
+  const mecId = document.getElementById('mecanico-select').value;
+  if (mecId && (!fechaSeleccionada || !horaSeleccionada)) {
+    document.getElementById('fecha-req-error').style.display = 'block';
+    document.getElementById('panel-mec').scrollIntoView({ behavior:'smooth', block:'center' });
+    e.preventDefault(); return;
+  }
+
+  // ── Validar conflicto de horario con citas propias ──
+  if (fechaSeleccionada && horaSeleccionada) {
+    const conflictos = slotsConflictoCliente(fechaSeleccionada, duracionActualMins());
+    if (conflictos.has(horaSeleccionada)) {
+      alert('Ya tienes una cita a esa hora. No puedes agendar dos servicios al mismo tiempo.');
+      e.preventDefault(); return;
+    }
+  }
+});
+</script>
+{% endblock %}

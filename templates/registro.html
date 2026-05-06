@@ -1,0 +1,502 @@
+{% extends "base.html" %}
+{% block title %}Registro — BiciFix{% endblock %}
+
+{% block extra_head %}
+<style>
+/* ── REGISTRO CARD ───────────────────── */
+.reg-wrap {
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  padding: 40px 20px;
+}
+.reg-card {
+  background: var(--n3);
+  border: 1px solid rgba(0,200,83,.18);
+  border-radius: 24px;
+  padding: 44px 40px 36px;
+  width: 100%; max-width: 520px;
+  box-shadow: 0 32px 80px rgba(0,0,0,.65);
+  animation: fadeUp .4s ease both;
+}
+
+/* ── LOGO ────────────────────────────── */
+.reg-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 32px;
+}
+.reg-logo-ring {
+  width: 80px; height: 80px;
+  border-radius: 22px;
+  background: rgba(0,200,83,.07);
+  border: 1.5px solid rgba(0,200,83,.22);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 14px;
+  box-shadow: 0 6px 24px rgba(0,0,0,.3);
+  overflow: hidden;
+}
+.reg-logo-ring img {
+  width: 66px; height: 66px;
+  object-fit: contain; display: block;
+}
+.reg-brand {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 1.8rem; font-weight: 900;
+  color: var(--bl); letter-spacing: -.02em;
+  line-height: 1;
+}
+.reg-subtitle {
+  font-size: .82rem; color: var(--gs);
+  margin-top: 5px; letter-spacing: .01em;
+}
+
+/* ── DIVIDER ─────────────────────────── */
+.reg-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0,200,83,.15), transparent);
+  margin-bottom: 26px;
+}
+
+/* ── FIELD ───────────────────────────── */
+.r-group { margin-bottom: 16px; position: relative; }
+.r-label {
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: .74rem; font-weight: 700;
+  color: var(--gt); margin-bottom: 7px; letter-spacing: .04em;
+}
+.r-err {
+  font-size: .68rem; font-weight: 600;
+  color: #EF5350; display: none; letter-spacing: .01em;
+}
+.r-ok { color: var(--va); display: none; font-size: .68rem; font-weight: 600; }
+
+.r-input {
+  width: 100%; padding: 11px 14px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid var(--n5);
+  border-radius: 11px; color: var(--bl);
+  font-family: 'Inter', sans-serif; font-size: .88rem;
+  transition: border-color .18s, background .18s, box-shadow .18s;
+  outline: none;
+}
+.r-input::placeholder { color: var(--gs); }
+.r-input:focus {
+  border-color: rgba(0,200,83,.45);
+  background: rgba(27,94,32,.07);
+  box-shadow: 0 0 0 3px rgba(0,200,83,.06);
+}
+.r-input.err {
+  border-color: rgba(239,83,80,.45);
+  background: rgba(239,83,80,.04);
+}
+.r-input.ok { border-color: rgba(0,200,83,.35); }
+.r-input.has-eye { padding-right: 46px; }
+
+/* ── EYE TOGGLE ──────────────────────── */
+.eye-btn {
+  position: absolute; right: 12px;
+  bottom: 11px;
+  background: none; border: none; cursor: pointer;
+  color: var(--gs); padding: 3px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 6px; transition: color .18s, background .18s;
+}
+.eye-btn:hover { color: var(--va); background: rgba(0,200,83,.08); }
+
+/* ── PASSWORD STRENGTH ───────────────── */
+.pw-strength { margin-top: 8px; display: none; }
+.pw-bars {
+  display: flex; gap: 4px; margin-bottom: 5px;
+}
+.pw-bar {
+  flex: 1; height: 3px; border-radius: 99px;
+  background: var(--n5); transition: background .25s ease;
+}
+.pw-bar.active-w { background: #EF5350; }
+.pw-bar.active-m { background: #FFD600; }
+.pw-bar.active-s { background: var(--va); }
+.pw-label { font-size: .67rem; font-weight: 600; color: var(--gs); }
+
+/* ── REQUIREMENTS LIST ───────────────── */
+.pw-reqs {
+  margin-top: 10px;
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 5px 12px;
+}
+.pw-req {
+  display: flex; align-items: center; gap: 5px;
+  font-size: .68rem; color: var(--gs);
+  transition: color .2s;
+}
+.pw-req svg { flex-shrink: 0; }
+.pw-req.met { color: var(--va); }
+.pw-req.met .req-circle { stroke: var(--va); }
+.pw-req.met .req-check { display: block; }
+.pw-req .req-circle { stroke: var(--gs); transition: stroke .2s; }
+.pw-req .req-check { display: none; }
+
+/* ── GRID 2 ──────────────────────────── */
+.r-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+/* ── SUBMIT ──────────────────────────── */
+.reg-btn {
+  width: 100%; padding: 13px;
+  border-radius: 13px;
+  background: var(--grn);
+  color: var(--n1); font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: .92rem; font-weight: 800;
+  border: none; cursor: pointer;
+  transition: opacity .2s, transform .2s, box-shadow .2s;
+  box-shadow: 0 4px 18px rgba(0,200,83,.35);
+  margin-top: 6px;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.reg-btn:hover { opacity: .92; transform: translateY(-1px); box-shadow: 0 8px 26px rgba(0,200,83,.45); }
+.reg-btn:active { transform: scale(.99); }
+
+.reg-footer {
+  text-align: center; margin-top: 20px;
+  font-size: .82rem; color: var(--gs);
+}
+.reg-footer a { color: var(--va); font-weight: 600; }
+.reg-footer a:hover { text-decoration: underline; }
+
+@media(max-width:500px) {
+  .reg-card { padding: 32px 22px 28px; }
+  .r-row { grid-template-columns: 1fr; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="reg-wrap">
+  <div class="reg-card">
+
+    <!-- HEADER -->
+    <div class="reg-header">
+      <div class="reg-logo-ring brand-logo-img" style="margin:0 auto 14px;">
+        <img src="/static/img/logo.png" alt="BiciFix" class="brand-logo-image">
+      </div>
+      <div class="reg-brand">BiciFix</div>
+      <div class="reg-subtitle">Crea tu cuenta gratis</div>
+    </div>
+
+    <div class="reg-divider"></div>
+
+    <form method="POST" id="regForm" novalidate>
+
+      <!-- Nombre + Apellido -->
+      <div class="r-row">
+        <div class="r-group">
+          <div class="r-label">
+            <span>Nombre</span>
+            <span class="r-err" id="e-nombre">Solo letras</span>
+          </div>
+          <input type="text" name="nombre" id="f-nombre" class="r-input"
+            placeholder="Tu nombre" autocomplete="given-name">
+        </div>
+        <div class="r-group">
+          <div class="r-label">
+            <span>Apellido</span>
+            <span class="r-err" id="e-apellido">Solo letras</span>
+          </div>
+          <input type="text" name="apellido" id="f-apellido" class="r-input"
+            placeholder="Tu apellido" autocomplete="family-name">
+        </div>
+      </div>
+
+      <!-- Email -->
+      <div class="r-group">
+        <div class="r-label">
+          <span>Correo electrónico</span>
+          <span class="r-err" id="e-email">Correo inválido</span>
+        </div>
+        <input type="email" name="email" id="f-email" class="r-input"
+          placeholder="tu@correo.com" autocomplete="email">
+      </div>
+
+      <!-- Teléfono -->
+      <div class="r-group">
+        <div class="r-label">
+          <span>Teléfono</span>
+          <span class="r-err" id="e-tel">Solo números (7-15 dígitos)</span>
+        </div>
+        <input type="tel" name="telefono" id="f-tel" class="r-input"
+          placeholder="3001234567" maxlength="15" autocomplete="tel">
+      </div>
+
+      <!-- Ciudad -->
+      <div class="r-group">
+        <div class="r-label">
+          <span>Ciudad</span>
+          <span class="r-err" id="e-ciudad">Ingresa tu ciudad</span>
+        </div>
+        <input type="text" name="ciudad" id="f-ciudad" class="r-input"
+          placeholder="Tu ciudad" autocomplete="address-level2">
+      </div>
+
+      <!-- Contraseña -->
+      <div class="r-group">
+        <div class="r-label">
+          <span>Contraseña</span>
+          <span class="r-err" id="e-pw">No cumple los requisitos</span>
+        </div>
+        <div style="position:relative;">
+          <input type="password" name="password" id="f-pw" class="r-input has-eye"
+            placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+          <button type="button" class="eye-btn" onclick="toggleEye('f-pw','eo1','ec1')" title="Mostrar/ocultar">
+            <svg id="eo1" viewBox="0 0 24 24" fill="none" width="17" height="17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+            <svg id="ec1" viewBox="0 0 24 24" fill="none" width="17" height="17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+              <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+              <line x1="1" y1="1" x2="23" y2="23"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Strength bar -->
+        <div class="pw-strength" id="pwStrength">
+          <div class="pw-bars">
+            <div class="pw-bar" id="bar1"></div>
+            <div class="pw-bar" id="bar2"></div>
+            <div class="pw-bar" id="bar3"></div>
+            <div class="pw-bar" id="bar4"></div>
+          </div>
+          <div class="pw-label" id="pwLabel">Escribe tu contraseña</div>
+          <div class="pw-reqs">
+            <div class="pw-req" id="req-len">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="9" class="req-circle"/>
+                <path d="M9 12l2 2 4-4" class="req-check" stroke="currentColor"/>
+              </svg>
+              Mínimo 6 caracteres
+            </div>
+            <div class="pw-req" id="req-upper">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="9" class="req-circle"/>
+                <path d="M9 12l2 2 4-4" class="req-check" stroke="currentColor"/>
+              </svg>
+              Una mayúscula
+            </div>
+            <div class="pw-req" id="req-num">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="9" class="req-circle"/>
+                <path d="M9 12l2 2 4-4" class="req-check" stroke="currentColor"/>
+              </svg>
+              Un número
+            </div>
+            <div class="pw-req" id="req-lower">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="9" class="req-circle"/>
+                <path d="M9 12l2 2 4-4" class="req-check" stroke="currentColor"/>
+              </svg>
+              Una minúscula
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Confirmar contraseña -->
+      <div class="r-group">
+        <div class="r-label">
+          <span>Confirmar contraseña</span>
+          <span class="r-err" id="e-conf">Las contraseñas no coinciden</span>
+          <span class="r-ok" id="ok-conf">Coinciden</span>
+        </div>
+        <div style="position:relative;">
+          <input type="password" name="confirmar" id="f-conf" class="r-input has-eye"
+            placeholder="Repite tu contraseña" autocomplete="new-password">
+          <button type="button" class="eye-btn" onclick="toggleEye('f-conf','eo2','ec2')" title="Mostrar/ocultar">
+            <svg id="eo2" viewBox="0 0 24 24" fill="none" width="17" height="17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+            <svg id="ec2" viewBox="0 0 24 24" fill="none" width="17" height="17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+              <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+              <line x1="1" y1="1" x2="23" y2="23"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <button type="submit" class="reg-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <line x1="19" y1="8" x2="19" y2="14"/>
+          <line x1="22" y1="11" x2="16" y2="11"/>
+        </svg>
+        Crear cuenta
+      </button>
+    </form>
+
+    <div class="reg-footer">
+      ¿Ya tienes cuenta? <a href="/login">Ingresar</a>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── EYE TOGGLE ───────────────────────── */
+function toggleEye(inputId, openId, closedId) {
+  const inp = document.getElementById(inputId);
+  const eo  = document.getElementById(openId);
+  const ec  = document.getElementById(closedId);
+  if (inp.type === 'password') {
+    inp.type = 'text';
+    eo.style.display = 'none';
+    ec.style.display = 'block';
+  } else {
+    inp.type = 'password';
+    eo.style.display = 'block';
+    ec.style.display = 'none';
+  }
+}
+
+/* ── HELPERS ──────────────────────────── */
+function setErr(id, errId, show) {
+  const inp = document.getElementById(id);
+  const err = document.getElementById(errId);
+  if (show) { inp.classList.add('err'); inp.classList.remove('ok'); err.style.display='inline'; }
+  else       { inp.classList.remove('err'); err.style.display='none'; }
+}
+function setOk(id, okId) {
+  const inp = document.getElementById(id);
+  const ok  = document.getElementById(okId);
+  inp.classList.add('ok'); inp.classList.remove('err');
+  if (ok) ok.style.display = 'inline';
+}
+function clearOk(id, okId) {
+  const inp = document.getElementById(id);
+  const ok  = document.getElementById(okId);
+  inp.classList.remove('ok');
+  if (ok) ok.style.display = 'none';
+}
+
+/* ── SOLO LETRAS ──────────────────────── */
+['f-nombre','f-apellido'].forEach(fid => {
+  const inp = document.getElementById(fid);
+  const eid = fid === 'f-nombre' ? 'e-nombre' : 'e-apellido';
+  inp.addEventListener('input', () => {
+    inp.value = inp.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]/g, '');
+  });
+  inp.addEventListener('blur', () => {
+    if (!inp.value.trim()) { setErr(fid, eid, true); }
+    else                   { setErr(fid, eid, false); }
+  });
+});
+
+/* ── SOLO NÚMEROS TELÉFONO ────────────── */
+const telInp = document.getElementById('f-tel');
+telInp.addEventListener('input', () => {
+  telInp.value = telInp.value.replace(/\D/g, '');
+});
+telInp.addEventListener('blur', () => {
+  const v = telInp.value;
+  setErr('f-tel','e-tel', v.length < 7 || v.length > 15);
+});
+
+/* ── EMAIL ────────────────────────────── */
+document.getElementById('f-email').addEventListener('blur', () => {
+  const v = document.getElementById('f-email').value;
+  const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+  setErr('f-email','e-email', !ok);
+});
+
+/* ── CIUDAD ───────────────────────────── */
+document.getElementById('f-ciudad').addEventListener('blur', () => {
+  const v = document.getElementById('f-ciudad').value.trim();
+  setErr('f-ciudad','e-ciudad', !v);
+});
+
+/* ── PASSWORD STRENGTH ────────────────── */
+const pwInp = document.getElementById('f-pw');
+const bars  = [document.getElementById('bar1'), document.getElementById('bar2'),
+               document.getElementById('bar3'), document.getElementById('bar4')];
+const pwLabel = document.getElementById('pwLabel');
+const strengthBox = document.getElementById('pwStrength');
+
+function checkReq(id, met) {
+  const el = document.getElementById(id);
+  if (met) el.classList.add('met'); else el.classList.remove('met');
+}
+
+function calcStrength(pw) {
+  let score = 0;
+  const hasLen   = pw.length >= 6;
+  const hasUpper = /[A-ZÁÉÍÓÚÜ]/.test(pw);
+  const hasLower = /[a-záéíóúü]/.test(pw);
+  const hasNum   = /\d/.test(pw);
+  const hasSpec  = /[^a-zA-Z0-9áéíóúüÁÉÍÓÚÜñÑ]/.test(pw);
+  checkReq('req-len',   hasLen);
+  checkReq('req-upper', hasUpper);
+  checkReq('req-lower', hasLower);
+  checkReq('req-num',   hasNum);
+  if (hasLen)   score++;
+  if (hasUpper) score++;
+  if (hasLower) score++;
+  if (hasNum)   score++;
+  if (hasSpec)  score++;
+  return { score, hasLen, hasUpper, hasLower, hasNum };
+}
+
+pwInp.addEventListener('focus', () => { strengthBox.style.display = 'block'; });
+pwInp.addEventListener('input', () => {
+  const pw = pwInp.value;
+  if (!pw) { bars.forEach(b => { b.className = 'pw-bar'; }); pwLabel.textContent = 'Escribe tu contraseña'; return; }
+  const { score } = calcStrength(pw);
+  const cls  = score <= 2 ? 'active-w' : score <= 3 ? 'active-m' : 'active-s';
+  const fill = score <= 2 ? score : score <= 3 ? 3 : 4;
+  const labels = ['','Muy débil','Débil','Regular','Fuerte','Muy fuerte'];
+  bars.forEach((b, i) => { b.className = 'pw-bar' + (i < fill ? ' ' + cls : ''); });
+  pwLabel.textContent = labels[Math.min(score, 5)];
+  checkConfirm();
+});
+
+pwInp.addEventListener('blur', () => {
+  const pw = pwInp.value;
+  const { score, hasLen, hasUpper } = calcStrength(pw);
+  const valid = hasLen && hasUpper;
+  setErr('f-pw','e-pw', pw && !valid);
+});
+
+/* ── CONFIRMAR CONTRASEÑA ─────────────── */
+function checkConfirm() {
+  const pw   = document.getElementById('f-pw').value;
+  const conf = document.getElementById('f-conf').value;
+  if (!conf) { clearOk('f-conf','ok-conf'); setErr('f-conf','e-conf',false); return; }
+  if (pw === conf) { setErr('f-conf','e-conf',false); setOk('f-conf','ok-conf'); }
+  else             { clearOk('f-conf','ok-conf'); setErr('f-conf','e-conf',true); }
+}
+document.getElementById('f-conf').addEventListener('input', checkConfirm);
+
+/* ── SUBMIT ───────────────────────────── */
+document.getElementById('regForm').addEventListener('submit', function(e) {
+  let ok = true;
+  const nombre  = document.getElementById('f-nombre').value.trim();
+  const apellido= document.getElementById('f-apellido').value.trim();
+  const email   = document.getElementById('f-email').value;
+  const tel     = document.getElementById('f-tel').value;
+  const ciudad  = document.getElementById('f-ciudad').value.trim();
+  const pw      = document.getElementById('f-pw').value;
+  const conf    = document.getElementById('f-conf').value;
+
+  if (!nombre)  { setErr('f-nombre','e-nombre',true);  ok=false; }
+  if (!apellido){ setErr('f-apellido','e-apellido',true); ok=false; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setErr('f-email','e-email',true); ok=false; }
+  if (tel.length < 7 || tel.length > 15) { setErr('f-tel','e-tel',true); ok=false; }
+  if (!ciudad)  { setErr('f-ciudad','e-ciudad',true);  ok=false; }
+
+  const { hasLen, hasUpper } = calcStrength(pw);
+  if (!hasLen || !hasUpper) { setErr('f-pw','e-pw',true); ok=false; }
+  if (pw !== conf) { setErr('f-conf','e-conf',true); clearOk('f-conf','ok-conf'); ok=false; }
+
+  if (!ok) e.preventDefault();
+});
+</script>
+{% endblock %}

@@ -1,0 +1,647 @@
+{% extends "base.html" %}
+{% block title %}Reportes — BiciFix Admin{% endblock %}
+
+{% block content %}
+<!-- ═══════════════════════════════════════════════════════
+     ENCABEZADO
+═══════════════════════════════════════════════════════ -->
+<div class="page-header animate-in">
+  <div class="page-header-info">
+    <h1 class="page-title"><i class="ti ti-chart-bar"></i> Reportes y Analítica</h1>
+    <p class="page-sub">Visión completa del negocio · datos en tiempo real para decisiones estratégicas.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     KPI CARDS — fila 1
+═══════════════════════════════════════════════════════ -->
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:28px;" class="animate-in">
+
+  <!-- Ingresos totales -->
+  <div class="kpi-card" style="position:relative;overflow:hidden;border:1px solid rgba(0,200,83,.18);">
+    
+    <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--gs);margin-bottom:6px;">Ingresos totales</div>
+    <div style="font-size:1.55rem;font-weight:800;color:var(--va);line-height:1;">
+      {{ total_ingresos|cop }}
+    </div>
+    <div style="margin-top:8px;font-size:.72rem;color:var(--gs);">Órdenes completadas</div>
+    <div style="height:3px;background:linear-gradient(90deg,var(--va),transparent);border-radius:2px;margin-top:10px;"></div>
+  </div>
+
+  <!-- Total órdenes -->
+  <div class="kpi-card" style="position:relative;overflow:hidden;border:1px solid rgba(100,181,246,.18);">
+    
+    <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--gs);margin-bottom:6px;">Total órdenes</div>
+    <div style="font-size:1.55rem;font-weight:800;color:#64b5f6;line-height:1;">{{ total_ordenes }}</div>
+    <div style="margin-top:8px;font-size:.72rem;color:var(--gs);">{{ ordenes_pendientes }} pendientes · {{ ordenes_completadas }} completadas</div>
+    <div style="height:3px;background:linear-gradient(90deg,#64b5f6,transparent);border-radius:2px;margin-top:10px;"></div>
+  </div>
+
+  <!-- Tasa de completado -->
+  <div class="kpi-card" style="position:relative;overflow:hidden;border:1px solid rgba(105,240,174,.18);">
+    
+    <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--gs);margin-bottom:6px;">Tasa de completado</div>
+    <div style="font-size:1.55rem;font-weight:800;color:var(--vn);line-height:1;">{{ tasa_completado }}%</div>
+    <div style="margin-top:8px;">
+      <div style="height:6px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden;">
+        <div style="height:100%;width:{{ tasa_completado }}%;background:linear-gradient(90deg,var(--vn),var(--va));border-radius:4px;transition:width .8s;"></div>
+      </div>
+    </div>
+    <div style="height:3px;background:linear-gradient(90deg,var(--vn),transparent);border-radius:2px;margin-top:10px;"></div>
+  </div>
+
+  <!-- Calificación promedio -->
+  <div class="kpi-card" style="position:relative;overflow:hidden;border:1px solid rgba(255,214,0,.18);">
+    
+    <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--gs);margin-bottom:6px;">Calificación promedio</div>
+    <div style="font-size:1.55rem;font-weight:800;color:var(--am);line-height:1;">{{ promedio_calificacion }} <i class="ti ti-star-filled" style="font-size:.9rem;color:var(--am);"></i></div>
+    <div style="margin-top:8px;font-size:.72rem;color:var(--gs);">Sobre 5.0 estrellas</div>
+    <div style="height:3px;background:linear-gradient(90deg,var(--am),transparent);border-radius:2px;margin-top:10px;"></div>
+  </div>
+
+  <!-- Clientes nuevos -->
+  <div class="kpi-card" style="position:relative;overflow:hidden;border:1px solid rgba(206,147,216,.18);">
+    
+    <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--gs);margin-bottom:6px;">Clientes nuevos</div>
+    <div style="font-size:1.55rem;font-weight:800;color:#ce93d8;line-height:1;">{{ clientes_nuevos }}</div>
+    <div style="margin-top:8px;font-size:.72rem;color:var(--gs);">Este mes</div>
+    <div style="height:3px;background:linear-gradient(90deg,#ce93d8,transparent);border-radius:2px;margin-top:10px;"></div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     FILA 2 — Ingresos/Órdenes por mes  +  Dona estados
+═══════════════════════════════════════════════════════ -->
+<div style="display:grid;grid-template-columns:1fr 340px;gap:20px;margin-bottom:24px;" class="animate-in rpt-grid-main">
+
+  <!-- Gráfico de línea — ingresos y órdenes por mes -->
+  <div class="card" style="padding:24px;">
+    <div class="card-header" style="margin-bottom:20px;">
+      <span class="card-title"><i class="ti ti-chart-line"></i> Ingresos & Órdenes — últimos 6 meses</span>
+    </div>
+    <div style="position:relative;height:240px;">
+      <canvas id="chartLinea"></canvas>
+    </div>
+    <!-- Conclusión automática -->
+    <div id="concLinea" style="margin-top:14px;padding:10px 14px;background:rgba(0,200,83,.05);border-left:3px solid var(--va);border-radius:0 8px 8px 0;font-size:.78rem;color:var(--gt);"></div>
+  </div>
+
+  <!-- Dona — distribución de estados -->
+  <div class="card" style="padding:24px;">
+    <div class="card-header" style="margin-bottom:16px;">
+      <span class="card-title"><i class="ti ti-chart-donut"></i> Estados de órdenes</span>
+    </div>
+    <div style="position:relative;height:200px;display:flex;justify-content:center;">
+      <canvas id="chartDona"></canvas>
+    </div>
+    <div id="legendDona" style="margin-top:16px;display:flex;flex-direction:column;gap:6px;font-size:.74rem;"></div>
+    <div id="concDona" style="margin-top:12px;padding:8px 12px;background:rgba(100,181,246,.05);border-left:3px solid #64b5f6;border-radius:0 8px 8px 0;font-size:.76rem;color:var(--gt);"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     FILA 3 — Servicios top + Ticket promedio
+═══════════════════════════════════════════════════════ -->
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;" class="animate-in rpt-grid-half">
+
+  <!-- Barras horizontales — servicios más solicitados -->
+  <div class="card" style="padding:24px;">
+    <div class="card-header" style="margin-bottom:20px;">
+      <span class="card-title"><i class="ti ti-tool"></i> Servicios más solicitados</span>
+    </div>
+    <div style="position:relative;height:220px;">
+      <canvas id="chartServicios"></canvas>
+    </div>
+    <div style="margin-top:18px;display:flex;flex-direction:column;gap:10px;">
+      {% for s in servicios_top %}
+      <div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+          <span style="font-size:.78rem;color:var(--bl);">{{ s.nombre }}</span>
+          <span style="font-size:.78rem;font-weight:700;color:var(--va);">{{ s.total }}</span>
+        </div>
+        <div style="height:5px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden;">
+          <div style="height:100%;width:{{ (s.total / max_servicios * 100)|int }}%;background:linear-gradient(90deg,var(--va),var(--vn));border-radius:3px;"></div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Barras — ticket promedio por servicio -->
+  <div class="card" style="padding:24px;">
+    <div class="card-header" style="margin-bottom:20px;">
+      <span class="card-title"><i class="ti ti-receipt"></i> Ticket promedio por servicio</span>
+    </div>
+    <div style="position:relative;height:220px;">
+      <canvas id="chartTicket"></canvas>
+    </div>
+    <div id="concTicket" style="margin-top:14px;padding:10px 14px;background:rgba(255,214,0,.05);border-left:3px solid var(--am);border-radius:0 8px 8px 0;font-size:.78rem;color:var(--gt);"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     FILA 4 — Top mecánicos + Tipo de atención
+═══════════════════════════════════════════════════════ -->
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;" class="animate-in rpt-grid-half">
+
+  <!-- Tabla top mecánicos -->
+  <div class="card" style="padding:24px;">
+    <div class="card-header" style="margin-bottom:20px;">
+      <span class="card-title"><i class="ti ti-trophy"></i> Top mecánicos</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>#</th><th>Mecánico</th><th>Servicios</th><th>Rating</th><th>Desempeño</th></tr>
+        </thead>
+        <tbody>
+          {% for m in mecanicos_top %}
+          {% set pct = ((m.total_servicios / mecanicos_top[0].total_servicios) * 100)|int if mecanicos_top[0].total_servicios > 0 else 0 %}
+          <tr>
+            <td style="color:var(--am);font-weight:700;">
+              {% if loop.index == 1 %}<i class="ti ti-number-1" style="color:#ffd700;font-weight:700;"></i>
+              {% elif loop.index == 2 %}<i class="ti ti-number-2" style="color:#c0c0c0;font-weight:700;"></i>
+              {% elif loop.index == 3 %}<i class="ti ti-number-3" style="color:#cd7f32;font-weight:700;"></i>
+              {% else %}{{ loop.index }}{% endif %}
+            </td>
+            <td class="td-main">{{ m.nombre }}</td>
+            <td style="font-weight:700;color:var(--bl);">{{ m.total_servicios }}</td>
+            <td style="color:var(--am);">
+              {% if m.calificacion > 0 %}{{ m.calificacion }} <i class="ti ti-star" style="font-size:.8rem;color:var(--am);"></i>{% else %}<span style="color:var(--gs);">—</span>{% endif %}
+            </td>
+            <td style="min-width:80px;">
+              <div style="height:5px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden;">
+                <div style="height:100%;width:{{ pct }}%;background:linear-gradient(90deg,var(--va),var(--vn));border-radius:3px;"></div>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% if mecanicos_top %}
+    <div style="margin-top:14px;padding:10px 14px;background:rgba(0,200,83,.05);border-left:3px solid var(--va);border-radius:0 8px 8px 0;font-size:.78rem;color:var(--gt);">
+      <i class="ti ti-award" style="color:var(--am);"></i> <strong>{{ mecanicos_top[0].nombre }}</strong> lidera con {{ mecanicos_top[0].total_servicios }} servicios
+      {% if mecanicos_top[0].calificacion > 0 %}y una calificación de {{ mecanicos_top[0].calificacion }}</span>.{% else %}completados.{% endif %}
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Barras apiladas / polar — tipo de atención -->
+  <div class="card" style="padding:24px;">
+    <div class="card-header" style="margin-bottom:20px;">
+      <span class="card-title"><i class="ti ti-bike"></i> Canal de atención</span>
+    </div>
+    <div style="position:relative;height:220px;display:flex;justify-content:center;">
+      <canvas id="chartTipos"></canvas>
+    </div>
+    <div id="legendTipos" style="margin-top:16px;display:flex;gap:14px;flex-wrap:wrap;font-size:.74rem;justify-content:center;"></div>
+    <div id="concTipos" style="margin-top:12px;padding:8px 12px;background:rgba(105,240,174,.05);border-left:3px solid var(--vn);border-radius:0 8px 8px 0;font-size:.76rem;color:var(--gt);"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     RESUMEN / CONCLUSIONES EJECUTIVAS
+═══════════════════════════════════════════════════════ -->
+<div class="card animate-in" style="padding:28px;margin-bottom:28px;">
+  <div class="card-header" style="margin-bottom:20px;">
+    <span class="card-title"><i class="ti ti-bulb"></i> Conclusiones ejecutivas</span>
+  </div>
+  <div id="conclusiones" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;"></div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+<script>
+// ── Datos desde Flask ──────────────────────────────────────
+const estadosLabels  = {{ estados_labels|safe }};
+const estadosData    = {{ estados_data|safe }};
+const mesesLabels    = {{ meses_labels|safe }};
+const mesesIngresos  = {{ meses_ingresos|safe }};
+const mesesOrdenes   = {{ meses_ordenes|safe }};
+const tiposLabels    = {{ tipos_labels|safe }};
+const tiposData      = {{ tipos_data|safe }};
+const ticketLabels   = {{ ticket_labels|safe }};
+const ticketData     = {{ ticket_data|safe }};
+
+// ── Paleta BiciFix ─────────────────────────────────────────
+const C = {
+  verde   : '#00c853',
+  verdeN  : '#69f0ae',
+  azul    : '#64b5f6',
+  amarillo: '#ffd600',
+  naranja : '#ff9100',
+  rojo    : '#ff5252',
+  morado  : '#ce93d8',
+  gris    : '#546e7a',
+};
+const PALETTE = [C.verde, C.azul, C.amarillo, C.morado, C.naranja, C.rojo, C.verdeN];
+
+// ── Opciones globales ──────────────────────────────────────
+Chart.defaults.color = '#8fa3a3';
+Chart.defaults.font.family = "'Inter','Segoe UI',sans-serif";
+Chart.defaults.font.size   = 11;
+
+const gridColor = 'rgba(255,255,255,0.06)';
+const tooltipBase = {
+  backgroundColor : 'rgba(10,20,15,.92)',
+  borderColor     : 'rgba(0,200,83,.25)',
+  borderWidth     : 1,
+  padding         : 10,
+  cornerRadius    : 8,
+  titleColor      : '#e0f2e9',
+  bodyColor       : '#a5c9b5',
+};
+
+// ─────────────────────────────────────────────────────────────
+// 1. LÍNEA — Ingresos y órdenes por mes
+// ─────────────────────────────────────────────────────────────
+const ctxLinea = document.getElementById('chartLinea');
+if (ctxLinea && mesesLabels.length) {
+  const gradVerde = ctxLinea.getContext('2d').createLinearGradient(0,0,0,240);
+  gradVerde.addColorStop(0,'rgba(0,200,83,.35)');
+  gradVerde.addColorStop(1,'rgba(0,200,83,0)');
+  const gradAzul = ctxLinea.getContext('2d').createLinearGradient(0,0,0,240);
+  gradAzul.addColorStop(0,'rgba(100,181,246,.25)');
+  gradAzul.addColorStop(1,'rgba(100,181,246,0)');
+
+  new Chart(ctxLinea, {
+    type: 'line',
+    data: {
+      labels: mesesLabels,
+      datasets: [
+        {
+          label: 'Ingresos ($)',
+          data: mesesIngresos,
+          borderColor: C.verde,
+          backgroundColor: gradVerde,
+          fill: true,
+          tension: 0.45,
+          pointBackgroundColor: C.verde,
+          pointRadius: 5,
+          pointHoverRadius: 8,
+          yAxisID: 'yIngresos',
+        },
+        {
+          label: 'Órdenes',
+          data: mesesOrdenes,
+          borderColor: C.azul,
+          backgroundColor: gradAzul,
+          fill: true,
+          tension: 0.45,
+          pointBackgroundColor: C.azul,
+          pointRadius: 5,
+          pointHoverRadius: 8,
+          yAxisID: 'yOrdenes',
+          borderDash: [5,3],
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode:'index', intersect:false },
+      plugins: {
+        legend: { position:'top', labels:{ boxWidth:12, padding:16 } },
+        tooltip: {
+          ...tooltipBase,
+          callbacks: {
+            label: ctx => {
+              if (ctx.datasetIndex===0)
+                return ' $' + ctx.raw.toLocaleString('es-CO');
+              return ' ' + ctx.raw + ' órdenes';
+            }
+          }
+        }
+      },
+      scales: {
+        x: { grid:{ color:gridColor }, ticks:{ maxRotation:0 } },
+        yIngresos: {
+          position:'left', grid:{ color:gridColor },
+          ticks:{ callback: v => '$'+v.toLocaleString('es-CO') }
+        },
+        yOrdenes: {
+          position:'right', grid:{ display:false },
+          ticks:{ stepSize:1 }
+        }
+      }
+    }
+  });
+
+  // Conclusión línea
+  const maxI = Math.max(...mesesIngresos);
+  const idxM = mesesIngresos.indexOf(maxI);
+  document.getElementById('concLinea').innerHTML =
+    `El mejor mes fue <strong>${mesesLabels[idxM]}</strong> con ingresos de <strong>$${maxI.toLocaleString('es-CO')}</strong>`+
+    ` y <strong>${mesesOrdenes[idxM]} órdenes</strong>. `+
+    (mesesIngresos.length >= 2 && mesesIngresos.at(-1) >= mesesIngresos.at(-2)
+      ? 'La tendencia de ingresos es <strong>positiva</strong> en el último mes.'
+      : 'Los ingresos mostraron una <strong>baja</strong> en el último período.');
+} else if(ctxLinea) {
+  ctxLinea.parentElement.innerHTML = '<p style="color:var(--gs);text-align:center;padding:40px 0;">Sin datos suficientes para graficar.</p>';
+}
+
+// ─────────────────────────────────────────────────────────────
+// 2. DONA — Estados de órdenes
+// ─────────────────────────────────────────────────────────────
+if (estadosLabels.length) {
+  const stColors = estadosLabels.map(l => {
+    if (l.includes('Complet')) return C.verde;
+    if (l.includes('Pendient')) return C.amarillo;
+    if (l.includes('Asignad')) return C.azul;
+    if (l.includes('Proceso') || l.includes('Camino')) return C.verdeN;
+    if (l.includes('Cancelad')) return C.rojo;
+    return C.gris;
+  });
+
+  new Chart(document.getElementById('chartDona'), {
+    type: 'doughnut',
+    data: {
+      labels: estadosLabels,
+      datasets:[{ data: estadosData, backgroundColor: stColors,
+                  borderColor:'rgba(0,0,0,.3)', borderWidth:2,
+                  hoverOffset:10 }]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      cutout:'68%',
+      plugins: {
+        legend:{ display:false },
+        tooltip:{ ...tooltipBase }
+      }
+    }
+  });
+
+  // Leyenda manual
+  const leg = document.getElementById('legendDona');
+  estadosLabels.forEach((l,i)=>{
+    leg.innerHTML += `<div style="display:flex;align-items:center;gap:7px;">
+      <span style="width:10px;height:10px;border-radius:50%;background:${stColors[i]};flex-shrink:0;"></span>
+      <span style="color:var(--gt);">${l}</span>
+      <span style="color:var(--va);font-weight:700;margin-left:auto;">${estadosData[i]}</span>
+    </div>`;
+  });
+
+  const maxIdx = estadosData.indexOf(Math.max(...estadosData));
+  const totalE = estadosData.reduce((a,b)=>a+b,0);
+  const pctMax = totalE ? Math.round(estadosData[maxIdx]/totalE*100) : 0;
+  document.getElementById('concDona').innerHTML =
+    `El estado más frecuente es <strong>${estadosLabels[maxIdx]}</strong> con el <strong>${pctMax}%</strong> del total.`;
+}
+
+// ─────────────────────────────────────────────────────────────
+// 3. BARRAS HORIZONTALES — Servicios más solicitados
+// ─────────────────────────────────────────────────────────────
+{%- set svc_labels = servicios_top | map(attribute='nombre') | list %}
+{%- set svc_data   = servicios_top | map(attribute='total')  | list %}
+const svcLabels = {{ svc_labels | tojson }};
+const svcData   = {{ svc_data   | tojson }};
+
+if (svcLabels.length) {
+  new Chart(document.getElementById('chartServicios'), {
+    type:'bar',
+    data:{
+      labels: svcLabels,
+      datasets:[{
+        label:'Órdenes',
+        data: svcData,
+        backgroundColor: svcLabels.map((_,i)=>PALETTE[i % PALETTE.length]+'cc'),
+        borderColor:     svcLabels.map((_,i)=>PALETTE[i % PALETTE.length]),
+        borderWidth:1,
+        borderRadius:6,
+      }]
+    },
+    options:{
+      indexAxis:'y',
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{...tooltipBase} },
+      scales:{
+        x:{ grid:{color:gridColor}, ticks:{stepSize:1} },
+        y:{ grid:{display:false}, ticks:{font:{size:10}} }
+      }
+    }
+  });
+}
+
+// ─────────────────────────────────────────────────────────────
+// 4. BARRAS — Ticket promedio
+// ─────────────────────────────────────────────────────────────
+if (ticketLabels.length) {
+  new Chart(document.getElementById('chartTicket'), {
+    type:'bar',
+    data:{
+      labels: ticketLabels,
+      datasets:[{
+        label:'Ticket promedio ($)',
+        data: ticketData,
+        backgroundColor: ticketLabels.map((_,i)=>`${PALETTE[(i+2)%PALETTE.length]}bb`),
+        borderColor:     ticketLabels.map((_,i)=>PALETTE[(i+2)%PALETTE.length]),
+        borderWidth:1,
+        borderRadius:6,
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          ...tooltipBase,
+          callbacks:{ label: ctx=>' $'+ctx.raw.toLocaleString('es-CO') }
+        }
+      },
+      scales:{
+        x:{ grid:{display:false}, ticks:{font:{size:9}, maxRotation:20} },
+        y:{ grid:{color:gridColor}, ticks:{ callback: v=>'$'+v.toLocaleString('es-CO') } }
+      }
+    }
+  });
+
+  const maxT = Math.max(...ticketData);
+  const idxT = ticketData.indexOf(maxT);
+  document.getElementById('concTicket').innerHTML =
+    `<strong>${ticketLabels[idxT]}</strong> tiene el ticket más alto con un promedio de `+
+    `<strong>$${maxT.toLocaleString('es-CO')}</strong> por orden completada.`;
+}
+
+// ─────────────────────────────────────────────────────────────
+// 5. POLAR — Canal de atención
+// ─────────────────────────────────────────────────────────────
+if (tiposLabels.length) {
+  const tipoColors = [C.verde, C.azul, C.morado, C.amarillo];
+  new Chart(document.getElementById('chartTipos'), {
+    type:'polarArea',
+    data:{
+      labels: tiposLabels,
+      datasets:[{
+        data: tiposData,
+        backgroundColor: tiposLabels.map((_,i)=>tipoColors[i%tipoColors.length]+'99'),
+        borderColor:     tiposLabels.map((_,i)=>tipoColors[i%tipoColors.length]),
+        borderWidth:2,
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{...tooltipBase} },
+      scales:{ r:{ grid:{color:gridColor}, ticks:{display:false} } }
+    }
+  });
+
+  const leg2 = document.getElementById('legendTipos');
+  tiposLabels.forEach((l,i)=>{
+    leg2.innerHTML += `<div style="display:flex;align-items:center;gap:6px;">
+      <span style="width:10px;height:10px;border-radius:2px;background:${tipoColors[i%tipoColors.length]};"></span>
+      <span>${l}: <strong style="color:var(--va);">${tiposData[i]}</strong></span>
+    </div>`;
+  });
+
+  const maxTipo = Math.max(...tiposData);
+  const idxTipo = tiposData.indexOf(maxTipo);
+  const totTipo  = tiposData.reduce((a,b)=>a+b,0);
+  document.getElementById('concTipos').innerHTML =
+    `El canal más usado es <strong>${tiposLabels[idxTipo]}</strong> con `+
+    `<strong>${Math.round(maxTipo/totTipo*100)}%</strong> de las solicitudes.`;
+}
+
+// ─────────────────────────────────────────────────────────────
+// 6. CONCLUSIONES EJECUTIVAS
+// ─────────────────────────────────────────────────────────────
+const totalIng    = {{ total_ingresos }};
+const totalOrd    = {{ total_ordenes }};
+const tasaComp    = {{ tasa_completado }};
+const promCal     = {{ promedio_calificacion }};
+const clNuevos    = {{ clientes_nuevos }};
+const ordPend     = {{ ordenes_pendientes }};
+
+const insights = [];
+
+// Ingreso por orden
+if (totalOrd > 0) {
+  const iXo = Math.round(totalIng / totalOrd);
+  insights.push({ icon:'ti-currency-dollar', color:C.verde, title:'Ingreso por orden',
+    txt:`El ticket promedio global es de <strong>$${iXo.toLocaleString('es-CO')}</strong> por orden en el sistema.` });
+}
+
+// Tasa completado
+if (tasaComp >= 70) {
+  insights.push({ icon:'ti-circle-check', color:C.verdeN, title:'Alta eficiencia operativa',
+    txt:`Con un <strong>${tasaComp}%</strong> de órdenes completadas, la operación muestra una <strong>alta tasa de cierre</strong>.` });
+} else if (tasaComp >= 40) {
+  insights.push({ icon:'ti-alert-circle', color:C.amarillo, title:'Eficiencia mejorable',
+    txt:`La tasa de completado es del <strong>${tasaComp}%</strong>. Revisar cuellos de botella en asignación de mecánicos.` });
+} else {
+  insights.push({ icon:'ti-alert-circle', color:C.rojo, title:'Baja tasa de completado',
+    txt:`Solo el <strong>${tasaComp}%</strong> de las órdenes se ha completado. Se requiere acción urgente en la operación.` });
+}
+
+// Calificación
+if (promCal >= 4.5) {
+  insights.push({ icon:'ti-star', color:C.amarillo, title:'Excelente satisfacción',
+    txt:`La calificación promedio de <strong>${promCal}</strong> indica una excelente experiencia del cliente.` });
+} else if (promCal >= 3) {
+  insights.push({ icon:'ti-star', color:C.naranja, title:'Satisfacción aceptable',
+    txt:`Calificación promedio de <strong>${promCal}</strong>. Hay margen para mejorar la experiencia de servicio.` });
+} else if (promCal > 0) {
+  insights.push({ icon:'ti-alert-circle', color:C.rojo, title:'Calificación baja',
+    txt:`Con <strong>${promCal}</strong>, la satisfacción es preocupante. Revisar calidad del servicio técnico.` });
+}
+
+// Órdenes pendientes
+if (ordPend > 5) {
+  insights.push({ icon:'ti-clipboard-list', color:C.azul, title:'Órdenes por atender',
+    txt:`Hay <strong>${ordPend} órdenes pendientes</strong>. Priorizar la asignación de mecánicos disponibles.` });
+}
+
+// Clientes nuevos
+insights.push({ icon:'ti-users', color:'#ce93d8', title:'Crecimiento de base',
+  txt:`Este mes ingresaron <strong>${clNuevos} cliente${clNuevos!==1?'s':''} nuevo${clNuevos!==1?'s':''}</strong>. ${clNuevos>=5?'Buen ritmo de captación.':'Considera estrategias para aumentar el alcance.'}`});
+
+const SVGS = {
+  'ti-currency-dollar': `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>`,
+  'ti-circle-check':    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg>`,
+  'ti-alert-circle':    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,
+  'ti-star':            `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
+  'ti-clipboard-list':  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>`,
+  'ti-users':           `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
+  'ti-trending-up':     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>`,
+};
+
+const cont = document.getElementById('conclusiones');
+insights.forEach(ins => {
+  const svgIcon = SVGS[ins.icon] || SVGS['ti-alert-circle'];
+  cont.innerHTML += `
+    <div class="ins-card">
+      <div class="ins-accent" style="background:${ins.color};"></div>
+      <div class="ins-icon-wrap" style="color:${ins.color};background:${ins.color}18;">
+        ${svgIcon}
+      </div>
+      <div class="ins-title">${ins.title}</div>
+      <div class="ins-txt">${ins.txt}</div>
+    </div>`;
+});
+</script>
+
+<!-- Conclusiones ejecutivas -->
+<style>
+#conclusiones {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+}
+.ins-card {
+  position: relative;
+  padding: 20px 18px 18px;
+  border-radius: 14px;
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.07);
+  overflow: hidden;
+  transition: transform .2s, box-shadow .2s, border-color .2s;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.ins-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(0,0,0,.35);
+  border-color: rgba(255,255,255,.13);
+}
+.ins-accent {
+  position: absolute;
+  top: 0; left: 0;
+  width: 3px; height: 100%;
+  border-radius: 14px 0 0 14px;
+}
+.ins-icon-wrap {
+  width: 38px; height: 38px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.ins-icon-wrap svg { width: 18px; height: 18px; }
+.ins-title {
+  font-size: .82rem;
+  font-weight: 800;
+  color: var(--bl);
+  letter-spacing: -.01em;
+  line-height: 1.2;
+}
+.ins-txt {
+  font-size: .76rem;
+  color: var(--gt);
+  line-height: 1.6;
+}
+.ins-txt strong { color: var(--bl); font-weight: 700; }
+</style>
+
+<!-- Responsive: apilar en móvil -->
+<style>
+@media(max-width:860px){
+  .rpt-grid-main{ grid-template-columns:1fr !important; }
+  .rpt-grid-half{ grid-template-columns:1fr !important; }
+  #conclusiones { grid-template-columns: 1fr 1fr !important; }
+}
+@media(max-width:520px){
+  #conclusiones { grid-template-columns: 1fr !important; }
+}
+</style>
+{% endblock %}

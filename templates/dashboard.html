@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Mi Panel — BiciFix{% endblock %}
+{% block content %}
+<div class="page-header animate-in">
+  <div class="page-header-info">
+    <h1 class="page-title"><i class="ti ti-layout-dashboard"></i> Mi Panel</h1>
+    <p class="page-sub">Bienvenido, {{ session['usuario']['nombre'] }} — Aquí tienes tu resumen.</p>
+  </div>
+</div>
+
+<div class="kpi-grid animate-in">
+  <div class="kpi-card kc-blue">
+    <div class="kpi-icon"><i class="ti ti-clipboard-list" aria-hidden="true"></i></div>
+    <div class="kpi-label">Total de órdenes</div>
+    <div class="kpi-value">{{ stats.total_ordenes }}</div>
+  </div>
+  <div class="kpi-card kc-amber">
+    <div class="kpi-icon"><i class="ti ti-loader" aria-hidden="true"></i></div>
+    <div class="kpi-label">En proceso</div>
+    <div class="kpi-value">{{ stats.pendientes }}</div>
+  </div>
+  <div class="kpi-card kc-teal">
+    <div class="kpi-icon"><i class="ti ti-circle-check" aria-hidden="true"></i></div>
+    <div class="kpi-label">Completadas</div>
+    <div class="kpi-value">{{ stats.completadas }}</div>
+  </div>
+  <div class="kpi-card kc-green">
+    <div class="kpi-icon"><i class="ti ti-bike" aria-hidden="true"></i></div>
+    <div class="kpi-label">Mis bicicletas</div>
+    <div class="kpi-value">{{ stats.bicicletas }}</div>
+  </div>
+</div>
+
+<div class="grid-2 animate-in">
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title"><i class="ti ti-history"></i> Últimas órdenes</span>
+      <a href="/mis-ordenes" class="btn btn-outline btn-sm">Ver todas</a>
+    </div>
+    {% if ultimas_ordenes %}
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Servicio</th><th>Fecha</th><th>Estado</th></tr></thead>
+        <tbody>
+          {% for o in ultimas_ordenes %}
+          <tr>
+            <td class="td-main">{{ o.servicio_nombre }}</td>
+            <td>{{ o.fecha_solicitud|fecha }}</td>
+            <td><span class="badge badge-{{ o.estado }}">{{ o.estado|capitalize }}</span></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <div class="es-icon"><i class="ti ti-tool" style="font-size:2rem;color:var(--va);"></i></div>
+      <div class="es-title">Sin órdenes aún</div>
+      <div class="es-sub">Solicita tu primer servicio</div>
+    </div>
+    {% endif %}
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title"><i class="ti ti-bike"></i> Mis bicicletas</span>
+      <a href="/mis-bicicletas" class="btn btn-outline btn-sm">Gestionar</a>
+    </div>
+    {% if bicicletas %}
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      {% for b in bicicletas %}
+      <div style="display:flex;align-items:center;gap:14px;padding:12px;background:rgba(27,94,32,.06);border-radius:10px;border:1px solid var(--n4);">
+        <div style="width:38px;height:38px;border-radius:10px;background:rgba(0,200,83,.1);border:1px solid rgba(0,200,83,.2);display:flex;align-items:center;justify-content:center;">
+          <i class="ti ti-bike" style="font-size:1.2rem;color:var(--va);"></i>
+        </div>
+        <div>
+          <div style="font-weight:600;color:var(--bl);">{{ b.marca }} {{ b.modelo }}</div>
+          <div style="font-size:.8rem;color:var(--gs);">{{ b.tipo }} · {{ b.color }}</div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <div class="es-icon"><i class="ti ti-bike" style="font-size:2rem;color:var(--va);"></i></div>
+      <div class="es-title">Sin bicicletas registradas</div>
+      <a href="/mis-bicicletas" class="btn btn-outline btn-sm" style="margin-top:12px;">Agregar bicicleta</a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<div class="card animate-in" style="margin-top:20px;text-align:center;padding:32px;">
+  <p style="color:var(--gt);margin-bottom:16px;">¿Necesitas un servicio para tu bicicleta?</p>
+  <a href="/solicitar" class="btn btn-neon" style="padding:12px 32px;">
+    <i class="ti ti-tool" style="margin-right:6px;"></i> Solicitar servicio ahora
+  </a>
+</div>
+{% endblock %}

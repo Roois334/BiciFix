@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% block title %}Usuarios — BiciFix Admin{% endblock %}
+{% block content %}
+
+<div class="page-header animate-in">
+  <div class="page-header-info">
+    <h1 class="page-title"><i class="ti ti-users"></i> Gestión de Usuarios</h1>
+    <p class="page-sub">Administra todos los usuarios del sistema.</p>
+  </div>
+  <div class="page-header-actions">
+    <a href="/admin/usuario/nuevo" class="btn btn-neon">+ Nuevo usuario</a>
+  </div>
+</div>
+
+<!-- Filtros por rol -->
+<div class="animate-in" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;">
+
+  {% set todos = (conteos.get('cliente',0) + conteos.get('mecanico',0) + conteos.get('admin',0)) %}
+
+  <a href="/admin/usuarios"
+     style="display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:99px;font-size:.8rem;font-weight:700;text-decoration:none;transition:all .2s;
+       {% if not rol_filtro %}background:rgba(0,200,83,.15);border:1px solid rgba(0,200,83,.4);color:var(--va);
+       {% else %}background:rgba(255,255,255,.04);border:1px solid var(--c3);color:var(--gs);{% endif %}">
+    Todos
+    <span style="background:rgba(255,255,255,.1);padding:1px 7px;border-radius:99px;font-size:.72rem;">{{ todos }}</span>
+  </a>
+
+  <a href="/admin/usuarios?rol=cliente"
+     style="display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:99px;font-size:.8rem;font-weight:700;text-decoration:none;transition:all .2s;
+       {% if rol_filtro == 'cliente' %}background:rgba(100,181,246,.15);border:1px solid rgba(100,181,246,.4);color:#64b5f6;
+       {% else %}background:rgba(255,255,255,.04);border:1px solid var(--c3);color:var(--gs);{% endif %}">
+    Clientes
+    <span style="background:rgba(255,255,255,.1);padding:1px 7px;border-radius:99px;font-size:.72rem;">{{ conteos.get('cliente',0) }}</span>
+  </a>
+
+  <a href="/admin/usuarios?rol=mecanico"
+     style="display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:99px;font-size:.8rem;font-weight:700;text-decoration:none;transition:all .2s;
+       {% if rol_filtro == 'mecanico' %}background:rgba(255,193,7,.12);border:1px solid rgba(255,193,7,.35);color:#d4a017;
+       {% else %}background:rgba(255,255,255,.04);border:1px solid var(--c3);color:var(--gs);{% endif %}">
+    Mecánicos
+    <span style="background:rgba(255,255,255,.1);padding:1px 7px;border-radius:99px;font-size:.72rem;">{{ conteos.get('mecanico',0) }}</span>
+  </a>
+
+  <a href="/admin/usuarios?rol=admin"
+     style="display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:99px;font-size:.8rem;font-weight:700;text-decoration:none;transition:all .2s;
+       {% if rol_filtro == 'admin' %}background:rgba(239,83,80,.12);border:1px solid rgba(239,83,80,.35);color:#ff8a80;
+       {% else %}background:rgba(255,255,255,.04);border:1px solid var(--c3);color:var(--gs);{% endif %}">
+    Admins
+    <span style="background:rgba(255,255,255,.1);padding:1px 7px;border-radius:99px;font-size:.72rem;">{{ conteos.get('admin',0) }}</span>
+  </a>
+
+</div>
+
+<!-- Tabla -->
+<div class="card animate-in">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Usuario</th>
+          <th>Correo</th>
+          <th>Rol</th>
+          <th>Ciudad</th>
+          {% if not rol_filtro or rol_filtro == 'mecanico' %}
+          <th style="text-align:center;">Calif.</th>
+          <th style="text-align:center;">Servicios</th>
+          {% endif %}
+          <th>Registro</th>
+          <th style="text-align:center;">Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in usuarios %}
+        <tr>
+          <td class="td-main">
+            <div style="display:flex;align-items:center;gap:10px;">
+              
+              <div>
+                <div style="font-weight:600;color:var(--bl);font-size:.88rem;">{{ u.nombre }} {{ u.apellido }}</div>
+                {% if u.rol == 'mecanico' and u.zona %}
+                <div style="font-size:.72rem;color:var(--gs);">{{ u.zona }}</div>
+                {% endif %}
+              </div>
+            </div>
+          </td>
+
+          <td style="font-size:.83rem;color:var(--gt);">{{ u.email }}</td>
+
+          <td>
+            <span class="pd-role role-{{ u.rol }}">
+              {% if u.rol=='admin' %}Administrador{% elif u.rol=='mecanico' %}Mecanico{% else %}Cliente{% endif %}
+            </span>
+          </td>
+
+          <td style="font-size:.83rem;color:var(--gt);">{{ u.ciudad or "—" }}</td>
+
+          {% if not rol_filtro or rol_filtro == 'mecanico' %}
+          <td style="text-align:center;color:var(--am);font-weight:600;font-size:.85rem;">
+            {% if u.rol == 'mecanico' %}{{ u.calificacion_promedio or "—" }}{% else %}—{% endif %}
+          </td>
+          <td style="text-align:center;font-size:.85rem;color:var(--gt);">
+            {% if u.rol == 'mecanico' %}{{ u.total_servicios or 0 }}{% else %}—{% endif %}
+          </td>
+          {% endif %}
+
+          <td style="font-size:.8rem;color:var(--gs);">{{ u.fecha_registro|fecha }}</td>
+
+          <td style="text-align:center;">
+            <span style="font-size:.68rem;font-weight:700;padding:3px 10px;border-radius:99px;
+              {% if u.activo %}background:rgba(0,200,83,.12);color:var(--va);border:1px solid rgba(0,200,83,.3);
+              {% else %}background:rgba(239,83,80,.1);color:#ff8a80;border:1px solid rgba(239,83,80,.25);{% endif %}">
+              {{ 'Activo' if u.activo else 'Bloqueado' }}
+            </span>
+          </td>
+
+          <td>
+            <div style="display:flex;gap:6px;align-items:center;">
+              <a href="/admin/usuario/{{ u.id }}"
+                 style="padding:5px 12px;border-radius:7px;font-size:.75rem;font-weight:700;background:rgba(255,255,255,.06);
+                        border:1px solid var(--c3);color:var(--bl);text-decoration:none;white-space:nowrap;transition:background .15s;"
+                 onmouseover="this.style.background='rgba(255,255,255,.13)'"
+                 onmouseout="this.style.background='rgba(255,255,255,.06)'">
+                Ver perfil
+              </a>
+              <form method="POST" action="/admin/usuario/{{ u.id }}/toggle?rol={{ rol_filtro }}" style="display:inline;">
+                <button type="submit"
+                  style="padding:5px 12px;border-radius:7px;font-size:.75rem;font-weight:700;cursor:pointer;border:1px solid;white-space:nowrap;transition:opacity .15s;
+                    {% if u.activo %}background:rgba(239,83,80,.1);border-color:rgba(239,83,80,.3);color:#ff8a80;
+                    {% else %}background:rgba(0,200,83,.1);border-color:rgba(0,200,83,.3);color:var(--va);{% endif %}"
+                  onmouseover="this.style.opacity='.7'" onmouseout="this.style.opacity='1'">
+                  {{ 'Bloquear' if u.activo else 'Activar' }}
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="9" style="text-align:center;padding:40px;color:var(--gs);font-size:.88rem;">
+            No hay usuarios con el filtro seleccionado.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

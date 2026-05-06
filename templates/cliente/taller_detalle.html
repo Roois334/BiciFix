@@ -1,0 +1,237 @@
+{% extends "base.html" %}
+{% block title %}{{ taller.nombre }} — BiciFix{% endblock %}
+{% block content %}
+
+<!-- VOLVER -->
+<div class="animate-in" style="max-width:920px;margin:0 auto 20px;">
+  <a href="/talleres" style="display:inline-flex;align-items:center;gap:6px;
+    color:var(--gs);font-size:.82rem;transition:color .2s;"
+    onmouseover="this.style.color='var(--va)'" onmouseout="this.style.color='var(--gs)'">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
+    Volver a talleres
+  </a>
+</div>
+
+<!-- HERO -->
+<div class="animate-in" style="max-width:920px;margin:0 auto 24px;">
+  {% set fotos = [
+    'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=900&q=80',
+    'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=900&q=80',
+    'https://images.unsplash.com/photo-1571068316344-75bc76f77890?w=900&q=80',
+    'https://images.unsplash.com/photo-1511994298241-608e28f14fde?w=900&q=80',
+    'https://images.unsplash.com/photo-1532298229144-0ec0c57515c7?w=900&q=80'
+  ] %}
+  <div style="border:1px solid rgba(0,200,83,.2);border-radius:16px;overflow:hidden;">
+    <!-- Foto hero -->
+    <div style="height:200px;position:relative;overflow:hidden;">
+      <img src="{{ fotos[(taller.id - 1) % fotos|length] }}"
+           alt="{{ taller.nombre }}"
+           style="width:100%;height:100%;object-fit:cover;display:block;">
+      <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.1),rgba(0,0,0,.6));"></div>
+      <span style="position:absolute;top:14px;left:14px;
+        background:{{ 'rgba(0,200,83,.85)' if taller.activo else 'rgba(220,53,69,.85)' }};
+        color:#fff;font-size:.7rem;font-weight:700;padding:4px 11px;border-radius:99px;">
+        {{ 'Abierto' if taller.activo else 'Cerrado' }}</span>
+      <span style="position:absolute;top:14px;right:14px;
+        background:rgba(0,0,0,.55);backdrop-filter:blur(4px);
+        color:#fff;font-size:.7rem;font-weight:700;padding:4px 11px;border-radius:99px;">
+        {{ taller.ciudad }}, Cundinamarca</span>
+    </div>
+    <!-- Info -->
+    <div style="background:linear-gradient(135deg,#081c08,#0d3b1a);padding:24px 28px;
+                display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap;">
+
+    <div style="flex:1;min-width:220px;">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px;">
+        <h1 style="margin:0;font-size:1.45rem;font-weight:800;color:var(--bl);">{{ taller.nombre }}</h1>
+        <span style="background:{{ 'rgba(0,200,83,.12)' if taller.activo else 'rgba(255,77,77,.1)' }};
+          border:1px solid {{ 'rgba(0,200,83,.28)' if taller.activo else 'rgba(255,77,77,.28)' }};
+          color:{{ 'var(--va)' if taller.activo else '#ff4d4d' }};
+          font-size:.7rem;font-weight:700;padding:3px 10px;border-radius:99px;">
+          {{ 'Abierto' if taller.activo else 'Cerrado' }}</span>
+      </div>
+
+      <p style="margin:0 0 10px;color:var(--gt);font-size:.88rem;line-height:1.55;">{{ taller.descripcion }}</p>
+
+      <div style="display:flex;flex-wrap:wrap;gap:14px;font-size:.8rem;color:var(--gs);">
+        <span>{{ taller.direccion }}, {{ taller.barrio }}, {{ taller.ciudad }}</span>
+        {% if taller.telefono %}<span>Tel: {{ taller.telefono }}</span>{% endif %}
+        <span>{{ taller.horario }}</span>
+      </div>
+
+      <!-- Calificacion -->
+      <div style="display:flex;align-items:center;gap:8px;margin-top:12px;">
+        <div style="display:flex;gap:2px;">
+          {% for i in range(1,6) %}
+          <svg width="14" height="14" viewBox="0 0 24 24"
+            fill="{{ '#f5c518' if taller.calificacion >= i else 'none' }}"
+            stroke="#f5c518" stroke-width="2" stroke-linejoin="round">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          </svg>
+          {% endfor %}
+        </div>
+        <span style="font-weight:700;color:var(--bl);">{{ "%.1f"|format(taller.calificacion) }}</span>
+        <span style="color:var(--gs);font-size:.79rem;">({{ taller.total_resenas }} resenas)</span>
+      </div>
+    </div>
+
+    <!-- Boton solicitar -->
+    {% if session.get('usuario') and session['usuario']['rol'] == 'cliente' %}
+    <a href="/solicitar?taller={{ taller.id }}" class="btn btn-neon"
+       style="align-self:flex-start;padding:11px 22px;font-size:.86rem;font-weight:700;
+              white-space:nowrap;background:linear-gradient(135deg,var(--va),var(--vn));
+              color:#000;border-radius:10px;">
+      Solicitar servicio aqui
+    </a>
+    {% endif %}
+  </div>
+</div>
+
+<!-- CONTENIDO: 2 COLUMNAS -->
+<div style="max-width:920px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:22px;">
+
+  <!-- MECANICOS -->
+  <div class="card animate-in">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+      <h2 style="margin:0;font-size:1rem;font-weight:700;color:var(--bl);">Mecanicos</h2>
+      <span style="background:rgba(0,200,83,.1);border:1px solid rgba(0,200,83,.22);
+        color:var(--va);font-size:.7rem;font-weight:600;padding:2px 9px;border-radius:99px;">
+        {{ mecanicos|length }}</span>
+    </div>
+
+    {% if mecanicos %}
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      {% for m in mecanicos %}
+      <div style="display:flex;gap:12px;align-items:flex-start;padding:12px;
+                  background:rgba(255,255,255,.025);border:1px solid var(--c3);border-radius:10px;">
+        <!-- Avatar inicial -->
+        
+        <div style="flex:1;min-width:0;">
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+            <span style="font-weight:700;font-size:.88rem;color:var(--bl);">{{ m.nombre }} {{ m.apellido }}</span>
+            <span style="font-size:.63rem;font-weight:700;padding:2px 7px;border-radius:99px;
+              {% if m.estado_mecanico == 'disponible' %}
+                background:rgba(0,200,83,.1);border:1px solid rgba(0,200,83,.28);color:var(--va);
+              {% elif m.estado_mecanico == 'ocupado' %}
+                background:rgba(255,193,7,.08);border:1px solid rgba(255,193,7,.28);color:#ffc107;
+              {% else %}
+                background:rgba(150,150,150,.08);border:1px solid rgba(150,150,150,.2);color:var(--gs);
+              {% endif %}">
+              {% if m.estado_mecanico == 'disponible' %}Disponible
+              {% elif m.estado_mecanico == 'ocupado' %}Ocupado
+              {% else %}Inactivo{% endif %}
+            </span>
+          </div>
+          <div style="font-size:.76rem;color:var(--gs);margin-top:3px;">
+            {{ "%.1f"|format(m.calificacion_promedio) }} / 5.0
+            &nbsp;&middot;&nbsp;
+            {{ m.total_servicios }} servicios realizados
+            {% if m.zona %}&nbsp;&middot;&nbsp;{{ m.zona }}{% endif %}
+          </div>
+          {% if m.certificaciones %}
+          <p style="margin:5px 0 0;font-size:.73rem;color:var(--gt);line-height:1.4;">
+            {{ m.certificaciones[:100] }}{% if m.certificaciones|length > 100 %}...{% endif %}
+          </p>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p style="color:var(--gs);font-size:.85rem;">No hay mecanicos asignados a este taller.</p>
+    {% endif %}
+  </div>
+
+  <!-- SERVICIOS -->
+  <div class="card animate-in">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <h2 style="margin:0;font-size:1rem;font-weight:700;color:var(--bl);">Servicios</h2>
+      <span style="background:rgba(0,200,83,.1);border:1px solid rgba(0,200,83,.22);
+        color:var(--va);font-size:.7rem;font-weight:600;padding:2px 9px;border-radius:99px;">
+        {{ servicios|length }}</span>
+    </div>
+
+    <!-- Filtros por categoria -->
+    {% set categorias = servicios | map(attribute='categoria') | unique | list %}
+    {% if categorias|length > 1 %}
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;" id="filtros-cat">
+      <button onclick="filtrarServ('')" data-cat=""
+        style="font-size:.7rem;padding:4px 11px;border-radius:99px;cursor:pointer;
+               background:rgba(0,200,83,.13);border:1px solid rgba(0,200,83,.32);
+               color:var(--va);font-weight:600;">Todos</button>
+      {% for cat in categorias %}
+      <button onclick="filtrarServ('{{ cat }}')" data-cat="{{ cat }}"
+        style="font-size:.7rem;padding:4px 11px;border-radius:99px;cursor:pointer;
+               background:rgba(255,255,255,.04);border:1px solid var(--c3);
+               color:var(--gs);font-weight:600;">{{ cat }}</button>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <div id="lista-servicios" style="display:flex;flex-direction:column;gap:7px;
+                                      max-height:440px;overflow-y:auto;padding-right:4px;">
+      {% if servicios %}
+      {% for s in servicios %}
+      <div class="svc-item" data-cat="{{ s.categoria }}"
+           style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;
+                  background:rgba(255,255,255,.025);border:1px solid var(--c3);
+                  border-radius:9px;transition:border-color .18s;"
+           onmouseover="this.style.borderColor='rgba(0,200,83,.28)'"
+           onmouseout="this.style.borderColor='var(--c3)'">
+        <div style="flex:1;">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;flex-wrap:wrap;">
+            <span style="font-weight:600;font-size:.83rem;color:var(--bl);">{{ s.nombre }}</span>
+            <span style="font-size:.77rem;color:var(--va);font-weight:700;white-space:nowrap;">
+              {{ s.precio_min|cop }} – {{ s.precio_max|cop }}
+            </span>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:3px;flex-wrap:wrap;">
+            <span style="font-size:.69rem;color:var(--gs);">{{ s.tiempo_estimado }}</span>
+            <span style="font-size:.67rem;padding:1px 7px;border-radius:99px;
+              background:rgba(0,200,83,.06);border:1px solid rgba(0,200,83,.16);color:var(--vn);">
+              {{ s.categoria }}</span>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+      {% else %}
+      <p style="color:var(--gs);font-size:.85rem;">Este taller no tiene servicios asignados.</p>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+
+<!-- MAPA -->
+{% if taller.lat and taller.lng %}
+<div class="card animate-in" style="max-width:920px;margin:22px auto 0;">
+  <h2 style="margin:0 0 14px;font-size:1rem;font-weight:700;color:var(--bl);">Ubicacion</h2>
+  <div style="border-radius:10px;overflow:hidden;border:1px solid var(--c3);">
+    <iframe width="100%" height="240" frameborder="0" style="display:block;"
+      src="https://www.openstreetmap.org/export/embed.html?bbox={{ taller.lng|float - 0.005 }},{{ taller.lat|float - 0.005 }},{{ taller.lng|float + 0.005 }},{{ taller.lat|float + 0.005 }}&layer=mapnik&marker={{ taller.lat|float }},{{ taller.lng|float }}"
+      allowfullscreen></iframe>
+  </div>
+  <p style="margin:8px 0 0;font-size:.76rem;color:var(--gs);">
+    {{ taller.direccion }}, {{ taller.barrio }}, {{ taller.ciudad }} —
+    <a href="https://www.openstreetmap.org/?mlat={{ taller.lat|float }}&mlon={{ taller.lng|float }}#map=17/{{ taller.lat|float }}/{{ taller.lng|float }}"
+       target="_blank" style="color:var(--va);">Ver en mapa completo</a>
+  </p>
+</div>
+{% endif %}
+
+<script>
+function filtrarServ(cat) {
+  document.querySelectorAll('#filtros-cat button').forEach(b => {
+    const activo = b.dataset.cat === cat;
+    b.style.background = activo ? 'rgba(0,200,83,.13)' : 'rgba(255,255,255,.04)';
+    b.style.border     = activo ? '1px solid rgba(0,200,83,.32)' : '1px solid var(--c3)';
+    b.style.color      = activo ? 'var(--va)' : 'var(--gs)';
+  });
+  document.querySelectorAll('.svc-item').forEach(item => {
+    item.style.display = (!cat || item.dataset.cat === cat) ? '' : 'none';
+  });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Dashboard Admin — BiciFix{% endblock %}
+{% block content %}
+<div class="page-header animate-in">
+  <div class="page-header-info">
+    <h1 class="page-title"><i class="ti ti-layout-dashboard"></i> Dashboard Admin</h1>
+    <p class="page-sub">Vista general del negocio en tiempo real.</p>
+  </div>
+</div>
+
+<div class="kpi-grid animate-in">
+  <div class="kpi-card kc-green">
+    <div class="kpi-icon"><i class="ti ti-users" aria-hidden="true"></i></div>
+    <div class="kpi-label">Total clientes</div>
+    <div class="kpi-value">{{ total_clientes }}</div>
+  </div>
+  <div class="kpi-card kc-blue">
+    <div class="kpi-icon"><i class="ti ti-tool" aria-hidden="true"></i></div>
+    <div class="kpi-label">Mecánicos activos</div>
+    <div class="kpi-value">{{ total_mecanicos }}</div>
+  </div>
+  <div class="kpi-card kc-amber">
+    <div class="kpi-icon"><i class="ti ti-clipboard-list" aria-hidden="true"></i></div>
+    <div class="kpi-label">Órdenes hoy</div>
+    <div class="kpi-value">{{ ordenes_hoy }}</div>
+  </div>
+  <div class="kpi-card kc-red">
+    <div class="kpi-icon"><i class="ti ti-clock-hour-4" aria-hidden="true"></i></div>
+    <div class="kpi-label">Pendientes</div>
+    <div class="kpi-value">{{ ordenes_pendientes }}</div>
+  </div>
+  <div class="kpi-card kc-teal">
+    <div class="kpi-icon"><i class="ti ti-circle-check" aria-hidden="true"></i></div>
+    <div class="kpi-label">Completadas</div>
+    <div class="kpi-value">{{ ordenes_completadas }}</div>
+  </div>
+  <div class="kpi-card kc-purple">
+    <div class="kpi-icon"><i class="ti ti-currency-dollar" aria-hidden="true"></i></div>
+    <div class="kpi-label">Ingresos del mes</div>
+    <div class="kpi-value" style="font-size:1.35rem;">{{ ingresos_mes|cop }}</div>
+  </div>
+</div>
+
+<div class="grid-2 animate-in">
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title"><i class="ti ti-clipboard-list"></i> Últimas órdenes</span>
+      <a href="/admin/ordenes" class="btn btn-outline btn-sm">Ver todas</a>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Cliente</th><th>Servicio</th><th>Mecánico</th><th>Estado</th></tr></thead>
+        <tbody>
+          {% for o in ultimas_ordenes %}
+          <tr>
+            <td class="td-main">{{ o.cliente_nombre }}</td>
+            <td>{{ o.servicio_nombre }}</td>
+            <td>{{ o.mecanico_nombre or "Sin asignar" }}</td>
+            <td><span class="badge badge-{{ o.estado }}">{{ o.estado|capitalize }}</span></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title"><i class="ti ti-tool"></i> Mecánicos</span>
+      <a href="/admin/mecanicos" class="btn btn-outline btn-sm">Gestionar</a>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      {% for m in mecanicos %}
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:rgba(27,94,32,.06);border-radius:10px;border:1px solid var(--n4);">
+        <div style="display:flex;align-items:center;gap:10px;">
+          
+          <div>
+            <div style="font-weight:600;color:var(--bl);font-size:.88rem;">{{ m.nombre }}</div>
+            <div style="font-size:.72rem;color:var(--gs);">{{ m.zona or "Sin zona" }}</div>
+          </div>
+        </div>
+        <span class="badge badge-{{ m.estado }}">{{ m.estado }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

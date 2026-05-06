@@ -1,0 +1,388 @@
+{% extends "base.html" %}
+{% block title %}Ingresar — BiciFix{% endblock %}
+{% block content %}
+<div class="login-wrap">
+  <div class="login-card animate-in">
+
+    <!-- Logo -->
+    <div class="login-logo">
+      <div class="reg-logo-ring" style="margin:0 auto 14px;">
+        <img src="/static/img/logo.png" alt="BiciFix">
+      </div>
+      <h1 class="login-title">BiciFix</h1>
+      <p class="login-subtitle">Ingresa a tu cuenta</p>
+    </div>
+
+    <!-- Acceso rápido -->
+    <div class="quick-access" id="quickAccess"></div>
+
+    <!-- Form -->
+    <form method="POST" class="login-form">
+      <div class="form-group">
+        <label class="form-label">Correo electrónico</label>
+        <div class="input-icon-wrap">
+          <svg class="input-icon" viewBox="0 0 24 24" fill="none" width="16" height="16">
+            <rect x="2" y="4" width="20" height="16" rx="2" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M2 7l10 7 10-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+          <input type="email" name="email" class="form-input with-icon" placeholder="tu@correo.com" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Contraseña</label>
+        <div class="input-icon-wrap">
+          <svg class="input-icon" viewBox="0 0 24 24" fill="none" width="16" height="16">
+            <rect x="3" y="11" width="18" height="11" rx="2" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+          <input type="password" name="password" id="passwordInput" class="form-input with-icon with-eye" placeholder="••••••••" required>
+          <button type="button" class="eye-toggle" id="eyeToggle" onclick="togglePassword()" title="Mostrar/ocultar contraseña">
+            <svg id="eyeOpen" viewBox="0 0 24 24" fill="none" width="17" height="17">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/>
+            </svg>
+            <svg id="eyeClosed" viewBox="0 0 24 24" fill="none" width="17" height="17" style="display:none;">
+              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              <line x1="1" y1="1" x2="23" y2="23" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div style="text-align:right;margin-top:-8px;margin-bottom:18px;">
+        <a href="/recuperar" class="auth-link" style="font-size:.78rem;">¿Olvidaste tu contraseña?</a>
+      </div>
+
+      <button type="submit" class="btn btn-neon btn-full login-btn">
+        <svg viewBox="0 0 24 24" fill="none" width="16" height="16">
+          <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <polyline points="10 17 15 12 10 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="15" y1="12" x2="3" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        Ingresar
+      </button>
+    </form>
+
+    <div class="login-footer">
+      ¿No tienes cuenta? <a href="/registro" class="auth-link">Regístrate gratis</a>
+    </div>
+  </div>
+</div>
+
+<style>
+/* === ACCESO RÁPIDO === */
+/* === ACCESO RÁPIDO REDISEÑADO === */
+.qa-panel {
+  margin-bottom: 24px;
+  border: 1px solid rgba(0,200,83,.15);
+  border-radius: 16px;
+  overflow: hidden;
+  background: rgba(0,0,0,.2);
+}
+.qa-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(0,200,83,.1);
+  background: rgba(0,200,83,.04);
+}
+.qa-panel-title {
+  font-size: .62rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  color: rgba(0,200,83,.7);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.qa-panel-title::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #00c853;
+  box-shadow: 0 0 8px #00c853;
+  animation: pulse-dot 2s infinite;
+}
+@keyframes pulse-dot {
+  0%,100% { opacity:1; } 50% { opacity:.3; }
+}
+.qa-tabs {
+  display: flex;
+  gap: 4px;
+}
+.qa-tab {
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: .7rem;
+  font-weight: 700;
+  color: var(--gs);
+  cursor: pointer;
+  transition: all .18s;
+}
+.qa-tab.active {
+  background: rgba(0,200,83,.15);
+  color: #00c853;
+}
+.qa-tab:hover:not(.active) {
+  background: rgba(255,255,255,.05);
+  color: var(--bl);
+}
+.qa-users-wrap {
+  padding: 10px;
+}
+.qa-users-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+.qa-user-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,.06);
+  background: rgba(255,255,255,.03);
+  cursor: pointer;
+  transition: all .18s;
+  text-align: left;
+  width: 100%;
+}
+.qa-user-btn:hover {
+  border-color: rgba(0,200,83,.4);
+  background: rgba(0,200,83,.08);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(0,0,0,.3);
+}
+.qa-user-btn:active { transform: scale(.97); }
+.qa-avatar {
+  width: 30px; height: 30px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .75rem; font-weight: 800;
+  flex-shrink: 0;
+  letter-spacing: -.01em;
+}
+.qa-avatar-admin    { background: rgba(0,200,83,.2);  color: #00c853; }
+.qa-avatar-mecanico { background: rgba(105,240,174,.15); color: #69f0ae; }
+.qa-avatar-cliente  { background: rgba(185,246,202,.1);  color: #b9f6ca; }
+.qa-user-info { overflow: hidden; }
+.qa-user-name {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: .74rem; font-weight: 700;
+  color: var(--bl);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  line-height: 1.2;
+}
+.qa-user-role {
+  font-size: .62rem;
+  color: var(--gs);
+  line-height: 1.2;
+}
+.qa-panel-hint {
+  text-align: center;
+  font-size: .62rem;
+  color: rgba(255,255,255,.2);
+  padding: 0 10px 8px;
+}
+
+
+.login-wrap {
+  min-height: calc(100vh - 74px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 20px;
+}
+.login-card {
+  background: var(--n3);
+  border: 1px solid rgba(0,200,83,.2);
+  border-radius: 24px;
+  padding: 44px 40px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 32px 80px rgba(0,0,0,.6), 0 0 0 1px rgba(0,200,83,.07);
+  position: relative;
+}
+.login-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 50%; transform: translateX(-50%);
+  width: 60%; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0,200,83,.5), transparent);
+}
+.login-logo {
+  text-align: center;
+  margin-bottom: 32px;
+}
+.reg-logo-ring {
+  width: 80px; height: 80px;
+  border-radius: 22px;
+  background: rgba(0,200,83,.07);
+  border: 1.5px solid rgba(0,200,83,.22);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 6px 24px rgba(0,0,0,.3);
+  overflow: hidden;
+}
+.reg-logo-ring img {
+  width: 66px; height: 66px;
+  object-fit: contain; display: block;
+}
+.login-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 1.7rem; font-weight: 900;
+  color: var(--bl); letter-spacing: -.03em;
+  margin: 0 0 6px;
+}
+.login-subtitle {
+  font-size: .88rem; color: var(--gs); margin: 0;
+}
+.login-form { margin-bottom: 0; }
+
+/* Input with icon */
+.input-icon-wrap { position: relative; }
+.input-icon {
+  position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+  color: var(--gs); pointer-events: none; z-index: 1;
+}
+.form-input.with-icon { padding-left: 42px; }
+.form-input.with-eye  { padding-right: 44px; }
+
+/* Eye toggle */
+.eye-toggle {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; cursor: pointer;
+  color: var(--gs); padding: 4px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 6px; transition: color .18s, background .18s;
+  z-index: 1;
+}
+.eye-toggle:hover { color: var(--va); background: rgba(0,200,83,.08); }
+
+.login-btn {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: .92rem; font-weight: 700;
+  padding: 13px 20px;
+  border-radius: 12px;
+  gap: 8px;
+}
+.login-footer {
+  text-align: center;
+  margin-top: 22px;
+  font-size: .85rem;
+  color: var(--gs);
+}
+</style>
+
+<script>
+// Acceso rápido — panel con tabs por rol
+(function loadAcceso() {
+  const ROLES = {
+    admin:    { label: 'Admin',     avatar: 'qa-avatar-admin',    abbr: r => 'AD' },
+    mecanico: { label: 'Mecánico',  avatar: 'qa-avatar-mecanico', abbr: r => 'MC' },
+    cliente:  { label: 'Cliente',   avatar: 'qa-avatar-cliente',  abbr: r => 'CL' }
+  };
+  const rolOrder = ['admin', 'mecanico', 'cliente'];
+
+  fetch('/api/usuarios-acceso')
+    .then(r => r.json())
+    .then(users => {
+      if (!users.length) return;
+      const wrap = document.getElementById('quickAccess');
+      const grupos = {};
+      users.forEach(u => {
+        if (!grupos[u.rol]) grupos[u.rol] = [];
+        grupos[u.rol].push(u);
+      });
+      const rolesDisp = rolOrder.filter(r => grupos[r]);
+      let activeRol = rolesDisp[0];
+
+      function renderUsers(rol) {
+        const cfg = ROLES[rol] || { label: rol, avatar: 'qa-avatar-cliente', abbr: () => '??' };
+        return grupos[rol].map(u => {
+          const initials = (u.nombre[0] + (u.apellido[0] || '')).toUpperCase();
+          return `<button type="button" class="qa-user-btn"
+            onclick="fillCredentials('${u.email}','${u.pw}')"
+            title="${u.email}">
+            <div class="qa-avatar ${cfg.avatar}">${initials}</div>
+            <div class="qa-user-info">
+              <div class="qa-user-name">${u.nombre} ${u.apellido}</div>
+              <div class="qa-user-role">${cfg.label}</div>
+            </div>
+          </button>`;
+        }).join('');
+      }
+
+      function render() {
+        const tabs = rolesDisp.map(r => {
+          const cfg = ROLES[r] || { label: r };
+          const count = grupos[r].length;
+          return `<button type="button" class="qa-tab ${r === activeRol ? 'active' : ''}"
+            onclick="qaSetTab('${r}')">${cfg.label} <span style="opacity:.5">${count}</span></button>`;
+        }).join('');
+
+        wrap.innerHTML = `
+          <div class="qa-panel">
+            <div class="qa-panel-header">
+              <span class="qa-panel-title">Acceso rápido</span>
+              <div class="qa-tabs">${tabs}</div>
+            </div>
+            <div class="qa-users-wrap">
+              <div class="qa-users-grid" id="qaGrid">${renderUsers(activeRol)}</div>
+            </div>
+            <div class="qa-panel-hint">Clic para autocompletar credenciales</div>
+          </div>`;
+      }
+
+      window.qaSetTab = function(rol) {
+        activeRol = rol;
+        render();
+      };
+
+      render();
+    })
+    .catch(() => {});
+})();
+
+function fillFromSelect(sel) {
+  if (!sel.value) return;
+  const [email, pw] = sel.value.split('|');
+  fillCredentials(email, pw);
+}
+
+function fillCredentials(email, pw) {
+  const emailInput = document.querySelector('input[name="email"]');
+  const passInput  = document.getElementById('passwordInput');
+  emailInput.value = email;
+  passInput.value  = pw;
+  // Flash verde
+  [emailInput, passInput].forEach(el => {
+    el.style.transition = 'border-color .2s';
+    el.style.borderColor = 'var(--va)';
+    setTimeout(() => el.style.borderColor = '', 600);
+  });
+}
+
+function togglePassword() {
+  const input = document.getElementById('passwordInput');
+  const eyeOpen = document.getElementById('eyeOpen');
+  const eyeClosed = document.getElementById('eyeClosed');
+  if (input.type === 'password') {
+    input.type = 'text';
+    eyeOpen.style.display = 'none';
+    eyeClosed.style.display = 'block';
+  } else {
+    input.type = 'password';
+    eyeOpen.style.display = 'block';
+    eyeClosed.style.display = 'none';
+  }
+}
+</script>
+{% endblock %}
