@@ -7,20 +7,11 @@
     <p class="page-sub">Estado, zonas y desempeño de cada mecánico.</p>
   </div>
 </div>
-<div class="card animate-in">
+<!-- TABLA desktop -->
+<div class="card animate-in desk-only">
   <div class="table-wrap">
     <table>
-      <thead>
-        <tr>
-          <th>Mecánico</th>
-          <th>Correo</th>
-          <th>Zona</th>
-          <th>Calificación</th>
-          <th>Servicios</th>
-          <th>Estado</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
+      <thead><tr><th>Mecánico</th><th>Correo</th><th>Zona</th><th>Calificación</th><th>Servicios</th><th>Estado</th><th>Acciones</th></tr></thead>
       <tbody>
         {% for m in mecanicos %}
         <tr>
@@ -30,11 +21,35 @@
           <td style="color:var(--am);font-weight:600;">{{ m.calificacion_promedio or "N/A" }}</td>
           <td>{{ m.total_servicios }}</td>
           <td><span class="badge badge-{{ m.estado_mecanico }}">{{ m.estado_mecanico|capitalize }}</span></td>
-          <td><a href="/admin/mecanico/{{ m.id }}" class="btn btn-outline btn-sm">Ver perfil</a></td>
+          <td><a href="/admin/usuario/{{ m.id }}" class="btn btn-outline btn-sm">Ver perfil</a></td>
         </tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
+</div>
+
+<!-- CARDS móvil -->
+<div class="mob-card-list animate-in">
+  {% for m in mecanicos %}
+  <div class="mob-card-item">
+    <div class="mob-card-head">
+      <div>
+        <div class="mob-card-title">{{ m.nombre }} {{ m.apellido }}</div>
+        <div class="mob-card-sub">{{ m.email }}</div>
+      </div>
+      <span class="badge badge-{{ m.estado_mecanico }}">{{ m.estado_mecanico|capitalize }}</span>
+    </div>
+    <div class="mob-card-rows">
+      <div class="mob-card-row"><span class="mob-card-key">Zona</span><span class="mob-card-val">{{ m.zona or "Sin zona" }}</span></div>
+      <div class="mob-card-row"><span class="mob-card-key">Calificación</span><span class="mob-card-val amber">{{ m.calificacion_promedio or "N/A" }} ★</span></div>
+      <div class="mob-card-row"><span class="mob-card-key">Servicios realizados</span><span class="mob-card-val green">{{ m.total_servicios }}</span></div>
+    </div>
+    <div class="mob-card-sep"></div>
+    <div class="mob-card-actions">
+      <a href="/admin/usuario/{{ m.id }}" class="btn btn-outline btn-sm">Ver perfil</a>
+    </div>
+  </div>
+  {% endfor %}
 </div>
 {% endblock %}
