@@ -10,17 +10,70 @@
     <button onclick="document.getElementById('modal-nuevo').style.display='flex'" class="btn btn-neon">+ Nuevo servicio</button>
   </div>
 </div>
-<div class="card animate-in">
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>Icono</th><th>Servicio</th><th>Precio min</th><th>Precio max</th><th>Tiempo</th><th>Estado</th><th>Acciones</th></tr></thead>
+<style>
+/* TABLA desktop */
+.srv-table-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+.srv-table { width:100%; border-collapse:collapse; }
+.srv-table th { font-size:.72rem; font-weight:700; color:var(--gs); text-transform:uppercase; letter-spacing:.07em; padding:10px 14px; border-bottom:1px solid rgba(0,200,83,.1); text-align:left; white-space:nowrap; }
+.srv-table td { padding:13px 14px; border-bottom:1px solid rgba(255,255,255,.03); font-size:.88rem; color:var(--gt); vertical-align:middle; }
+.srv-table tr:last-child td { border-bottom:none; }
+.srv-table td:first-child { font-size:1.4rem; width:48px; }
+.srv-table .td-name { font-weight:600; color:var(--bl); }
+.srv-table .td-price { color:var(--va); font-weight:600; white-space:nowrap; }
+
+/* CARDS móvil */
+.srv-cards { display:none; flex-direction:column; gap:10px; padding:14px; }
+.srv-card-item {
+  background:rgba(0,200,83,.03);
+  border:1px solid rgba(0,200,83,.1);
+  border-radius:12px;
+  padding:14px 16px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.srv-card-top { display:flex; align-items:flex-start; gap:12px; }
+.srv-card-ico { font-size:1.6rem; flex-shrink:0; line-height:1; }
+.srv-card-info { flex:1; min-width:0; }
+.srv-card-name { font-family:'Plus Jakarta Sans',sans-serif; font-size:.95rem; font-weight:700; color:#fff; margin-bottom:4px; }
+.srv-card-meta { display:flex; flex-wrap:wrap; gap:6px; }
+.srv-card-pill {
+  display:inline-flex; align-items:center; gap:4px;
+  padding:3px 9px; border-radius:99px;
+  font-size:.72rem; font-weight:600;
+  background:rgba(0,200,83,.08);
+  border:1px solid rgba(0,200,83,.15);
+  color:var(--va);
+}
+.srv-card-time {
+  background:rgba(255,255,255,.05);
+  border-color:rgba(255,255,255,.1);
+  color:var(--gs);
+}
+.srv-card-badge { margin-left:auto; flex-shrink:0; }
+.srv-card-actions { display:flex; gap:8px; }
+.srv-card-actions .btn { flex:1; justify-content:center; }
+
+@media (max-width:820px) {
+  .srv-table-outer { display:none; }
+  .srv-cards { display:flex; }
+}
+</style>
+
+<!-- TABLA desktop -->
+<div class="card animate-in srv-table-outer">
+  <div class="srv-table-wrap">
+    <table class="srv-table">
+      <thead><tr>
+        <th>Icono</th><th>Servicio</th><th>Precio mín</th><th>Precio máx</th><th>Tiempo</th><th>Estado</th><th>Acción</th>
+      </tr></thead>
       <tbody>
         {% for s in servicios %}
         <tr>
-          <td style="font-size:1.3rem;color:var(--va);">{{ s.icono }}</td>
-          <td class="td-main">{{ s.nombre }}</td>
-          <td style="color:var(--va);">{{ s.precio_min|cop }}</td>
-          <td style="color:var(--va);">{{ s.precio_max|cop }}</td>
+          <td>{{ s.icono }}</td>
+          <td class="td-name">{{ s.nombre }}</td>
+          <td class="td-price">{{ s.precio_min|cop }}</td>
+          <td class="td-price">{{ s.precio_max|cop }}</td>
           <td>{{ s.tiempo_estimado }}</td>
           <td><span class="badge badge-{{ 'activo' if s.activo else 'inactivo' }}">{{ 'Activo' if s.activo else 'Inactivo' }}</span></td>
           <td>
@@ -33,6 +86,32 @@
       </tbody>
     </table>
   </div>
+</div>
+
+<!-- CARDS móvil -->
+<div class="srv-cards animate-in">
+  {% for s in servicios %}
+  <div class="srv-card-item">
+    <div class="srv-card-top">
+      <div class="srv-card-ico">{{ s.icono }}</div>
+      <div class="srv-card-info">
+        <div class="srv-card-name">{{ s.nombre }}</div>
+        <div class="srv-card-meta">
+          <span class="srv-card-pill">{{ s.precio_min|cop }} – {{ s.precio_max|cop }}</span>
+          {% if s.tiempo_estimado %}<span class="srv-card-pill srv-card-time">⏱ {{ s.tiempo_estimado }}</span>{% endif %}
+          <span class="srv-card-pill {{ '' if s.activo else 'srv-card-time' }}" style="{{ '' if s.activo else 'color:var(--gs)' }}">{{ 'Activo' if s.activo else 'Inactivo' }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="srv-card-actions">
+      <form method="POST" action="/admin/servicio/{{ s.id }}/toggle" style="flex:1;display:flex;">
+        <button class="btn btn-sm {{ 'btn-danger' if s.activo else 'btn-primary' }}" style="width:100%;justify-content:center;">
+          {{ 'Desactivar' if s.activo else 'Activar' }}
+        </button>
+      </form>
+    </div>
+  </div>
+  {% endfor %}
 </div>
 <div id="modal-nuevo" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;align-items:center;justify-content:center;">
   <div class="card" style="width:100%;max-width:480px;max-height:90vh;overflow-y:auto;">
