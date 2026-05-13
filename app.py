@@ -802,6 +802,25 @@ def agregar_bicicleta():
     flash("Bicicleta agregada exitosamente","success")
     return redirect("/mis-bicicletas")
 
+@app.route("/mis-bicicletas/<int:bid>/editar", methods=["POST"])
+@cliente_required
+def editar_bicicleta(bid):
+    uid = session["usuario"]["id"]
+    marca       = request.form.get("marca","").strip()
+    modelo      = request.form.get("modelo","").strip()
+    color       = request.form.get("color","").strip()
+    anio        = request.form.get("anio") or None
+    tipo        = request.form.get("tipo","Urbana")
+    descripcion = request.form.get("descripcion","").strip()
+    conn = get_db(); cur = conn.cursor()
+    cur.execute(
+        "UPDATE bicicletas SET marca=%s, modelo=%s, color=%s, anio=%s, tipo=%s, descripcion=%s WHERE id=%s AND cliente_id=%s",
+        (marca, modelo, color, anio, tipo, descripcion, bid, uid)
+    )
+    conn.commit(); cur.close(); conn.close()
+    flash("Bicicleta actualizada correctamente.", "success")
+    return redirect("/mis-bicicletas")
+
 @app.route("/mis-bicicletas/<int:bid>/eliminar", methods=["POST"])
 @login_required
 def eliminar_bicicleta(bid):
