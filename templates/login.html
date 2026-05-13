@@ -8,199 +8,175 @@
     <!-- Logo -->
     <div class="llogo">
       <div class="lring">
-        <img src="/static/img/logo.png" alt="BiciFix" style="width:66px;height:66px;object-fit:contain;display:block;border-radius:10px;">
+        <img src="/static/img/logo.png" alt="BiciFix">
       </div>
       <h1 class="ltitle">BiciFix</h1>
       <p class="lsub">Ingresa a tu cuenta</p>
     </div>
 
-    <!-- Acceso rápido -->
+    <!-- Acceso rápido: lista vertical simple -->
     <div id="quickAccess"></div>
 
-    <!-- Formulario -->
-    <form method="POST" class="lform">
+    <!-- Form -->
+    <form method="POST">
       <div class="lfg">
         <label class="lfl">Correo electrónico</label>
         <div class="liw">
-          <svg class="lic" viewBox="0 0 24 24" fill="none" width="16" height="16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7"/></svg>
-          <input type="email" name="email" class="lfi" placeholder="tu@correo.com" required autocomplete="email" inputmode="email">
+          <svg class="lic" viewBox="0 0 24 24" fill="none" width="15" height="15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7"/></svg>
+          <input type="email" name="email" id="emailInp" class="lfi" placeholder="tu@correo.com" autocomplete="email" inputmode="email" required>
         </div>
       </div>
-
       <div class="lfg">
         <label class="lfl">Contraseña</label>
         <div class="liw">
-          <svg class="lic" viewBox="0 0 24 24" fill="none" width="16" height="16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-          <input type="password" name="password" id="pwInp" class="lfi lfi-eye" placeholder="••••••••" required autocomplete="current-password">
-          <button type="button" class="leye" id="eyeBtn" onclick="togglePw()">
-            <svg id="eyeO" viewBox="0 0 24 24" fill="none" width="17" height="17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-            <svg id="eyeC" viewBox="0 0 24 24" fill="none" width="17" height="17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+          <svg class="lic" viewBox="0 0 24 24" fill="none" width="15" height="15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <input type="password" name="password" id="pwInp" class="lfi lfi-r" placeholder="••••••••" autocomplete="current-password" required>
+          <button type="button" class="leye" onclick="togglePw()">
+            <svg id="eyeO" viewBox="0 0 24 24" fill="none" width="16" height="16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            <svg id="eyeC" viewBox="0 0 24 24" fill="none" width="16" height="16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
           </button>
         </div>
       </div>
-
-      <div style="text-align:right;margin-top:-6px;margin-bottom:18px;">
-        <a href="/recuperar" style="font-size:.78rem;color:var(--va);font-weight:600;text-decoration:none;">¿Olvidaste tu contraseña?</a>
+      <div style="text-align:right;margin:-4px 0 16px">
+        <a href="/recuperar" class="lforg">¿Olvidaste tu contraseña?</a>
       </div>
-
       <button type="submit" class="lbtn">
-        <svg viewBox="0 0 24 24" fill="none" width="16" height="16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" width="16" height="16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
         Ingresar
       </button>
     </form>
 
     <div class="lfoot">
-      ¿No tienes cuenta? <a href="/registro" style="color:var(--va);font-weight:600;text-decoration:none;">Regístrate gratis</a>
+      ¿No tienes cuenta? <a href="/registro" class="lalink">Regístrate gratis</a>
     </div>
   </div>
 </div>
 
 <style>
-/* ── LAYOUT ─────────────────────────────── */
-.lw{min-height:calc(100vh - 74px);display:flex;align-items:center;justify-content:center;padding:20px 16px}
-.lc{background:var(--n3);border:1px solid rgba(0,200,83,.2);border-radius:22px;padding:36px 32px;width:100%;max-width:420px;box-shadow:0 24px 64px rgba(0,0,0,.55),0 0 0 1px rgba(0,200,83,.06);position:relative;overflow:hidden}
+/* ── LAYOUT ── */
+.lw{min-height:calc(100vh - 74px);display:flex;align-items:center;justify-content:center;padding:16px}
+.lc{background:var(--n3);border:1px solid rgba(0,200,83,.18);border-radius:20px;padding:32px 28px;width:100%;max-width:400px;position:relative;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.55)}
 .lc::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:60%;height:1px;background:linear-gradient(90deg,transparent,rgba(0,200,83,.5),transparent)}
 
-/* ── LOGO ───────────────────────────────── */
-.llogo{text-align:center;margin-bottom:24px}
-.lring{width:76px;height:76px;border-radius:20px;background:rgba(0,200,83,.07);border:1.5px solid rgba(0,200,83,.22);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;box-shadow:0 6px 20px rgba(0,0,0,.28);overflow:hidden}
-.ltitle{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.65rem;font-weight:900;color:#fff;letter-spacing:-.03em;margin:0 0 5px}
-.lsub{font-size:.86rem;color:var(--gs);margin:0}
+/* ── LOGO ── */
+.llogo{text-align:center;margin-bottom:20px}
+.lring{width:70px;height:70px;border-radius:18px;background:rgba(0,200,83,.07);border:1.5px solid rgba(0,200,83,.2);display:flex;align-items:center;justify-content:center;margin:0 auto 10px;overflow:hidden}
+.lring img{width:60px;height:60px;object-fit:contain;display:block}
+.ltitle{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.55rem;font-weight:900;color:#fff;letter-spacing:-.03em;margin:0 0 4px}
+.lsub{font-size:.84rem;color:var(--gs);margin:0}
 
-/* ── FORM ───────────────────────────────── */
-.lform{margin:0}
-.lfg{margin-bottom:14px}
-.lfl{display:block;font-family:'Inter',sans-serif;font-size:.74rem;font-weight:700;color:var(--gt);letter-spacing:.04em;margin-bottom:7px;text-transform:uppercase}
+/* ── FORM ── */
+.lfg{margin-bottom:13px}
+.lfl{display:block;font-family:'Inter',sans-serif;font-size:.72rem;font-weight:700;color:var(--gt);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
 .liw{position:relative}
-.lic{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--gs);pointer-events:none;z-index:1}
-.lfi{width:100%;padding:12px 14px 12px 42px;background:rgba(255,255,255,.04);border:1px solid var(--n5);border-radius:11px;color:#fff;font-family:'Inter',sans-serif;font-size:16px;outline:none;transition:border-color .18s,background .18s,box-shadow .18s;-webkit-appearance:none}
+.lic{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--gs);pointer-events:none;z-index:1}
+.lfi{width:100%;padding:12px 13px 12px 40px;background:rgba(255,255,255,.04);border:1px solid var(--n5);border-radius:10px;color:#fff;font-family:'Inter',sans-serif;font-size:16px;outline:none;transition:border-color .18s,background .18s,box-shadow .18s;-webkit-appearance:none;box-sizing:border-box}
 .lfi::placeholder{color:var(--gs)}
-.lfi:focus{border-color:rgba(0,200,83,.45);background:rgba(27,94,32,.07);box-shadow:0 0 0 3px rgba(0,200,83,.07)}
-.lfi-eye{padding-right:46px}
-.leye{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--gs);padding:4px;display:flex;align-items:center;border-radius:6px;transition:color .18s,background .18s;-webkit-tap-highlight-color:transparent}
-.leye:hover{color:var(--va);background:rgba(0,200,83,.08)}
-.lbtn{width:100%;padding:13px 20px;border-radius:12px;background:var(--grn);color:var(--n1);font-family:'Plus Jakarta Sans',sans-serif;font-size:.92rem;font-weight:800;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 18px rgba(0,200,83,.32);transition:opacity .2s,transform .2s,box-shadow .2s;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
-.lbtn:hover{opacity:.9;transform:translateY(-1px);box-shadow:0 8px 26px rgba(0,200,83,.42)}
-.lbtn:active{transform:scale(.99)}
-.lfoot{text-align:center;margin-top:20px;font-size:.84rem;color:var(--gs)}
+.lfi:focus{border-color:rgba(0,200,83,.45);background:rgba(27,94,32,.06);box-shadow:0 0 0 3px rgba(0,200,83,.07)}
+.lfi-r{padding-right:44px}
+.leye{position:absolute;right:11px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--gs);padding:4px;display:flex;align-items:center;border-radius:6px;transition:color .15s;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.leye:hover,.leye:active{color:var(--va)}
+.lforg{font-size:.76rem;color:var(--va);font-weight:600;text-decoration:none}
+.lbtn{width:100%;padding:13px;border-radius:11px;background:var(--grn);color:var(--n1);font-family:'Plus Jakarta Sans',sans-serif;font-size:.92rem;font-weight:800;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;box-shadow:0 4px 18px rgba(0,200,83,.3);transition:opacity .18s,transform .18s;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.lbtn:active{opacity:.85;transform:scale(.98)}
+.lfoot{text-align:center;margin-top:18px;font-size:.83rem;color:var(--gs)}
+.lalink{color:var(--va);font-weight:600;text-decoration:none}
 
-/* ── ACCESO RÁPIDO ──────────────────────── */
-.qa-wrap{margin-bottom:22px;border:1px solid rgba(0,200,83,.15);border-radius:14px;overflow:hidden;background:rgba(0,0,0,.18)}
+/* ── ACCESO RÁPIDO ── */
+.qa-box{margin-bottom:18px;border:1px solid rgba(0,200,83,.14);border-radius:13px;overflow:hidden;background:rgba(0,0,0,.15)}
 
-/* header con punto verde y tabs */
-.qa-head{display:flex;align-items:center;justify-content:space-between;padding:9px 13px;border-bottom:1px solid rgba(0,200,83,.1);background:rgba(0,200,83,.04)}
-.qa-label{font-family:'Inter',sans-serif;font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:rgba(0,200,83,.75);display:flex;align-items:center;gap:6px}
-.qa-dot{width:6px;height:6px;border-radius:50%;background:#00c853;box-shadow:0 0 7px #00c853;animation:qdot 2s infinite}
-@keyframes qdot{0%,100%{opacity:1}50%{opacity:.25}}
-.qa-tabs{display:flex;gap:3px}
-.qa-tab{padding:4px 10px;border-radius:6px;border:none;font-family:'Plus Jakarta Sans',sans-serif;font-size:.7rem;font-weight:700;color:var(--gs);cursor:pointer;background:transparent;transition:all .15s;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
-.qa-tab.on{background:rgba(0,200,83,.14);color:#00c853}
-.qa-tab:not(.on):hover{background:rgba(255,255,255,.05);color:#fff}
+/* Tabs de rol — scroll horizontal si no caben */
+.qa-tabs{display:flex;gap:0;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid rgba(0,200,83,.1)}
+.qa-tabs::-webkit-scrollbar{display:none}
+.qa-tab{flex-shrink:0;padding:9px 14px;font-family:'Plus Jakarta Sans',sans-serif;font-size:.75rem;font-weight:700;color:var(--gs);border:none;background:transparent;cursor:pointer;transition:color .15s,background .15s;-webkit-tap-highlight-color:transparent;touch-action:manipulation;white-space:nowrap;border-bottom:2px solid transparent}
+.qa-tab.on{color:var(--va);border-bottom-color:var(--va);background:rgba(0,200,83,.05)}
+.qa-tab:active{color:var(--va)}
 
-/* grid de usuarios — 1 columna en móvil, 2 en más ancho */
-.qa-body{padding:10px}
-.qa-grid{display:grid;grid-template-columns:1fr;gap:6px}
-@media(min-width:360px){.qa-grid{grid-template-columns:1fr 1fr}}
+/* Lista de usuarios — 1 columna, simple y limpio */
+.qa-list{padding:8px}
+.qa-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:9px;border:1px solid rgba(255,255,255,.05);background:transparent;cursor:pointer;width:100%;transition:background .15s,border-color .15s;-webkit-tap-highlight-color:transparent;touch-action:manipulation;margin-bottom:5px;text-align:left}
+.qa-item:last-child{margin-bottom:0}
+.qa-item:active,.qa-item:hover{background:rgba(0,200,83,.08);border-color:rgba(0,200,83,.25)}
 
-.qa-btn{display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:10px;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.03);cursor:pointer;transition:all .15s;text-align:left;width:100%;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
-.qa-btn:active{transform:scale(.97);background:rgba(0,200,83,.1);border-color:rgba(0,200,83,.35)}
-.qa-btn:hover{border-color:rgba(0,200,83,.35);background:rgba(0,200,83,.07);transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.28)}
+/* Avatar con inicial */
+.qa-av{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif;font-size:.82rem;font-weight:800;flex-shrink:0}
+.av-admin{background:rgba(0,200,83,.18);color:#00c853}
+.av-mecanico{background:rgba(105,240,174,.13);color:#69f0ae}
+.av-cliente{background:rgba(185,246,202,.09);color:#b9f6ca}
 
-.qa-av{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif;font-size:.76rem;font-weight:800;flex-shrink:0;letter-spacing:-.01em}
-.qa-av-admin{background:rgba(0,200,83,.18);color:#00c853}
-.qa-av-mec{background:rgba(105,240,174,.14);color:#69f0ae}
-.qa-av-cli{background:rgba(185,246,202,.1);color:#b9f6ca}
+.qa-info{flex:1;min-width:0;text-align:left}
+.qa-name{font-family:'Plus Jakarta Sans',sans-serif;font-size:.82rem;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qa-role{font-size:.68rem;color:var(--gs);margin-top:1px}
 
-.qa-info{overflow:hidden;min-width:0}
-.qa-name{font-family:'Plus Jakarta Sans',sans-serif;font-size:.78rem;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2}
-.qa-role{font-size:.64rem;color:var(--gs);line-height:1.2;margin-top:1px}
+/* Flecha indicadora */
+.qa-arr{color:var(--va);opacity:.5;flex-shrink:0;font-size:.8rem}
 
-.qa-hint{text-align:center;font-size:.62rem;color:rgba(255,255,255,.18);padding:0 10px 8px}
-
-/* ── RESPONSIVE ─────────────────────────── */
-@media(max-width:480px){
-  .lc{padding:28px 18px;border-radius:18px}
-  .ltitle{font-size:1.45rem}
-  .lring{width:68px;height:68px;border-radius:17px}
-  .lring img{width:58px;height:58px}
-}
+.qa-hint{text-align:center;font-size:.64rem;color:rgba(255,255,255,.2);padding:0 10px 8px;border-top:1px solid rgba(255,255,255,.04);margin-top:4px}
 </style>
 
 <script>
-/* ── Acceso rápido ───────────────────────── */
 (function(){
-  var CFG = {
-    admin:    {label:'Admin',    avCls:'qa-av-admin', toAbbr:function(n,a){return(n[0]+(a?a[0]:'')).toUpperCase()}},
-    mecanico: {label:'Mecánico', avCls:'qa-av-mec',   toAbbr:function(n,a){return(n[0]+(a?a[0]:'')).toUpperCase()}},
-    cliente:  {label:'Cliente',  avCls:'qa-av-cli',   toAbbr:function(n,a){return(n[0]+(a?a[0]:'')).toUpperCase()}}
-  };
+  var ROLES = {admin:{label:'Admin',av:'av-admin'},mecanico:{label:'Mecánico',av:'av-mecanico'},cliente:{label:'Cliente',av:'av-cliente'}};
   var ORDER = ['admin','mecanico','cliente'];
-  var grupos = {}, activeRol = null;
+  var grupos = {}, cur = null;
   var wrap = document.getElementById('quickAccess');
 
   fetch('/api/usuarios-acceso')
     .then(function(r){return r.json();})
     .then(function(users){
       if(!users||!users.length) return;
-      users.forEach(function(u){ if(!grupos[u.rol])grupos[u.rol]=[]; grupos[u.rol].push(u); });
+      users.forEach(function(u){if(!grupos[u.rol])grupos[u.rol]=[];grupos[u.rol].push(u);});
       var rolesDisp = ORDER.filter(function(r){return grupos[r];});
-      activeRol = rolesDisp[0];
+      cur = rolesDisp[0];
 
-      function renderGrid(rol){
-        var cfg = CFG[rol]||{label:rol,avCls:'qa-av-cli',toAbbr:function(n){return n[0].toUpperCase()}};
+      function list(rol){
+        var cfg = ROLES[rol]||{label:rol,av:'av-cliente'};
         return grupos[rol].map(function(u){
-          var ini = cfg.toAbbr(u.nombre, u.apellido);
-          return '<button type="button" class="qa-btn" onclick="fillCred(\''+u.email+'\',\''+u.pw+'\')" title="'+u.email+'">'+
-            '<div class="qa-av '+cfg.avCls+'">'+ini+'</div>'+
+          var ini = (u.nombre[0]+(u.apellido?u.apellido[0]:'')).toUpperCase();
+          return '<button type="button" class="qa-item" onclick="fillCred(\''+u.email+'\',\''+u.pw+'\')">' +
+            '<div class="qa-av '+cfg.av+'">'+ini+'</div>'+
             '<div class="qa-info">'+
               '<div class="qa-name">'+u.nombre+' '+u.apellido+'</div>'+
-              '<div class="qa-role">'+cfg.label+'</div>'+
+              '<div class="qa-role">'+cfg.label+' · '+u.email+'</div>'+
             '</div>'+
+            '<span class="qa-arr">→</span>'+
           '</button>';
         }).join('');
       }
 
       function render(){
         var tabs = rolesDisp.map(function(r){
-          var cfg = CFG[r]||{label:r};
-          return '<button type="button" class="qa-tab'+(r===activeRol?' on':'')+'" onclick="qaTab(\''+r+'\')">'+
-            cfg.label+' <span style="opacity:.45;font-weight:400">'+grupos[r].length+'</span></button>';
+          var cfg = ROLES[r]||{label:r};
+          return '<button type="button" class="qa-tab'+(r===cur?' on':'')+'" onclick="qaTab(\''+r+'\')">'+
+            cfg.label+' '+grupos[r].length+'</button>';
         }).join('');
 
         wrap.innerHTML =
-          '<div class="qa-wrap">'+
-            '<div class="qa-head">'+
-              '<span class="qa-label"><span class="qa-dot"></span>Acceso rápido</span>'+
-              '<div class="qa-tabs">'+tabs+'</div>'+
-            '</div>'+
-            '<div class="qa-body"><div class="qa-grid" id="qaGrid">'+renderGrid(activeRol)+'</div></div>'+
-            '<div class="qa-hint">Toca para autocompletar credenciales</div>'+
+          '<div class="qa-box">'+
+            '<div class="qa-tabs">'+tabs+'</div>'+
+            '<div class="qa-list" id="qaList">'+list(cur)+'</div>'+
+            '<div class="qa-hint">Toca un usuario para autocompletar</div>'+
           '</div>';
       }
 
-      window.qaTab = function(rol){ activeRol = rol; render(); };
+      window.qaTab = function(r){cur=r;render();};
       render();
     })
     .catch(function(){});
 })();
 
-/* ── Autocompletar ──────────────────────── */
-function fillCred(email, pw){
-  var ei = document.querySelector('input[name="email"]');
-  var pi = document.getElementById('pwInp');
-  ei.value = email; pi.value = pw;
-  [ei, pi].forEach(function(el){
+function fillCred(e,p){
+  var ei=document.getElementById('emailInp'),pi=document.getElementById('pwInp');
+  ei.value=e; pi.value=p;
+  [ei,pi].forEach(function(el){
     el.style.transition='border-color .2s';
     el.style.borderColor='var(--va)';
     setTimeout(function(){el.style.borderColor='';},700);
   });
 }
 
-/* ── Ojo contraseña ─────────────────────── */
 function togglePw(){
-  var i=document.getElementById('pwInp');
-  var o=document.getElementById('eyeO');
-  var c=document.getElementById('eyeC');
+  var i=document.getElementById('pwInp'),o=document.getElementById('eyeO'),c=document.getElementById('eyeC');
   if(i.type==='password'){i.type='text';o.style.display='none';c.style.display='block';}
   else{i.type='password';o.style.display='block';c.style.display='none';}
 }
