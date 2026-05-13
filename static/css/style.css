@@ -23,7 +23,7 @@
 }
 
 *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
-html { scroll-behavior:smooth; overflow-x:hidden; max-width:100%; }
+html { scroll-behavior:smooth; overflow-x:hidden !important; max-width:100vw; }
 *, *::before, *::after { font-family:inherit; }
 
 body {
@@ -32,7 +32,8 @@ body {
   color:var(--bl);
   min-height:100vh;
   line-height:1.6;
-  overflow-x:hidden;
+  overflow-x:hidden !important;
+  max-width:100vw;
 }
 
 a { text-decoration:none; color:inherit; transition:color var(--transition); }
