@@ -10,6 +10,7 @@
     <button onclick="document.getElementById('modal-bici').style.display='flex'" class="btn btn-neon">+ Agregar bicicleta</button>
   </div>
 </div>
+
 {% if bicicletas %}
 <div class="bici-grid animate-in">
   {% for b in bicicletas %}
@@ -18,8 +19,12 @@
     <div class="bici-nombre">{{ b.marca }} {{ b.modelo }}</div>
     <div class="bici-info">{{ b.tipo }} · {{ b.color }} {% if b.anio %}· {{ b.anio }}{% endif %}</div>
     {% if b.descripcion %}<p style="font-size:.8rem;color:var(--gs);margin-top:8px;">{{ b.descripcion }}</p>{% endif %}
-    <div style="margin-top:14px;display:flex;gap:8px;">
+    <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;">
       <a href="/solicitar?bici={{ b.id }}" class="btn btn-primary btn-sm" style="flex:1;justify-content:center;">Solicitar servicio</a>
+      <button class="btn btn-outline btn-sm"
+        onclick="abrirEditar({{ b.id }}, '{{ b.marca }}', '{{ b.modelo }}', '{{ b.color }}', '{{ b.anio or '' }}', '{{ b.tipo }}', '{{ b.descripcion or '' | replace("'", "\\'") }}')">
+        Editar
+      </button>
       <form method="POST" action="/mis-bicicletas/{{ b.id }}/eliminar" style="display:inline;">
         <button class="btn btn-danger btn-sm" onclick="return confirm('¿Eliminar esta bicicleta?')">Eliminar</button>
       </form>
@@ -35,6 +40,7 @@
 </div>
 {% endif %}
 
+<!-- Modal Agregar -->
 <div id="modal-bici" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;align-items:center;justify-content:center;">
   <div class="card" style="width:100%;max-width:480px;">
     <div class="card-header">
@@ -46,7 +52,7 @@
         <div class="form-group"><label class="form-label">Marca</label><input type="text" name="marca" class="form-input" placeholder="Trek, Giant, Specialized..." required></div>
         <div class="form-group"><label class="form-label">Modelo</label><input type="text" name="modelo" class="form-input" placeholder="FX3, Talon..." required></div>
         <div class="form-group"><label class="form-label">Color</label><input type="text" name="color" class="form-input" placeholder="Rojo, Negro..." required></div>
-        <div class="form-group"><label class="form-label">Año</label><input type="number" name="anio" class="form-input" placeholder="2022" min="1980" max="2026"></div>
+        <div class="form-group"><label class="form-label">Año</label><input type="number" name="anio" class="form-input" placeholder="2022" min="1980" max="2030"></div>
       </div>
       <div class="form-group">
         <label class="form-label">Tipo de bicicleta</label>
@@ -65,4 +71,48 @@
     </form>
   </div>
 </div>
+
+<!-- Modal Editar -->
+<div id="modal-editar" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;align-items:center;justify-content:center;">
+  <div class="card" style="width:100%;max-width:480px;">
+    <div class="card-header">
+      <span class="card-title"><i class="ti ti-pencil"></i> Editar bicicleta</span>
+      <button onclick="document.getElementById('modal-editar').style.display='none'" class="btn btn-sm btn-outline">&times;</button>
+    </div>
+    <form method="POST" id="form-editar" action="">
+      <div class="grid-2" style="gap:14px;">
+        <div class="form-group"><label class="form-label">Marca</label><input type="text" name="marca" id="edit-marca" class="form-input" required></div>
+        <div class="form-group"><label class="form-label">Modelo</label><input type="text" name="modelo" id="edit-modelo" class="form-input" required></div>
+        <div class="form-group"><label class="form-label">Color</label><input type="text" name="color" id="edit-color" class="form-input" required></div>
+        <div class="form-group"><label class="form-label">Año</label><input type="number" name="anio" id="edit-anio" class="form-input" min="1980" max="2030"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tipo de bicicleta</label>
+        <select name="tipo" id="edit-tipo" class="form-select" required>
+          <option value="Urbana">Urbana</option>
+          <option value="MTB">MTB (Montaña)</option>
+          <option value="Ruta">Ruta</option>
+          <option value="BMX">BMX</option>
+          <option value="Electrica">Eléctrica</option>
+          <option value="Otra">Otra</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Descripción adicional</label><textarea name="descripcion" id="edit-descripcion" class="form-textarea" style="min-height:70px;"></textarea></div>
+      <button type="submit" class="btn btn-neon btn-full">Guardar cambios</button>
+    </form>
+  </div>
+</div>
+
+<script>
+function abrirEditar(id, marca, modelo, color, anio, tipo, descripcion) {
+  document.getElementById('form-editar').action = '/mis-bicicletas/' + id + '/editar';
+  document.getElementById('edit-marca').value = marca;
+  document.getElementById('edit-modelo').value = modelo;
+  document.getElementById('edit-color').value = color;
+  document.getElementById('edit-anio').value = anio;
+  document.getElementById('edit-tipo').value = tipo;
+  document.getElementById('edit-descripcion').value = descripcion;
+  document.getElementById('modal-editar').style.display = 'flex';
+}
+</script>
 {% endblock %}
