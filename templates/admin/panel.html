@@ -101,18 +101,31 @@
     <div style="display:flex;flex-direction:column;gap:8px;padding:4px 0 8px;">
       {% for m in mecanicos %}
       <div style="display:flex;align-items:center;gap:12px;padding:11px 14px;background:rgba(27,94,32,.06);border-radius:10px;border:1px solid var(--n4);">
-        <!-- Avatar inicial -->
+
+        <!-- Avatar -->
         <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--v1),var(--va));display:flex;align-items:center;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif;font-size:.88rem;font-weight:800;color:#fff;flex-shrink:0;">
           {{ m.nombre[0].upper() }}
         </div>
+
+        <!-- Info -->
         <div style="flex:1;min-width:0;">
-          <div style="font-weight:600;color:var(--bl);font-size:.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ m.nombre }} {{ m.apellido }}</div>
-          <div style="font-size:.72rem;color:var(--gs);margin-top:1px;">
-            {{ m.zona or "Sin zona" }}
-            {% if m.calificacion_promedio %} · <span style="color:var(--am);">{{ m.calificacion_promedio }} ★</span>{% endif %}
+          <div style="font-weight:600;color:var(--bl);font-size:.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+            {{ m.nombre }} {{ m.apellido }}
+          </div>
+          <div style="font-size:.72rem;color:var(--gs);margin-top:1px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+            <span>{{ m.zona or "Sin zona" }}</span>
+            {% if m.calificacion_promedio %}
+            <span style="color:var(--am);">{{ m.calificacion_promedio }} ★</span>
+            {% endif %}
+            <span class="badge badge-{{ m.estado_mecanico }}" style="font-size:.62rem;padding:2px 7px;">{{ m.estado_mecanico|capitalize }}</span>
           </div>
         </div>
-        <span class="badge badge-{{ m.estado_mecanico }}" style="flex-shrink:0;font-size:.68rem;">{{ m.estado_mecanico|capitalize }}</span>
+
+        <!-- Botón ver perfil — usa la ruta que SÍ existe -->
+        <a href="/admin/usuario/{{ m.id }}" class="btn btn-outline btn-sm" style="flex-shrink:0;font-size:.75rem;padding:5px 11px;">
+          Ver perfil
+        </a>
+
       </div>
       {% endfor %}
       {% if not mecanicos %}
