@@ -15,7 +15,7 @@
 <!-- ═══════════════════════════════════════════════════════
      KPI CARDS — fila 1
 ═══════════════════════════════════════════════════════ -->
-<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:28px;" class="animate-in">
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:28px;" class="animate-in kpi-grid-reportes">
 
   <!-- Ingresos totales -->
   <div class="kpi-card" style="position:relative;overflow:hidden;border:1px solid rgba(0,200,83,.18);">
@@ -677,9 +677,11 @@ insights.forEach(ins => {
   .rpt-grid-main{grid-template-columns:1fr!important;}
   .rpt-grid-half{grid-template-columns:1fr!important;}
   #conclusiones{grid-template-columns:1fr 1fr!important;}
+  .kpi-grid-reportes{grid-template-columns:1fr 1fr!important;gap:12px!important;}
 }
 @media(max-width:520px){
   #conclusiones{grid-template-columns:1fr!important;}
+  .kpi-grid-reportes{grid-template-columns:1fr 1fr!important;gap:10px!important;}
 }
 </style>
 {% endblock %}
