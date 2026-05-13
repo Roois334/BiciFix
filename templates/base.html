@@ -75,6 +75,29 @@
   flex-shrink: 0; margin-top: 6px;
 }
 .notif-empty { padding: 28px 16px; text-align: center; color: #555; font-size: .83rem; }
+/* ── Campana móvil (junto al burger) ─────────────── */
+.mob-bell {
+  display: none;
+  position: relative;
+  align-items: center;
+  justify-content: center;
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  color: #aaa;
+  text-decoration: none;
+  transition: color .2s, background .2s;
+}
+.mob-bell:hover { color: #00c853; background: rgba(0,200,83,.1); }
+.mob-bell-badge {
+  position: absolute; top: 2px; right: 2px;
+  background: #00c853; color: #000; font-size: 10px; font-weight: 700;
+  border-radius: 9px; min-width: 16px; height: 16px;
+  display: flex; align-items: center; justify-content: center; padding: 0 3px;
+  pointer-events: none;
+}
+@media (max-width: 900px) {
+  .mob-bell { display: flex; }
+}
 </style>
 </head>
 <body>
@@ -156,6 +179,12 @@
         {% endif %}
       </div>
 
+      {% if session.get('usuario') and session['usuario']['rol'] == 'cliente' %}
+      <a href="/notificaciones" class="mob-bell" id="mobBellBtn" aria-label="Notificaciones">
+        <svg viewBox="0 0 24 24" fill="none" width="20" height="20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span class="mob-bell-badge" id="mob-notif-badge" style="display:none">0</span>
+      </a>
+      {% endif %}
       <button class="burger" id="burgerBtn" aria-label="Abrir menú" type="button">
         <span class="burger-line"></span>
         <span class="burger-line"></span>
