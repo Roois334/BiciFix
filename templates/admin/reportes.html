@@ -664,8 +664,15 @@ insights.forEach(ins => {
 
 <style>
 /* Grids reportes */
-.rpt-grid-main{display:grid;grid-template-columns:1fr 340px;gap:20px;margin-bottom:24px;}
-.rpt-grid-half{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;}
+.rpt-wrap { width: 100%; max-width: 100%; overflow-x: hidden; box-sizing: border-box; }
+.rpt-grid-main{display:grid;grid-template-columns:1fr 320px;gap:20px;margin-bottom:24px;min-width:0;}
+.rpt-grid-main > * { min-width: 0; }
+.rpt-grid-half{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;min-width:0;}
+.rpt-grid-half > * { min-width: 0; }
+@media(max-width:1024px){
+  .rpt-grid-main{grid-template-columns:1fr!important;}
+  .rpt-grid-half{grid-template-columns:1fr!important;}
+}
 @media(max-width:860px){
   .rpt-grid-main{grid-template-columns:1fr!important;}
   .rpt-grid-half{grid-template-columns:1fr!important;}
