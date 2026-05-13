@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>{% block title %}BiciFix{% endblock %}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,7 +19,7 @@
 
   <nav class="navbar">
     <div class="nav-inner">
-      <a href="{% if session.get('usuario') %}{% if session['usuario']['rol'] == 'admin' %}/admin{% elif session['usuario']['rol'] == 'mecanico' %}/mecanico{% else %}/servicios{% endif %}{% else %}/{% endif %}" class="brand">
+      <a href="{% if session.get('usuario') %}{% if session['usuario']['rol']=='admin' %}/admin{% elif session['usuario']['rol']=='mecanico' %}/mecanico{% else %}/servicios{% endif %}{% else %}/{% endif %}" class="brand">
         <div class="brand-logo brand-logo-img">
           <img src="/static/img/logo.png" alt="BiciFix" class="brand-logo-image">
         </div>
@@ -38,43 +38,9 @@
             <a href="/admin/servicios" class="nav-link">Servicios</a>
             <a href="/talleres" class="nav-link">Talleres</a>
             <a href="/admin/reportes" class="nav-link">Reportes</a>
-            <div class="pd" id="profileDropdown">
-              <button class="pd-trigger" id="profileTrigger" type="button">
-                <span class="pd-avatar av-{{ session['usuario']['rol'] }}">{{ session['usuario']['nombre'][0].upper() }}</span>
-                <svg class="pd-chevron" viewBox="0 0 24 24" fill="none" width="11" height="11"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </button>
-              <div class="pd-menu" id="profileMenu">
-                <div class="pd-header">
-                  <span class="pd-header-avatar av-{{ session['usuario']['rol'] }}">{{ session['usuario']['nombre'][0].upper() }}</span>
-                  <div class="pd-header-info"><strong>{{ session['usuario']['nombre'] }}</strong><span class="pd-role role-admin">Administrador</span></div>
-                </div>
-                <div class="pd-divider"></div>
-                <a href="/perfil" class="pd-item"><span class="pd-item-icon"><svg viewBox="0 0 24 24" fill="none" width="14" height="14"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span>Mi perfil</span></a>
-                <div class="pd-divider"></div>
-                <a href="/logout" class="pd-item pd-item-danger"><span class="pd-item-icon"><svg viewBox="0 0 24 24" fill="none" width="14" height="14"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><polyline points="16 17 21 12 16 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span>Cerrar sesión</span></a>
-              </div>
-            </div>
-
           {% elif session['usuario']['rol'] == 'mecanico' %}
             <a href="/mecanico" class="nav-link">Mis Órdenes</a>
             <a href="/mecanico/historial" class="nav-link">Historial</a>
-            <div class="pd" id="profileDropdown">
-              <button class="pd-trigger" id="profileTrigger" type="button">
-                <span class="pd-avatar av-{{ session['usuario']['rol'] }}">{{ session['usuario']['nombre'][0].upper() }}</span>
-                <svg class="pd-chevron" viewBox="0 0 24 24" fill="none" width="11" height="11"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </button>
-              <div class="pd-menu" id="profileMenu">
-                <div class="pd-header">
-                  <span class="pd-header-avatar av-{{ session['usuario']['rol'] }}">{{ session['usuario']['nombre'][0].upper() }}</span>
-                  <div class="pd-header-info"><strong>{{ session['usuario']['nombre'] }}</strong><span class="pd-role role-mecanico">Mecánico</span></div>
-                </div>
-                <div class="pd-divider"></div>
-                <a href="/perfil" class="pd-item"><span class="pd-item-icon"><svg viewBox="0 0 24 24" fill="none" width="14" height="14"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span>Mi perfil</span></a>
-                <div class="pd-divider"></div>
-                <a href="/logout" class="pd-item pd-item-danger"><span class="pd-item-icon"><svg viewBox="0 0 24 24" fill="none" width="14" height="14"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><polyline points="16 17 21 12 16 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span>Cerrar sesión</span></a>
-              </div>
-            </div>
-
           {% else %}
             <a href="/servicios" class="nav-link">Servicios</a>
             <a href="/talleres" class="nav-link">Talleres</a>
@@ -82,24 +48,23 @@
             <a href="/mis-ordenes" class="nav-link">Mis Órdenes</a>
             <a href="/mis-bicicletas" class="nav-link">Mis Bicicletas</a>
             <a href="/solicitar" class="btn-cta">+ Solicitar</a>
-            <div class="pd" id="profileDropdown">
-              <button class="pd-trigger" id="profileTrigger" type="button">
-                <span class="pd-avatar av-{{ session['usuario']['rol'] }}">{{ session['usuario']['nombre'][0].upper() }}</span>
-                <svg class="pd-chevron" viewBox="0 0 24 24" fill="none" width="11" height="11"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </button>
-              <div class="pd-menu" id="profileMenu">
-                <div class="pd-header">
-                  <span class="pd-header-avatar av-{{ session['usuario']['rol'] }}">{{ session['usuario']['nombre'][0].upper() }}</span>
-                  <div class="pd-header-info"><strong>{{ session['usuario']['nombre'] }}</strong><span class="pd-role role-cliente">Cliente</span></div>
-                </div>
-                <div class="pd-divider"></div>
-                <a href="/perfil" class="pd-item"><span class="pd-item-icon"><svg viewBox="0 0 24 24" fill="none" width="14" height="14"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span>Mi perfil</span></a>
-                <div class="pd-divider"></div>
-                <a href="/logout" class="pd-item pd-item-danger"><span class="pd-item-icon"><svg viewBox="0 0 24 24" fill="none" width="14" height="14"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><polyline points="16 17 21 12 16 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span>Cerrar sesión</span></a>
-              </div>
-            </div>
           {% endif %}
-
+          <div class="pd" id="profileDropdown">
+            <button class="pd-trigger" id="profileTrigger" type="button">
+              <span class="pd-avatar av-{{ session['usuario']['rol'] }}">{{ session['usuario']['nombre'][0].upper() }}</span>
+              <svg class="pd-chevron" viewBox="0 0 24 24" fill="none" width="11" height="11"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="pd-menu" id="profileMenu">
+              <div class="pd-header">
+                <span class="pd-header-avatar av-{{ session['usuario']['rol'] }}">{{ session['usuario']['nombre'][0].upper() }}</span>
+                <div class="pd-header-info"><strong>{{ session['usuario']['nombre'] }}</strong><span class="pd-role role-{{ session['usuario']['rol'] }}">{% if session['usuario']['rol']=='admin' %}Administrador{% elif session['usuario']['rol']=='mecanico' %}Mecánico{% else %}Cliente{% endif %}</span></div>
+              </div>
+              <div class="pd-divider"></div>
+              <a href="/perfil" class="pd-item"><span class="pd-item-icon"><svg viewBox="0 0 24 24" fill="none" width="14" height="14"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span>Mi perfil</span></a>
+              <div class="pd-divider"></div>
+              <a href="/logout" class="pd-item pd-item-danger"><span class="pd-item-icon"><svg viewBox="0 0 24 24" fill="none" width="14" height="14"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><polyline points="16 17 21 12 16 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span>Cerrar sesión</span></a>
+            </div>
+          </div>
         {% else %}
           <a href="/servicios" class="nav-link">Servicios</a>
           <a href="/talleres" class="nav-link">Talleres</a>
@@ -107,8 +72,8 @@
           {% if request.path != '/registro' %}<a href="/registro" class="btn-cta">Crear cuenta</a>{% endif %}
         {% endif %}
       </div>
-      <!-- BURGER -->
-      <button class="burger" id="burgerBtn" aria-label="Menú" type="button">
+
+      <button class="burger" id="burgerBtn" aria-label="Abrir menú" type="button">
         <span class="burger-line"></span>
         <span class="burger-line"></span>
         <span class="burger-line"></span>
@@ -116,137 +81,68 @@
     </div>
   </nav>
 
-  <!-- OVERLAY -->
   <div class="mob-overlay" id="mobOverlay"></div>
 
-  <!-- DRAWER MÓVIL -->
-  <div class="mob-drawer" id="mobDrawer" aria-hidden="true">
-
-    <!-- Header -->
+  <div class="mob-drawer" id="mobDrawer">
     <div class="mob-dh">
       <div class="mob-brand-row">
         <div class="mob-logo-box"><img src="/static/img/logo.png" alt="BiciFix"></div>
         <span class="mob-brand-name">BiciFix</span>
       </div>
-      <button class="mob-x" id="mobClose" aria-label="Cerrar menú">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      <button class="mob-x" id="mobClose" type="button">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
 
     {% if session.get('usuario') %}
-
-    <!-- Usuario -->
     <div class="mob-user">
       <div class="mob-av mob-av-{{ session['usuario']['rol'] }}">{{ session['usuario']['nombre'][0].upper() }}</div>
-      <div>
+      <div style="min-width:0">
         <div class="mob-uname">{{ session['usuario']['nombre'] }} {{ session['usuario']['apellido'] }}</div>
         <div class="mob-urole">{% if session['usuario']['rol']=='admin' %}Administrador{% elif session['usuario']['rol']=='mecanico' %}Mecánico{% else %}Cliente{% endif %}</div>
       </div>
     </div>
 
-    <!-- Links según rol -->
     {% if session['usuario']['rol'] == 'admin' %}
     <div class="mob-sec">Administración</div>
-    <a href="/admin" class="mob-a">
-      <span class="mob-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span>
-      <span>Dashboard</span>
-    </a>
-    <a href="/admin/usuarios" class="mob-a">
-      <span class="mob-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
-      <span>Usuarios</span>
-    </a>
-    <a href="/admin/ordenes" class="mob-a">
-      <span class="mob-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>
-      <span>Órdenes</span>
-    </a>
-    <a href="/admin/servicios" class="mob-a">
-      <span class="mob-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>
-      <span>Servicios</span>
-    </a>
-    <a href="/talleres" class="mob-a">
-      <span class="mob-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
-      <span>Talleres</span>
-    </a>
-    <a href="/admin/reportes" class="mob-a">
-      <span class="mob-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
-      <span>Reportes</span>
-    </a>
+    <a href="/admin" class="mob-a"><span class="mob-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span><span>Dashboard</span></a>
+    <a href="/admin/usuarios" class="mob-a"><span class="mob-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span>Usuarios</span></a>
+    <a href="/admin/ordenes" class="mob-a"><span class="mob-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span><span>Órdenes</span></a>
+    <a href="/admin/servicios" class="mob-a"><span class="mob-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span><span>Servicios</span></a>
+    <a href="/talleres" class="mob-a"><span class="mob-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span>Talleres</span></a>
+    <a href="/admin/reportes" class="mob-a"><span class="mob-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span><span>Reportes</span></a>
 
     {% elif session['usuario']['rol'] == 'mecanico' %}
     <div class="mob-sec">Mi panel</div>
-    <a href="/mecanico" class="mob-a">
-      <span class="mob-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>
-      <span>Mis Órdenes</span>
-    </a>
-    <a href="/mecanico/historial" class="mob-a">
-      <span class="mob-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
-      <span>Historial</span>
-    </a>
+    <a href="/mecanico" class="mob-a"><span class="mob-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span><span>Mis Órdenes</span></a>
+    <a href="/mecanico/historial" class="mob-a"><span class="mob-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span><span>Historial</span></a>
 
     {% else %}
     <div class="mob-sec">Navegación</div>
-    <a href="/servicios" class="mob-a">
-      <span class="mob-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>
-      <span>Servicios</span>
-    </a>
-    <a href="/talleres" class="mob-a">
-      <span class="mob-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></span>
-      <span>Talleres</span>
-    </a>
-    <a href="/dashboard" class="mob-a">
-      <span class="mob-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span>
-      <span>Mi Panel</span>
-    </a>
-    <a href="/mis-ordenes" class="mob-a">
-      <span class="mob-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span>
-      <span>Mis Órdenes</span>
-    </a>
-    <a href="/mis-bicicletas" class="mob-a">
-      <span class="mob-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="18" r="3"/><path d="M6 18L12 5l2.5 5H18"/><line x1="6" y1="18" x2="9" y2="11"/></svg></span>
-      <span>Mis Bicicletas</span>
-    </a>
+    <a href="/servicios" class="mob-a"><span class="mob-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span><span>Servicios</span></a>
+    <a href="/talleres" class="mob-a"><span class="mob-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></span><span>Talleres</span></a>
+    <a href="/dashboard" class="mob-a"><span class="mob-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span><span>Mi Panel</span></a>
+    <a href="/mis-ordenes" class="mob-a"><span class="mob-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span><span>Mis Órdenes</span></a>
+    <a href="/mis-bicicletas" class="mob-a"><span class="mob-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="18" r="3"/><path d="M6 18L12 5l2.5 5H18"/><line x1="6" y1="18" x2="9" y2="11"/></svg></span><span>Mis Bicicletas</span></a>
     <div class="mob-sep"></div>
-    <a href="/solicitar" class="mob-cta-btn">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      Solicitar servicio
-    </a>
+    <a href="/solicitar" class="mob-cta-btn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Solicitar servicio</a>
     {% endif %}
 
     <div class="mob-sep"></div>
-    <a href="/perfil" class="mob-a">
-      <span class="mob-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></span>
-      <span>Mi perfil</span>
-    </a>
-    <a href="/logout" class="mob-logout">
-      <span class="mob-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span>
-      <span>Cerrar sesión</span>
-    </a>
+    <a href="/perfil" class="mob-a"><span class="mob-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></span><span>Mi perfil</span></a>
+    <a href="/logout" class="mob-logout"><span class="mob-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span><span>Cerrar sesión</span></a>
 
     {% else %}
     <div class="mob-sec">Acceso</div>
-    <a href="/servicios" class="mob-a">
-      <span class="mob-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>
-      <span>Servicios</span>
-    </a>
-    <a href="/talleres" class="mob-a">
-      <span class="mob-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></span>
-      <span>Talleres</span>
-    </a>
+    <a href="/servicios" class="mob-a"><span class="mob-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span><span>Servicios</span></a>
+    <a href="/talleres" class="mob-a"><span class="mob-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></span><span>Talleres</span></a>
     <div class="mob-sep"></div>
-    <a href="/login" class="mob-a">
-      <span class="mob-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg></span>
-      <span>Ingresar</span>
-    </a>
-    <a href="/registro" class="mob-cta-btn">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      Crear cuenta
-    </a>
+    <a href="/login" class="mob-a"><span class="mob-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg></span><span>Ingresar</span></a>
+    <a href="/registro" class="mob-cta-btn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Crear cuenta</a>
     {% endif %}
-
-  </div><!-- /mob-drawer -->
+  </div>
 
   <main class="main-content">
-
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
         <div class="flash-wrap">
@@ -280,13 +176,8 @@
         <h4>Plataforma</h4>
         <a href="/">Inicio</a>
         <a href="/servicios">Servicios</a>
-        {% if session.get('usuario') %}
-          <a href="/dashboard">Mi Panel</a>
-          <a href="/perfil">Mi Perfil</a>
-        {% else %}
-          <a href="/registro">Registrarse</a>
-          <a href="/login">Ingresar</a>
-        {% endif %}
+        {% if session.get('usuario') %}<a href="/dashboard">Mi Panel</a><a href="/perfil">Mi Perfil</a>
+        {% else %}<a href="/registro">Registrarse</a><a href="/login">Ingresar</a>{% endif %}
       </div>
       <div class="footer-col">
         <h4>Servicios</h4>
@@ -304,89 +195,31 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-
-  // ── Profile Dropdown ──────────────────────────────────────────
-  var trigger  = document.getElementById('profileTrigger');
-  var menu     = document.getElementById('profileMenu');
-  var dropdown = document.getElementById('profileDropdown');
-  if (trigger && menu && dropdown) {
-    trigger.addEventListener('click', function(e) {
-      e.stopPropagation();
-      menu.classList.toggle('open');
-      dropdown.classList.toggle('active');
-    });
-    document.addEventListener('click', function(e) {
-      if (!dropdown.contains(e.target)) {
-        menu.classList.remove('open');
-        dropdown.classList.remove('active');
-      }
-    });
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') {
-        menu.classList.remove('open');
-        dropdown.classList.remove('active');
-      }
-    });
+(function(){
+  'use strict';
+  var pd=document.getElementById('profileDropdown'),
+      pt=document.getElementById('profileTrigger'),
+      pm=document.getElementById('profileMenu');
+  if(pt&&pm&&pd){
+    pt.addEventListener('click',function(e){e.stopPropagation();pm.classList.toggle('open');pd.classList.toggle('active');});
+    document.addEventListener('click',function(e){if(pd&&!pd.contains(e.target)){pm.classList.remove('open');pd.classList.remove('active');}});
+    document.addEventListener('keydown',function(e){if(e.key==='Escape'){pm.classList.remove('open');pd.classList.remove('active');}});
   }
-
-  // ── Flash autohide ────────────────────────────────────────────
-  setTimeout(function() {
-    document.querySelectorAll('.flash').forEach(function(el) {
-      el.style.transition = 'opacity .4s';
-      el.style.opacity = '0';
-      setTimeout(function() { el.remove(); }, 400);
-    });
-  }, 5000);
-
-  // ── Burger Drawer ─────────────────────────────────────────────
-  var burger  = document.getElementById('burgerBtn');
-  var drawer  = document.getElementById('mobDrawer');
-  var overlay = document.getElementById('mobOverlay');
-  var mobX    = document.getElementById('mobClose');
-
-  function openDrawer() {
-    if (!drawer) return;
-    drawer.classList.add('open');
-    drawer.setAttribute('aria-hidden','false');
-    overlay && overlay.classList.add('show');
-    burger  && burger.classList.add('open');
-    document.body.style.overflow = 'hidden';
-  }
-
-  function closeDrawer() {
-    if (!drawer) return;
-    drawer.classList.remove('open');
-    drawer.setAttribute('aria-hidden','true');
-    overlay && overlay.classList.remove('show');
-    burger  && burger.classList.remove('open');
-    document.body.style.overflow = '';
-  }
-
-  if (burger)  burger.addEventListener('click',  function(e) { e.stopPropagation(); drawer && drawer.classList.contains('open') ? closeDrawer() : openDrawer(); });
-  if (overlay) overlay.addEventListener('click', closeDrawer);
-  if (mobX)    mobX.addEventListener('click',    closeDrawer);
-
-  document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeDrawer(); });
-
-  // Cerrar drawer al navegar (click en link)
-  if (drawer) {
-    drawer.querySelectorAll('a').forEach(function(a) {
-      a.addEventListener('click', function() {
-        setTimeout(closeDrawer, 80);
-      });
-    });
-  }
-
-  // Marcar link activo
-  var path = window.location.pathname;
-  if (drawer) {
-    drawer.querySelectorAll('.mob-a').forEach(function(a) {
-      if (a.getAttribute('href') === path) a.classList.add('mob-active');
-    });
-  }
-
-});
+  setTimeout(function(){document.querySelectorAll('.flash').forEach(function(el){el.style.transition='opacity .4s';el.style.opacity='0';setTimeout(function(){el.remove();},420);});},5000);
+  var burger=document.getElementById('burgerBtn'),
+      drawer=document.getElementById('mobDrawer'),
+      overlay=document.getElementById('mobOverlay'),
+      xbtn=document.getElementById('mobClose');
+  function open(){if(!drawer)return;burger&&burger.classList.add('open');drawer.classList.add('open');overlay&&overlay.classList.add('show');document.body.style.overflow='hidden';}
+  function close(){if(!drawer)return;burger&&burger.classList.remove('open');drawer.classList.remove('open');overlay&&overlay.classList.remove('show');document.body.style.overflow='';}
+  if(burger)burger.addEventListener('click',function(e){e.stopPropagation();drawer&&drawer.classList.contains('open')?close():open();});
+  if(overlay)overlay.addEventListener('click',close);
+  if(xbtn)xbtn.addEventListener('click',close);
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')close();});
+  if(drawer){drawer.querySelectorAll('a').forEach(function(a){a.addEventListener('click',function(){setTimeout(close,60);});});}
+  var path=window.location.pathname;
+  if(drawer){drawer.querySelectorAll('.mob-a').forEach(function(a){if(a.getAttribute('href')===path)a.classList.add('mob-active');});}
+})();
 </script>
 </body>
 </html>
