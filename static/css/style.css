@@ -43,6 +43,7 @@ a { text-decoration:none; color:inherit; transition:color var(--transition); }
   position:fixed; inset:0; z-index:0; pointer-events:none;
   background: var(--n1);
   overflow: hidden;
+  max-width: 100vw;
 }
 
 /* Capa de gradiente encima del logo */
@@ -65,11 +66,13 @@ a { text-decoration:none; color:inherit; transition:color var(--transition); }
   transform: translate(-50%, -50%);
   width: 100vmax;
   height: 100vmax;
+  max-width: none;
   object-fit: contain;
   filter: blur(14px) saturate(0.7) brightness(0.5);
   opacity: 0.65;
   z-index: 0;
   animation: bgLogoAppear 1.8s ease both;
+  pointer-events: none;
 }
 
 @keyframes bgLogoAppear {
