@@ -10,6 +10,72 @@
   <link rel="stylesheet" href="/static/css/style.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
   {% block extra_head %}{% endblock %}
+
+<style>
+/* ── Notificaciones ───────────────────────────────── */
+.notif-wrap { position: relative; display: flex; align-items: center; }
+.notif-btn {
+  position: relative; background: none; border: none; cursor: pointer;
+  color: var(--text-secondary, #aaa); padding: 6px; border-radius: 50%;
+  transition: color .2s, background .2s; display: flex; align-items: center;
+}
+.notif-btn:hover { color: #00c853; background: rgba(0,200,83,.1); }
+.notif-badge {
+  position: absolute; top: 2px; right: 2px;
+  background: #00c853; color: #000; font-size: 10px; font-weight: 700;
+  border-radius: 9px; min-width: 16px; height: 16px;
+  display: flex; align-items: center; justify-content: center; padding: 0 3px;
+  line-height: 1; pointer-events: none;
+}
+.notif-dropdown {
+  display: none; position: absolute; top: calc(100% + 10px); right: -8px;
+  width: 320px; background: #1a1a1a; border: 1px solid rgba(255,255,255,.08);
+  border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,.5);
+  z-index: 2000; overflow: hidden;
+}
+.notif-dropdown.open { display: block; }
+.notif-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,.07);
+  font-size: .85rem; font-weight: 600; color: #fff;
+}
+.notif-read-all {
+  background: none; border: none; cursor: pointer; color: #00c853;
+  font-size: .75rem; font-weight: 500; padding: 0;
+}
+.notif-read-all:hover { text-decoration: underline; }
+.notif-list { max-height: 340px; overflow-y: auto; }
+.notif-item {
+  display: flex; gap: 10px; padding: 12px 16px;
+  border-bottom: 1px solid rgba(255,255,255,.05);
+  cursor: pointer; transition: background .15s;
+}
+.notif-item:hover { background: rgba(255,255,255,.04); }
+.notif-item.unread { background: rgba(0,200,83,.06); }
+.notif-item.unread:hover { background: rgba(0,200,83,.1); }
+.notif-icon {
+  width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px;
+}
+.notif-icon.mantenimiento { background: rgba(0,200,83,.15); }
+.notif-icon.manual        { background: rgba(33,150,243,.15); }
+.notif-icon.orden         { background: rgba(255,193,7,.15); }
+.notif-icon.sistema       { background: rgba(156,39,176,.15); }
+.notif-body { flex: 1; min-width: 0; }
+.notif-titulo {
+  font-size: .82rem; font-weight: 600; color: #fff;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.notif-msg { font-size: .76rem; color: #888; margin-top: 2px; line-height: 1.4;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.notif-fecha { font-size: .7rem; color: #555; margin-top: 4px; }
+.notif-dot {
+  width: 7px; height: 7px; border-radius: 50%; background: #00c853;
+  flex-shrink: 0; margin-top: 6px;
+}
+.notif-empty { padding: 28px 16px; text-align: center; color: #555; font-size: .83rem; }
+</style>
 </head>
 <body>
 <div class="bg-bicifix">
@@ -25,6 +91,7 @@
         </div>
         <div class="brand-text">
           <strong>BiciFix</strong>
+          <span>Servicio móvil de bicicletas</span>
         </div>
       </a>
 
@@ -37,6 +104,7 @@
             <a href="/admin/servicios" class="nav-link">Servicios</a>
             <a href="/talleres" class="nav-link">Talleres</a>
             <a href="/admin/reportes" class="nav-link">Reportes</a>
+            <a href="/admin/notificaciones" class="nav-link">Notificaciones</a>
           {% elif session['usuario']['rol'] == 'mecanico' %}
             <a href="/mecanico" class="nav-link">Mis Órdenes</a>
             <a href="/mecanico/historial" class="nav-link">Historial</a>
@@ -47,6 +115,23 @@
             <a href="/mis-ordenes" class="nav-link">Mis Órdenes</a>
             <a href="/mis-bicicletas" class="nav-link">Mis Bicicletas</a>
             <a href="/solicitar" class="btn-cta">+ Solicitar</a>
+          {% endif %}
+          {% if session['usuario']['rol'] == 'cliente' %}
+          <div class="notif-wrap" id="notifWrap">
+            <button class="notif-btn" id="notifBtn" type="button" aria-label="Notificaciones">
+              <svg viewBox="0 0 24 24" fill="none" width="20" height="20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+              <span class="notif-badge" id="notifBadge" style="display:none">0</span>
+            </button>
+            <div class="notif-dropdown" id="notifDropdown">
+              <div class="notif-header">
+                <span>Notificaciones</span>
+                <button class="notif-read-all" id="notifReadAll" type="button">Marcar todas leídas</button>
+              </div>
+              <div class="notif-list" id="notifList">
+                <div class="notif-empty">Cargando...</div>
+              </div>
+            </div>
+          </div>
           {% endif %}
           <div class="pd" id="profileDropdown">
             <button class="pd-trigger" id="profileTrigger" type="button">
@@ -221,35 +306,81 @@
 })();
 </script>
 
-<!-- Botón flotante WhatsApp -->
-<a href="https://wa.me/573025554151" target="_blank" rel="noopener noreferrer" class="whatsapp-fab" aria-label="Chatea con BiciFix por WhatsApp">
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="28" height="28" fill="white">
-    <path d="M16 0C7.163 0 0 7.163 0 16c0 2.833.737 5.489 2.027 7.8L0 32l8.418-2.004A15.93 15.93 0 0 0 16 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm0 29.333a13.27 13.27 0 0 1-6.79-1.858l-.487-.29-5 1.191 1.216-4.86-.318-.5A13.267 13.267 0 0 1 2.667 16C2.667 8.636 8.636 2.667 16 2.667S29.333 8.636 29.333 16 23.364 29.333 16 29.333zm7.27-9.878c-.398-.199-2.354-1.162-2.719-1.295-.365-.133-.63-.199-.896.199-.265.398-1.029 1.295-1.261 1.56-.232.265-.465.298-.863.1-.398-.2-1.681-.62-3.202-1.977-1.183-1.056-1.982-2.36-2.214-2.758-.232-.398-.025-.613.174-.811.179-.178.398-.465.597-.698.2-.232.265-.398.398-.663.133-.265.066-.498-.033-.697-.1-.2-.896-2.162-1.228-2.96-.323-.778-.65-.673-.896-.685l-.763-.013c-.265 0-.697.1-1.062.498-.365.398-1.394 1.362-1.394 3.323s1.427 3.854 1.626 4.12c.199.265 2.808 4.287 6.805 6.012.951.41 1.693.655 2.272.839.954.304 1.823.261 2.51.158.765-.114 2.354-.962 2.686-1.89.332-.929.332-1.725.232-1.89-.1-.166-.365-.265-.763-.464z"/>
-  </svg>
-</a>
+<script>
+(function(){
+  var btn    = document.getElementById('notifBtn');
+  var drop   = document.getElementById('notifDropdown');
+  var badge  = document.getElementById('notifBadge');
+  var list   = document.getElementById('notifList');
+  var rdAll  = document.getElementById('notifReadAll');
+  if (!btn) return;
 
-<style>
-.whatsapp-fab {
-  position: fixed;
-  bottom: 28px;
-  right: 28px;
-  z-index: 9999;
-  background: #25D366;
-  border-radius: 50%;
-  width: 58px;
-  height: 58px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 20px rgba(37,211,102,0.45);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  text-decoration: none;
-}
-.whatsapp-fab:hover {
-  transform: scale(1.1);
-  box-shadow: 0 6px 28px rgba(37,211,102,0.65);
-}
-</style>
+  var iconMap = { mantenimiento:'🔧', manual:'📣', orden:'📋', sistema:'⚙️' };
 
+  function load() {
+    fetch('/api/notificaciones')
+      .then(function(r){ return r.json(); })
+      .then(function(data){
+        var nl = data.no_leidas;
+        if (nl > 0) { badge.textContent = nl > 9 ? '9+' : nl; badge.style.display = 'flex'; }
+        else { badge.style.display = 'none'; }
+
+        if (!data.notificaciones.length) {
+          list.innerHTML = '<div class="notif-empty">Sin notificaciones</div>'; return;
+        }
+        list.innerHTML = data.notificaciones.map(function(n){
+          return '<div class="notif-item' + (n.leida ? '' : ' unread') + '" data-id="' + n.id + '" data-leida="' + n.leida + '">' +
+            '<div class="notif-icon ' + n.tipo + '">' + (iconMap[n.tipo]||'🔔') + '</div>' +
+            '<div class="notif-body">' +
+              '<div class="notif-titulo">' + n.titulo + '</div>' +
+              '<div class="notif-msg">' + n.mensaje + '</div>' +
+              '<div class="notif-fecha">' + n.fecha + '</div>' +
+            '</div>' +
+            (!n.leida ? '<div class="notif-dot"></div>' : '') +
+          '</div>';
+        }).join('');
+
+        list.querySelectorAll('.notif-item').forEach(function(el){
+          el.addEventListener('click', function(){
+            var id = el.dataset.id;
+            if (el.dataset.leida === '0') {
+              fetch('/api/notificaciones/leer/' + id, {method:'POST'});
+              el.classList.remove('unread');
+              var dot = el.querySelector('.notif-dot');
+              if (dot) dot.remove();
+              el.dataset.leida = '1';
+              var cur = parseInt(badge.textContent) || 0;
+              if (cur <= 1) badge.style.display = 'none';
+              else { badge.textContent = cur - 1; }
+            }
+          });
+        });
+      });
+  }
+
+  btn.addEventListener('click', function(e){
+    e.stopPropagation();
+    var open = drop.classList.toggle('open');
+    if (open) load();
+  });
+
+  if (rdAll) rdAll.addEventListener('click', function(){
+    fetch('/api/notificaciones/leer-todas', {method:'POST'})
+      .then(function(){ load(); });
+  });
+
+  document.addEventListener('click', function(e){
+    if (!drop.contains(e.target) && e.target !== btn) drop.classList.remove('open');
+  });
+
+  // Cargar badge al inicio sin abrir dropdown
+  fetch('/api/notificaciones')
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      var nl = data.no_leidas;
+      if (nl > 0) { badge.textContent = nl > 9 ? '9+' : nl; badge.style.display = 'flex'; }
+    }).catch(function(){});
+})();
+</script>
 </body>
 </html>

@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% block title %}Notificaciones — BiciFix Admin{% endblock %}
+{% block content %}
+<div class="page-header animate-in">
+  <div class="page-header-info">
+    <h1 class="page-title"><i class="ti ti-bell"></i> Enviar Notificaciones</h1>
+    <p class="page-sub">Envía alertas manuales a uno o todos los clientes.</p>
+  </div>
+</div>
+
+<style>
+.notif-admin-wrap { max-width: 620px; margin: 0 auto; }
+.notif-card {
+  background: #161616; border: 1px solid rgba(255,255,255,.07);
+  border-radius: 14px; padding: 28px 28px 24px; margin-bottom: 28px;
+}
+.notif-card h2 { font-size: .95rem; font-weight: 700; color: #fff; margin: 0 0 20px; display: flex; align-items: center; gap: 8px; }
+.nf-label { display: block; font-size: .78rem; font-weight: 600; color: #888; margin-bottom: 6px; text-transform: uppercase; letter-spacing: .05em; }
+.nf-select, .nf-input, .nf-textarea {
+  width: 100%; background: #0d0d0d; border: 1px solid rgba(255,255,255,.1);
+  border-radius: 8px; color: #fff; font-size: .88rem; padding: 10px 14px;
+  outline: none; transition: border .2s; box-sizing: border-box;
+  font-family: inherit;
+}
+.nf-select:focus, .nf-input:focus, .nf-textarea:focus { border-color: #00c853; }
+.nf-textarea { resize: vertical; min-height: 100px; }
+.nf-group { margin-bottom: 16px; }
+.nf-btn {
+  width: 100%; padding: 13px; background: #00c853; border: none;
+  border-radius: 8px; color: #000; font-weight: 700; font-size: .92rem;
+  cursor: pointer; transition: background .2s, transform .1s;
+}
+.nf-btn:hover { background: #00e676; }
+.nf-btn:active { transform: scale(.98); }
+.nf-feedback { display: none; margin-top: 14px; padding: 12px 16px;
+  border-radius: 8px; font-size: .85rem; font-weight: 600; }
+.nf-feedback.ok  { background: rgba(0,200,83,.12);  color: #00c853; border: 1px solid rgba(0,200,83,.2); }
+.nf-feedback.err { background: rgba(244,67,54,.12); color: #ef5350; border: 1px solid rgba(244,67,54,.2); }
+
+/* Historial */
+.hist-table { width: 100%; border-collapse: collapse; }
+.hist-table th { font-size: .72rem; font-weight: 700; color: #666; text-transform: uppercase;
+  letter-spacing: .06em; padding: 8px 12px; border-bottom: 1px solid rgba(255,255,255,.06); text-align: left; }
+.hist-table td { padding: 11px 12px; border-bottom: 1px solid rgba(255,255,255,.03);
+  font-size: .83rem; color: #ccc; vertical-align: middle; }
+.hist-table tr:last-child td { border-bottom: none; }
+.tipo-badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: .7rem; font-weight: 700; }
+.tipo-badge.manual        { background: rgba(33,150,243,.15); color: #42a5f5; }
+.tipo-badge.mantenimiento { background: rgba(0,200,83,.15);   color: #00c853; }
+</style>
+
+<div class="notif-admin-wrap">
+  <div class="notif-card">
+    <h2>📣 Nueva notificación</h2>
+
+    <div class="nf-group">
+      <label class="nf-label" for="nf-destino">Destinatario</label>
+      <select class="nf-select" id="nf-destino">
+        <option value="todos">📢 Todos los clientes</option>
+        {% for c in clientes %}
+        <option value="{{ c.id }}">{{ c.nombre }} {{ c.apellido }} — {{ c.email }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="nf-group">
+      <label class="nf-label" for="nf-titulo">Título</label>
+      <input class="nf-input" id="nf-titulo" type="text" placeholder="Ej: Promoción especial este mes" maxlength="120">
+    </div>
+
+    <div class="nf-group">
+      <label class="nf-label" for="nf-mensaje">Mensaje</label>
+      <textarea class="nf-textarea" id="nf-mensaje" placeholder="Escribe el mensaje para el cliente..."></textarea>
+    </div>
+
+    <button class="nf-btn" id="nf-enviar">Enviar notificación</button>
+    <div class="nf-feedback" id="nf-feedback"></div>
+  </div>
+
+  <!-- Historial reciente -->
+  <div class="notif-card">
+    <h2>📋 Historial reciente</h2>
+    <div style="overflow-x:auto;">
+      <table class="hist-table" id="hist-table">
+        <thead>
+          <tr>
+            <th>Tipo</th>
+            <th>Título</th>
+            <th>Cliente</th>
+            <th>Fecha</th>
+          </tr>
+        </thead>
+        <tbody id="hist-body">
+          <tr><td colspan="4" style="text-align:center;color:#555;padding:20px">Cargando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var btnEnviar = document.getElementById('nf-enviar');
+  var feedback  = document.getElementById('nf-feedback');
+
+  function loadHist() {
+    fetch('/api/notificaciones/admin-historial')
+      .then(function(r){ return r.json(); })
+      .then(function(data){
+        var tbody = document.getElementById('hist-body');
+        if (!data.length) {
+          tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#555;padding:20px">Sin registros aún</td></tr>';
+          return;
+        }
+        tbody.innerHTML = data.map(function(n){
+          return '<tr>' +
+            '<td><span class="tipo-badge ' + n.tipo + '">' + n.tipo + '</span></td>' +
+            '<td>' + n.titulo + '</td>' +
+            '<td>' + (n.nombre || '—') + '</td>' +
+            '<td>' + n.fecha + '</td>' +
+          '</tr>';
+        }).join('');
+      }).catch(function(){});
+  }
+
+  loadHist();
+
+  btnEnviar.addEventListener('click', function(){
+    var destino = document.getElementById('nf-destino').value;
+    var titulo  = document.getElementById('nf-titulo').value.trim();
+    var mensaje = document.getElementById('nf-mensaje').value.trim();
+    if (!titulo || !mensaje) {
+      feedback.className = 'nf-feedback err';
+      feedback.textContent = 'Completa el título y el mensaje.';
+      feedback.style.display = 'block'; return;
+    }
+    btnEnviar.disabled = true; btnEnviar.textContent = 'Enviando...';
+    var fd = new FormData();
+    fd.append('destino', destino); fd.append('titulo', titulo); fd.append('mensaje', mensaje);
+    fetch('/admin/notificaciones/enviar', { method: 'POST', body: fd })
+      .then(function(r){ return r.json(); })
+      .then(function(data){
+        if (data.ok) {
+          feedback.className = 'nf-feedback ok';
+          feedback.textContent = '✅ Notificación enviada a ' + data.enviadas + ' cliente(s).';
+          document.getElementById('nf-titulo').value = '';
+          document.getElementById('nf-mensaje').value = '';
+          loadHist();
+        } else {
+          feedback.className = 'nf-feedback err';
+          feedback.textContent = '❌ ' + (data.error || 'Error desconocido');
+        }
+        feedback.style.display = 'block';
+        btnEnviar.disabled = false; btnEnviar.textContent = 'Enviar notificación';
+      }).catch(function(){
+        feedback.className = 'nf-feedback err';
+        feedback.textContent = '❌ Error de conexión';
+        feedback.style.display = 'block';
+        btnEnviar.disabled = false; btnEnviar.textContent = 'Enviar notificación';
+      });
+  });
+})();
+</script>
+{% endblock %}

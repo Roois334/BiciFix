@@ -178,6 +178,16 @@ def init_db():
         activa        TINYINT(1) NOT NULL DEFAULT 1,
         FOREIGN KEY (mecanico_id) REFERENCES usuarios(id) ON DELETE CASCADE
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4""")
+    cur.execute("""CREATE TABLE IF NOT EXISTS notificaciones (
+        id           INT          PRIMARY KEY AUTO_INCREMENT,
+        usuario_id   INT          NOT NULL,
+        tipo         ENUM('mantenimiento','manual','orden','sistema') NOT NULL DEFAULT 'manual',
+        titulo       VARCHAR(120) NOT NULL,
+        mensaje      TEXT         NOT NULL,
+        leida        TINYINT(1)   NOT NULL DEFAULT 0,
+        fecha        DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4""")
     # Admin por defecto
     cur.execute("SELECT id FROM usuarios WHERE email='admin@bicifix.com'")
     if not cur.fetchone():
@@ -1392,6 +1402,129 @@ def cambiar_password():
         flash("Contrasena actualizada exitosamente","success")
     cur.close(); conn.close()
     return redirect("/perfil")
+
+
+# ─── NOTIFICACIONES ──────────────────────────────────────────────────────────
+
+def crear_notificacion(usuario_id, tipo, titulo, mensaje):
+    """Inserta una notificacion en la BD para un usuario."""
+    try:
+        conn = get_db(); cur = conn.cursor()
+        cur.execute(
+            'INSERT INTO notificaciones (usuario_id, tipo, titulo, mensaje) VALUES (%s,%s,%s,%s)',
+            (usuario_id, tipo, titulo, mensaje)
+        )
+        conn.commit(); cur.close(); conn.close()
+    except Exception as e:
+        print(f'[NOTIF ERROR] {e}')
+
+
+def verificar_mantenimiento_mensual(usuario_id):
+    """Si el cliente no ha recibido recordatorio de mantenimiento en 30 dias, crea uno."""
+    try:
+        conn = get_db(); cur = conn.cursor()
+        cur.execute(
+            'SELECT id FROM notificaciones WHERE usuario_id=%s AND tipo=%s AND fecha >= DATE_SUB(NOW(), INTERVAL 30 DAY) LIMIT 1',
+            (usuario_id, 'mantenimiento')
+        )
+        if not cur.fetchone():
+            cur.execute(
+                'INSERT INTO notificaciones (usuario_id, tipo, titulo, mensaje) VALUES (%s,%s,%s,%s)',
+                (usuario_id, 'mantenimiento',
+                 'Recordatorio de mantenimiento',
+                 'Han pasado 30 dias desde tu ultimo recordatorio. Te recomendamos agendar un mantenimiento preventivo para mantener tu bicicleta en optimas condiciones.')
+            )
+            conn.commit()
+        cur.close(); conn.close()
+    except Exception as e:
+        print(f'[MANTENIMIENTO ERROR] {e}')
+
+
+@app.route('/api/notificaciones')
+@login_required
+def api_notificaciones():
+    uid = session['usuario']['id']
+    if session['usuario']['rol'] == 'cliente':
+        verificar_mantenimiento_mensual(uid)
+    conn = get_db(); cur = conn.cursor()
+    cur.execute('SELECT id, tipo, titulo, mensaje, leida, fecha FROM notificaciones WHERE usuario_id=%s ORDER BY fecha DESC LIMIT 20', (uid,))
+    notifs = cur.fetchall()
+    cur.execute('SELECT COUNT(*) as c FROM notificaciones WHERE usuario_id=%s AND leida=0', (uid,))
+    no_leidas = cur.fetchone()['c']
+    cur.close(); conn.close()
+    for n in notifs:
+        if hasattr(n['fecha'], 'strftime'):
+            n['fecha'] = n['fecha'].strftime('%d/%m/%Y %H:%M')
+    return {'notificaciones': notifs, 'no_leidas': no_leidas}
+
+
+@app.route('/api/notificaciones/leer/<int:nid>', methods=['POST'])
+@login_required
+def marcar_leida(nid):
+    uid = session['usuario']['id']
+    conn = get_db(); cur = conn.cursor()
+    cur.execute('UPDATE notificaciones SET leida=1 WHERE id=%s AND usuario_id=%s', (nid, uid))
+    conn.commit(); cur.close(); conn.close()
+    return {'ok': True}
+
+
+@app.route('/api/notificaciones/leer-todas', methods=['POST'])
+@login_required
+def marcar_todas_leidas():
+    uid = session['usuario']['id']
+    conn = get_db(); cur = conn.cursor()
+    cur.execute('UPDATE notificaciones SET leida=1 WHERE usuario_id=%s', (uid,))
+    conn.commit(); cur.close(); conn.close()
+    return {'ok': True}
+
+
+
+
+@app.route('/api/notificaciones/admin-historial')
+@admin_required
+def api_admin_historial_notif():
+    conn = get_db(); cur = conn.cursor()
+    cur.execute("""
+        SELECT n.tipo, n.titulo, u.nombre, n.fecha
+        FROM notificaciones n
+        JOIN usuarios u ON u.id = n.usuario_id
+        ORDER BY n.fecha DESC LIMIT 30
+    """)
+    rows = cur.fetchall()
+    cur.close(); conn.close()
+    for r in rows:
+        if hasattr(r['fecha'], 'strftime'):
+            r['fecha'] = r['fecha'].strftime('%d/%m/%Y %H:%M')
+    return rows
+
+@app.route('/admin/notificaciones', methods=['GET'])
+@admin_required
+def admin_notificaciones():
+    conn = get_db(); cur = conn.cursor()
+    cur.execute('SELECT id, nombre, apellido, email FROM usuarios WHERE rol=%s AND activo=1 ORDER BY nombre', ('cliente',))
+    clientes = cur.fetchall()
+    cur.close(); conn.close()
+    return render_template('admin/notificaciones.html', clientes=clientes)
+
+
+@app.route('/admin/notificaciones/enviar', methods=['POST'])
+@admin_required
+def admin_enviar_notificacion():
+    destino = request.form.get('destino')
+    titulo  = request.form.get('titulo', '').strip()
+    mensaje = request.form.get('mensaje', '').strip()
+    if not titulo or not mensaje:
+        return {'ok': False, 'error': 'Titulo y mensaje son obligatorios'}, 400
+    conn = get_db(); cur = conn.cursor()
+    if destino == 'todos':
+        cur.execute('SELECT id FROM usuarios WHERE rol=%s AND activo=1', ('cliente',))
+        ids = [r['id'] for r in cur.fetchall()]
+    else:
+        ids = [int(destino)]
+    for uid in ids:
+        cur.execute('INSERT INTO notificaciones (usuario_id, tipo, titulo, mensaje) VALUES (%s,%s,%s,%s)', (uid, 'manual', titulo, mensaje))
+    conn.commit(); cur.close(); conn.close()
+    return {'ok': True, 'enviadas': len(ids)}
 
 @app.errorhandler(404)
 def not_found(e): return render_template("404.html"), 404
