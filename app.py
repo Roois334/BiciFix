@@ -1440,6 +1440,13 @@ def verificar_mantenimiento_mensual(usuario_id):
         print(f'[MANTENIMIENTO ERROR] {e}')
 
 
+
+@app.route('/notificaciones')
+@cliente_required
+def mis_notificaciones():
+    verificar_mantenimiento_mensual(session['usuario']['id'])
+    return render_template('cliente/mis_notificaciones.html')
+
 @app.route('/api/notificaciones')
 @login_required
 def api_notificaciones():

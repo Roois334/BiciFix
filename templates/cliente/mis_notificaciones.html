@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Notificaciones — BiciFix{% endblock %}
+{% block content %}
+<div class="page-header animate-in">
+  <div class="page-header-info">
+    <h1 class="page-title"><i class="ti ti-bell"></i> Mis Notificaciones</h1>
+    <p class="page-sub">Tus alertas y recordatorios de mantenimiento.</p>
+  </div>
+  <div class="page-header-actions">
+    <button class="btn btn-outline" id="mn-read-all" type="button">Marcar todas leídas</button>
+  </div>
+</div>
+
+<style>
+.mn-list { max-width: 640px; margin: 0 auto; display: flex; flex-direction: column; gap: 10px; }
+.mn-item {
+  display: flex; gap: 14px; align-items: flex-start;
+  background: #161616; border: 1px solid rgba(255,255,255,.07);
+  border-radius: 12px; padding: 16px 18px; cursor: pointer;
+  transition: background .15s, border-color .15s;
+}
+.mn-item.unread { border-color: rgba(0,200,83,.25); background: rgba(0,200,83,.05); }
+.mn-item:hover { background: rgba(255,255,255,.04); }
+.mn-item.unread:hover { background: rgba(0,200,83,.08); }
+.mn-icon {
+  width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 18px;
+}
+.mn-icon.mantenimiento { background: rgba(0,200,83,.15); }
+.mn-icon.manual        { background: rgba(33,150,243,.15); }
+.mn-icon.orden         { background: rgba(255,193,7,.15); }
+.mn-icon.sistema       { background: rgba(156,39,176,.15); }
+.mn-body { flex: 1; min-width: 0; }
+.mn-titulo { font-size: .9rem; font-weight: 700; color: #fff; }
+.mn-msg { font-size: .82rem; color: #888; margin-top: 4px; line-height: 1.5; }
+.mn-fecha { font-size: .72rem; color: #555; margin-top: 6px; }
+.mn-dot { width: 8px; height: 8px; border-radius: 50%; background: #00c853; flex-shrink: 0; margin-top: 6px; }
+.mn-empty { text-align: center; padding: 60px 20px; color: #555; font-size: .9rem; }
+.mn-empty svg { display: block; margin: 0 auto 14px; opacity: .3; }
+</style>
+
+<div class="mn-list" id="mn-list">
+  <div class="mn-empty">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+    Cargando notificaciones...
+  </div>
+</div>
+
+<script>
+(function(){
+  var iconMap = { mantenimiento:'🔧', manual:'📣', orden:'📋', sistema:'⚙️' };
+
+  function load() {
+    fetch('/api/notificaciones')
+      .then(function(r){ return r.json(); })
+      .then(function(data){
+        var list = document.getElementById('mn-list');
+        if (!data.notificaciones || !data.notificaciones.length) {
+          list.innerHTML = '<div class="mn-empty"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>No tienes notificaciones aún</div>';
+          return;
+        }
+        list.innerHTML = data.notificaciones.map(function(n){
+          return '<div class="mn-item' + (n.leida ? '' : ' unread') + '" data-id="' + n.id + '" data-leida="' + n.leida + '">' +
+            '<div class="mn-icon ' + n.tipo + '">' + (iconMap[n.tipo]||'🔔') + '</div>' +
+            '<div class="mn-body">' +
+              '<div class="mn-titulo">' + n.titulo + '</div>' +
+              '<div class="mn-msg">' + n.mensaje + '</div>' +
+              '<div class="mn-fecha">' + n.fecha + '</div>' +
+            '</div>' +
+            (!n.leida ? '<div class="mn-dot"></div>' : '') +
+          '</div>';
+        }).join('');
+
+        document.querySelectorAll('.mn-item').forEach(function(el){
+          el.addEventListener('click', function(){
+            if (el.dataset.leida === '0') {
+              fetch('/api/notificaciones/leer/' + el.dataset.id, {method:'POST'});
+              el.classList.remove('unread');
+              var dot = el.querySelector('.mn-dot');
+              if (dot) dot.remove();
+              el.dataset.leida = '1';
+            }
+          });
+        });
+      });
+  }
+
+  load();
+
+  var rdAll = document.getElementById('mn-read-all');
+  if (rdAll) rdAll.addEventListener('click', function(){
+    fetch('/api/notificaciones/leer-todas', {method:'POST'}).then(load);
+  });
+})();
+</script>
+{% endblock %}
