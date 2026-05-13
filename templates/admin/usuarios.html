@@ -50,99 +50,87 @@
 </div>
 
 <!-- Tabla -->
-<div class="card animate-in">
+<!-- TABLA desktop -->
+<div class="card animate-in desk-only">
   <div class="table-wrap">
     <table>
-      <thead>
-        <tr>
-          <th>Usuario</th>
-          <th>Correo</th>
-          <th>Rol</th>
-          <th>Ciudad</th>
-          {% if not rol_filtro or rol_filtro == 'mecanico' %}
-          <th style="text-align:center;">Calif.</th>
-          <th style="text-align:center;">Servicios</th>
-          {% endif %}
-          <th>Registro</th>
-          <th style="text-align:center;">Estado</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
+      <thead><tr><th>Usuario</th><th>Correo</th><th>Rol</th><th>Ciudad</th><th>Calif.</th><th>Servicios</th><th>Registro</th><th>Estado</th><th>Acciones</th></tr></thead>
       <tbody>
         {% for u in usuarios %}
         <tr>
           <td class="td-main">
-            <div style="display:flex;align-items:center;gap:10px;">
-              
-              <div>
-                <div style="font-weight:600;color:var(--bl);font-size:.88rem;">{{ u.nombre }} {{ u.apellido }}</div>
-                {% if u.rol == 'mecanico' and u.zona %}
-                <div style="font-size:.72rem;color:var(--gs);">{{ u.zona }}</div>
-                {% endif %}
-              </div>
-            </div>
+            <div style="font-weight:700;color:var(--bl);">{{ u.nombre }} {{ u.apellido }}</div>
+            {% if u.rol == 'mecanico' and u.zona %}<div style="font-size:.72rem;color:var(--gs);">{{ u.zona }}</div>{% endif %}
           </td>
-
           <td style="font-size:.83rem;color:var(--gt);">{{ u.email }}</td>
-
-          <td>
-            <span class="pd-role role-{{ u.rol }}">
-              {% if u.rol=='admin' %}Administrador{% elif u.rol=='mecanico' %}Mecanico{% else %}Cliente{% endif %}
-            </span>
-          </td>
-
+          <td><span class="badge badge-{{ u.rol }}">{{ u.rol|upper }}</span></td>
           <td style="font-size:.83rem;color:var(--gt);">{{ u.ciudad or "—" }}</td>
-
-          {% if not rol_filtro or rol_filtro == 'mecanico' %}
           <td style="text-align:center;color:var(--am);font-weight:600;font-size:.85rem;">
-            {% if u.rol == 'mecanico' %}{{ u.calificacion_promedio or "—" }}{% else %}—{% endif %}
+            {% if u.rol == 'mecanico' and u.calificacion_promedio %}{{ u.calificacion_promedio }} ★{% else %}—{% endif %}
           </td>
           <td style="text-align:center;font-size:.85rem;color:var(--gt);">
             {% if u.rol == 'mecanico' %}{{ u.total_servicios or 0 }}{% else %}—{% endif %}
           </td>
-          {% endif %}
-
           <td style="font-size:.8rem;color:var(--gs);">{{ u.fecha_registro|fecha }}</td>
-
           <td style="text-align:center;">
-            <span style="font-size:.68rem;font-weight:700;padding:3px 10px;border-radius:99px;
-              {% if u.activo %}background:rgba(0,200,83,.12);color:var(--va);border:1px solid rgba(0,200,83,.3);
-              {% else %}background:rgba(239,83,80,.1);color:#ff8a80;border:1px solid rgba(239,83,80,.25);{% endif %}">
-              {{ 'Activo' if u.activo else 'Bloqueado' }}
-            </span>
+            {% if u.activo %}<span class="badge badge-activo">Activo</span>{% else %}<span class="badge badge-inactivo">Bloqueado</span>{% endif %}
           </td>
-
           <td>
-            <div style="display:flex;gap:6px;align-items:center;">
-              <a href="/admin/usuario/{{ u.id }}"
-                 style="padding:5px 12px;border-radius:7px;font-size:.75rem;font-weight:700;background:rgba(255,255,255,.06);
-                        border:1px solid var(--c3);color:var(--bl);text-decoration:none;white-space:nowrap;transition:background .15s;"
-                 onmouseover="this.style.background='rgba(255,255,255,.13)'"
-                 onmouseout="this.style.background='rgba(255,255,255,.06)'">
-                Ver perfil
-              </a>
-              <form method="POST" action="/admin/usuario/{{ u.id }}/toggle?rol={{ rol_filtro }}" style="display:inline;">
-                <button type="submit"
-                  style="padding:5px 12px;border-radius:7px;font-size:.75rem;font-weight:700;cursor:pointer;border:1px solid;white-space:nowrap;transition:opacity .15s;
-                    {% if u.activo %}background:rgba(239,83,80,.1);border-color:rgba(239,83,80,.3);color:#ff8a80;
-                    {% else %}background:rgba(0,200,83,.1);border-color:rgba(0,200,83,.3);color:var(--va);{% endif %}"
-                  onmouseover="this.style.opacity='.7'" onmouseout="this.style.opacity='1'">
-                  {{ 'Bloquear' if u.activo else 'Activar' }}
-                </button>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+              <a href="/admin/usuario/{{ u.id }}" class="btn btn-outline btn-sm">Ver perfil</a>
+              {% if u.id != session['usuario']['id'] %}
+              <form method="POST" action="/admin/usuario/{{ u.id }}/toggle" style="display:inline;">
+                <button class="btn btn-sm {{ 'btn-danger' if u.activo else 'btn-primary' }}">{{ 'Bloquear' if u.activo else 'Activar' }}</button>
               </form>
+              {% endif %}
             </div>
           </td>
         </tr>
-        {% else %}
-        <tr>
-          <td colspan="9" style="text-align:center;padding:40px;color:var(--gs);font-size:.88rem;">
-            No hay usuarios con el filtro seleccionado.
-          </td>
-        </tr>
         {% endfor %}
+        {% if not usuarios %}
+        <tr><td colspan="9" style="text-align:center;padding:40px;color:var(--gs);">No hay usuarios con ese filtro.</td></tr>
+        {% endif %}
       </tbody>
     </table>
   </div>
+</div>
+
+<!-- CARDS móvil -->
+<div class="mob-card-list animate-in">
+  {% for u in usuarios %}
+  <div class="mob-card-item">
+    <div class="mob-card-head">
+      <div>
+        <div class="mob-card-title">{{ u.nombre }} {{ u.apellido }}</div>
+        <div class="mob-card-sub">{{ u.email }}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;">
+        <span class="badge badge-{{ u.rol }}">{{ u.rol|upper }}</span>
+        {% if u.activo %}<span class="badge badge-activo" style="font-size:.65rem;">Activo</span>{% else %}<span class="badge badge-inactivo" style="font-size:.65rem;">Bloqueado</span>{% endif %}
+      </div>
+    </div>
+    <div class="mob-card-rows">
+      <div class="mob-card-row"><span class="mob-card-key">Ciudad</span><span class="mob-card-val">{{ u.ciudad or "—" }}</span></div>
+      {% if u.rol == 'mecanico' %}
+      <div class="mob-card-row"><span class="mob-card-key">Calificación</span><span class="mob-card-val amber">{% if u.calificacion_promedio %}{{ u.calificacion_promedio }} ★{% else %}N/A{% endif %}</span></div>
+      <div class="mob-card-row"><span class="mob-card-key">Servicios</span><span class="mob-card-val green">{{ u.total_servicios or 0 }}</span></div>
+      {% endif %}
+      <div class="mob-card-row"><span class="mob-card-key">Registro</span><span class="mob-card-val">{{ u.fecha_registro|fecha }}</span></div>
+    </div>
+    <div class="mob-card-sep"></div>
+    <div class="mob-card-actions">
+      <a href="/admin/usuario/{{ u.id }}" class="btn btn-outline btn-sm">Ver perfil</a>
+      {% if u.id != session['usuario']['id'] %}
+      <form method="POST" action="/admin/usuario/{{ u.id }}/toggle" style="flex:1;display:flex;">
+        <button class="btn btn-sm {{ 'btn-danger' if u.activo else 'btn-primary' }}" style="width:100%;justify-content:center;">{{ 'Bloquear' if u.activo else 'Activar' }}</button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+  {% if not usuarios %}
+  <div style="text-align:center;padding:32px;color:var(--gs);font-size:.88rem;">No hay usuarios con ese filtro.</div>
+  {% endif %}
 </div>
 
 {% endblock %}
