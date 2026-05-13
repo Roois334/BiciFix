@@ -120,68 +120,133 @@
   <div class="mob-overlay" id="mobOverlay"></div>
 
   <!-- DRAWER MÓVIL -->
-  <div class="mob-drawer" id="mobDrawer">
-    <div class="mob-drawer-header">
-      <div class="mob-brand">
-        <div class="mob-brand-logo">
-          <img src="/static/img/logo.png" alt="BiciFix">
-        </div>
+  <div class="mob-drawer" id="mobDrawer" aria-hidden="true">
+
+    <!-- Header -->
+    <div class="mob-dh">
+      <div class="mob-brand-row">
+        <div class="mob-logo-box"><img src="/static/img/logo.png" alt="BiciFix"></div>
         <span class="mob-brand-name">BiciFix</span>
       </div>
-      <button class="mob-close" id="mobClose" aria-label="Cerrar menú">
+      <button class="mob-x" id="mobClose" aria-label="Cerrar menú">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
 
     {% if session.get('usuario') %}
-    <div class="mob-user-card">
-      <div class="mob-avatar av-{{ session['usuario']['rol'] }}">{{ session['usuario']['nombre'][0].upper() }}</div>
-      <div class="mob-user-info">
-        <div class="mob-user-name">{{ session['usuario']['nombre'] }} {{ session['usuario']['apellido'] }}</div>
-        <div class="mob-user-role">{% if session['usuario']['rol']=='admin' %}Administrador{% elif session['usuario']['rol']=='mecanico' %}Mecánico{% else %}Cliente{% endif %}</div>
+
+    <!-- Usuario -->
+    <div class="mob-user">
+      <div class="mob-av mob-av-{{ session['usuario']['rol'] }}">{{ session['usuario']['nombre'][0].upper() }}</div>
+      <div>
+        <div class="mob-uname">{{ session['usuario']['nombre'] }} {{ session['usuario']['apellido'] }}</div>
+        <div class="mob-urole">{% if session['usuario']['rol']=='admin' %}Administrador{% elif session['usuario']['rol']=='mecanico' %}Mecánico{% else %}Cliente{% endif %}</div>
       </div>
     </div>
 
+    <!-- Links según rol -->
     {% if session['usuario']['rol'] == 'admin' %}
-    <div class="mob-nav-section">Administración</div>
-    <a href="/admin" class="mob-nav-link"><span class="mob-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span><span>Dashboard</span></a>
-    <a href="/admin/usuarios" class="mob-nav-link"><span class="mob-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span>Usuarios</span></a>
-    <a href="/admin/ordenes" class="mob-nav-link"><span class="mob-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span><span>Órdenes</span></a>
-    <a href="/admin/servicios" class="mob-nav-link"><span class="mob-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M4.93 19.07l1.41-1.41M19.07 19.07l-1.41-1.41M12 2v2M12 20v2M2 12h2M20 12h2"/></svg></span><span>Servicios</span></a>
-    <a href="/talleres" class="mob-nav-link"><span class="mob-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></span><span>Talleres</span></a>
-    <a href="/admin/reportes" class="mob-nav-link"><span class="mob-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span><span>Reportes</span></a>
+    <div class="mob-sec">Administración</div>
+    <a href="/admin" class="mob-a">
+      <span class="mob-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span>
+      <span>Dashboard</span>
+    </a>
+    <a href="/admin/usuarios" class="mob-a">
+      <span class="mob-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+      <span>Usuarios</span>
+    </a>
+    <a href="/admin/ordenes" class="mob-a">
+      <span class="mob-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>
+      <span>Órdenes</span>
+    </a>
+    <a href="/admin/servicios" class="mob-a">
+      <span class="mob-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>
+      <span>Servicios</span>
+    </a>
+    <a href="/talleres" class="mob-a">
+      <span class="mob-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
+      <span>Talleres</span>
+    </a>
+    <a href="/admin/reportes" class="mob-a">
+      <span class="mob-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
+      <span>Reportes</span>
+    </a>
 
     {% elif session['usuario']['rol'] == 'mecanico' %}
-    <div class="mob-nav-section">Mi panel</div>
-    <a href="/mecanico" class="mob-nav-link"><span class="mob-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span><span>Mis Órdenes</span></a>
-    <a href="/mecanico/historial" class="mob-nav-link"><span class="mob-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span><span>Historial</span></a>
+    <div class="mob-sec">Mi panel</div>
+    <a href="/mecanico" class="mob-a">
+      <span class="mob-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>
+      <span>Mis Órdenes</span>
+    </a>
+    <a href="/mecanico/historial" class="mob-a">
+      <span class="mob-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
+      <span>Historial</span>
+    </a>
 
     {% else %}
-    <div class="mob-nav-section">Navegación</div>
-    <a href="/servicios" class="mob-nav-link"><span class="mob-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span><span>Servicios</span></a>
-    <a href="/talleres" class="mob-nav-link"><span class="mob-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></span><span>Talleres</span></a>
-    <a href="/dashboard" class="mob-nav-link"><span class="mob-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span><span>Mi Panel</span></a>
-    <a href="/mis-ordenes" class="mob-nav-link"><span class="mob-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span><span>Mis Órdenes</span></a>
-    <a href="/mis-bicicletas" class="mob-nav-link"><span class="mob-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="18" r="3"/><path d="M6 18L12 5l2.5 5H18"/><line x1="6" y1="18" x2="9" y2="11"/></svg></span><span>Mis Bicicletas</span></a>
-    <div class="mob-divider"></div>
-    <a href="/solicitar" class="mob-cta"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Solicitar servicio</a>
+    <div class="mob-sec">Navegación</div>
+    <a href="/servicios" class="mob-a">
+      <span class="mob-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>
+      <span>Servicios</span>
+    </a>
+    <a href="/talleres" class="mob-a">
+      <span class="mob-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></span>
+      <span>Talleres</span>
+    </a>
+    <a href="/dashboard" class="mob-a">
+      <span class="mob-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span>
+      <span>Mi Panel</span>
+    </a>
+    <a href="/mis-ordenes" class="mob-a">
+      <span class="mob-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span>
+      <span>Mis Órdenes</span>
+    </a>
+    <a href="/mis-bicicletas" class="mob-a">
+      <span class="mob-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="18" r="3"/><path d="M6 18L12 5l2.5 5H18"/><line x1="6" y1="18" x2="9" y2="11"/></svg></span>
+      <span>Mis Bicicletas</span>
+    </a>
+    <div class="mob-sep"></div>
+    <a href="/solicitar" class="mob-cta-btn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Solicitar servicio
+    </a>
     {% endif %}
 
-    <div class="mob-divider"></div>
-    <a href="/perfil" class="mob-nav-link"><span class="mob-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></span><span>Mi perfil</span></a>
-    <a href="/logout" class="mob-logout"><span class="mob-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span><span>Cerrar sesión</span></a>
+    <div class="mob-sep"></div>
+    <a href="/perfil" class="mob-a">
+      <span class="mob-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></span>
+      <span>Mi perfil</span>
+    </a>
+    <a href="/logout" class="mob-logout">
+      <span class="mob-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span>
+      <span>Cerrar sesión</span>
+    </a>
 
     {% else %}
-    <div class="mob-nav-section">Acceso</div>
-    <a href="/servicios" class="mob-nav-link"><span class="mob-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span><span>Servicios</span></a>
-    <a href="/talleres" class="mob-nav-link"><span class="mob-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></span><span>Talleres</span></a>
-    <div class="mob-divider"></div>
-    <a href="/login" class="mob-nav-link"><span class="mob-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg></span><span>Ingresar</span></a>
-    <a href="/registro" class="mob-cta"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Crear cuenta</a>
+    <div class="mob-sec">Acceso</div>
+    <a href="/servicios" class="mob-a">
+      <span class="mob-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>
+      <span>Servicios</span>
+    </a>
+    <a href="/talleres" class="mob-a">
+      <span class="mob-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></span>
+      <span>Talleres</span>
+    </a>
+    <div class="mob-sep"></div>
+    <a href="/login" class="mob-a">
+      <span class="mob-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg></span>
+      <span>Ingresar</span>
+    </a>
+    <a href="/registro" class="mob-cta-btn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Crear cuenta
+    </a>
     {% endif %}
-  </div>
+
+  </div><!-- /mob-drawer -->
 
   <main class="main-content">
+
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
         <div class="flash-wrap">
@@ -239,60 +304,88 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', function() {
+
   // ── Profile Dropdown ──────────────────────────────────────────
-  const trigger = document.getElementById('profileTrigger');
-  const menu = document.getElementById('profileMenu');
-  const dropdown = document.getElementById('profileDropdown');
+  var trigger  = document.getElementById('profileTrigger');
+  var menu     = document.getElementById('profileMenu');
+  var dropdown = document.getElementById('profileDropdown');
   if (trigger && menu && dropdown) {
-    function openPD(){ menu.classList.add('open'); dropdown.classList.add('active'); }
-    function closePD(){ menu.classList.remove('open'); dropdown.classList.remove('active'); }
-    trigger.addEventListener('click', e => { e.stopPropagation(); menu.classList.contains('open') ? closePD() : openPD(); });
-    document.addEventListener('click', e => { if (!dropdown.contains(e.target)) closePD(); });
-    document.addEventListener('keydown', e => { if(e.key==='Escape') closePD(); });
+    trigger.addEventListener('click', function(e) {
+      e.stopPropagation();
+      menu.classList.toggle('open');
+      dropdown.classList.toggle('active');
+    });
+    document.addEventListener('click', function(e) {
+      if (!dropdown.contains(e.target)) {
+        menu.classList.remove('open');
+        dropdown.classList.remove('active');
+      }
+    });
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        menu.classList.remove('open');
+        dropdown.classList.remove('active');
+      }
+    });
   }
 
   // ── Flash autohide ────────────────────────────────────────────
-  setTimeout(() => {
-    document.querySelectorAll('.flash').forEach(a => {
-      a.style.transition = 'opacity .4s';
-      a.style.opacity = '0';
-      setTimeout(() => a.remove(), 400);
+  setTimeout(function() {
+    document.querySelectorAll('.flash').forEach(function(el) {
+      el.style.transition = 'opacity .4s';
+      el.style.opacity = '0';
+      setTimeout(function() { el.remove(); }, 400);
     });
   }, 5000);
 
-  // ── Burger / Drawer ───────────────────────────────────────────
-  const burger  = document.getElementById('burgerBtn');
-  const drawer  = document.getElementById('mobDrawer');
-  const overlay = document.getElementById('mobOverlay');
-  const mobClose= document.getElementById('mobClose');
+  // ── Burger Drawer ─────────────────────────────────────────────
+  var burger  = document.getElementById('burgerBtn');
+  var drawer  = document.getElementById('mobDrawer');
+  var overlay = document.getElementById('mobOverlay');
+  var mobX    = document.getElementById('mobClose');
 
-  function openDrawer(){
-    burger && burger.classList.add('open');
-    drawer && drawer.classList.add('open');
+  function openDrawer() {
+    if (!drawer) return;
+    drawer.classList.add('open');
+    drawer.setAttribute('aria-hidden','false');
     overlay && overlay.classList.add('show');
+    burger  && burger.classList.add('open');
     document.body.style.overflow = 'hidden';
   }
-  function closeDrawer(){
-    burger && burger.classList.remove('open');
-    drawer && drawer.classList.remove('open');
+
+  function closeDrawer() {
+    if (!drawer) return;
+    drawer.classList.remove('open');
+    drawer.setAttribute('aria-hidden','true');
     overlay && overlay.classList.remove('show');
+    burger  && burger.classList.remove('open');
     document.body.style.overflow = '';
   }
 
-  if(burger) burger.addEventListener('click', e => {
-    e.stopPropagation();
-    drawer && drawer.classList.contains('open') ? closeDrawer() : openDrawer();
-  });
-  if(overlay) overlay.addEventListener('click', closeDrawer);
-  if(mobClose) mobClose.addEventListener('click', closeDrawer);
-  document.addEventListener('keydown', e => { if(e.key==='Escape') closeDrawer(); });
+  if (burger)  burger.addEventListener('click',  function(e) { e.stopPropagation(); drawer && drawer.classList.contains('open') ? closeDrawer() : openDrawer(); });
+  if (overlay) overlay.addEventListener('click', closeDrawer);
+  if (mobX)    mobX.addEventListener('click',    closeDrawer);
 
-  // Marcar link activo en drawer
-  const path = window.location.pathname;
-  document.querySelectorAll('.mob-nav-link').forEach(a => {
-    if(a.getAttribute('href') === path) a.classList.add('active');
-  });
+  document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeDrawer(); });
+
+  // Cerrar drawer al navegar (click en link)
+  if (drawer) {
+    drawer.querySelectorAll('a').forEach(function(a) {
+      a.addEventListener('click', function() {
+        setTimeout(closeDrawer, 80);
+      });
+    });
+  }
+
+  // Marcar link activo
+  var path = window.location.pathname;
+  if (drawer) {
+    drawer.querySelectorAll('.mob-a').forEach(function(a) {
+      if (a.getAttribute('href') === path) a.classList.add('mob-active');
+    });
+  }
+
 });
 </script>
 </body>
