@@ -9,7 +9,7 @@
   </div>
 </div>
 
-<!-- KPIs -->
+<!-- ── KPIs ──────────────────────────────────────────────── -->
 <div class="kpi-grid animate-in">
   <div class="kpi-card kc-green">
     <div class="kpi-icon"><i class="ti ti-users" aria-hidden="true"></i></div>
@@ -39,11 +39,11 @@
   <div class="kpi-card kc-purple">
     <div class="kpi-icon"><i class="ti ti-currency-dollar" aria-hidden="true"></i></div>
     <div class="kpi-label">Ingresos del mes</div>
-    <div class="kpi-value" style="font-size:1.35rem;">{{ ingresos_mes|cop }}</div>
+    <div class="kpi-value" style="font-size:1.3rem;">{{ ingresos_mes|cop }}</div>
   </div>
 </div>
 
-<!-- Grid 2 columnas -->
+<!-- ── GRID PRINCIPAL ─────────────────────────────────────── -->
 <div class="grid-2 animate-in">
 
   <!-- ÚLTIMAS ÓRDENES -->
@@ -56,13 +56,15 @@
     <!-- Tabla desktop -->
     <div class="table-wrap desk-only">
       <table>
-        <thead><tr><th>Cliente</th><th>Servicio</th><th>Mecánico</th><th>Estado</th></tr></thead>
+        <thead>
+          <tr><th>Cliente</th><th>Servicio</th><th>Mecánico</th><th>Estado</th></tr>
+        </thead>
         <tbody>
           {% for o in ultimas_ordenes %}
           <tr>
             <td class="td-main">{{ o.cliente_nombre }}</td>
-            <td>{{ o.servicio_nombre }}</td>
-            <td>{{ o.mecanico_nombre or "Sin asignar" }}</td>
+            <td style="font-size:.83rem;color:var(--gt);">{{ o.servicio_nombre }}</td>
+            <td style="font-size:.83rem;color:var(--gt);">{{ o.mecanico_nombre or "Sin asignar" }}</td>
             <td><span class="badge badge-{{ o.estado }}">{{ o.estado|capitalize }}</span></td>
           </tr>
           {% endfor %}
@@ -90,24 +92,95 @@
     </div>
   </div>
 
-  <!-- MECÁNICOS -->
+  <!-- MECÁNICOS — estado en tiempo real -->
   <div class="card">
     <div class="card-header">
-      <span class="card-title"><i class="ti ti-tool"></i> Mecánicos</span>
-      <a href="/admin/mecanicos" class="btn btn-outline btn-sm">Gestionar</a>
+      <span class="card-title"><i class="ti ti-tool"></i> Mecánicos activos</span>
+      <a href="/admin/mecanicos" class="btn btn-outline btn-sm">Ver todos</a>
     </div>
-    <div style="display:flex;flex-direction:column;gap:10px;padding:4px 0 8px;">
+    <div style="display:flex;flex-direction:column;gap:8px;padding:4px 0 8px;">
       {% for m in mecanicos %}
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 14px;background:rgba(27,94,32,.06);border-radius:10px;border:1px solid var(--n4);">
-        <div>
-          <div style="font-weight:600;color:var(--bl);font-size:.9rem;">{{ m.nombre }}</div>
-          <div style="font-size:.72rem;color:var(--gs);margin-top:2px;">{{ m.zona or "Sin zona" }}</div>
+      <div style="display:flex;align-items:center;gap:12px;padding:11px 14px;background:rgba(27,94,32,.06);border-radius:10px;border:1px solid var(--n4);">
+        <!-- Avatar inicial -->
+        <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--v1),var(--va));display:flex;align-items:center;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif;font-size:.88rem;font-weight:800;color:#fff;flex-shrink:0;">
+          {{ m.nombre[0].upper() }}
         </div>
-        <span class="badge badge-{{ m.estado }}">{{ m.estado }}</span>
+        <div style="flex:1;min-width:0;">
+          <div style="font-weight:600;color:var(--bl);font-size:.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ m.nombre }} {{ m.apellido }}</div>
+          <div style="font-size:.72rem;color:var(--gs);margin-top:1px;">
+            {{ m.zona or "Sin zona" }}
+            {% if m.calificacion_promedio %} · <span style="color:var(--am);">{{ m.calificacion_promedio }} ★</span>{% endif %}
+          </div>
+        </div>
+        <span class="badge badge-{{ m.estado_mecanico }}" style="flex-shrink:0;font-size:.68rem;">{{ m.estado_mecanico|capitalize }}</span>
       </div>
       {% endfor %}
+      {% if not mecanicos %}
+      <div style="text-align:center;padding:24px;color:var(--gs);font-size:.85rem;">No hay mecánicos activos.</div>
+      {% endif %}
     </div>
   </div>
 
 </div>
+
+<!-- ── ACCESOS RÁPIDOS ────────────────────────────────────── -->
+<div class="animate-in" style="margin-top:20px;">
+  <div class="card" style="padding:20px 24px;">
+    <div class="card-header" style="margin-bottom:16px;">
+      <span class="card-title"><i class="ti ti-bolt"></i> Accesos rápidos</span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;">
+
+      <a href="/admin/ordenes?estado=pendiente" style="text-decoration:none;">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:18px 12px;background:rgba(255,214,0,.05);border:1px solid rgba(255,214,0,.18);border-radius:12px;transition:transform .18s,box-shadow .18s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(0,0,0,.25)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+          <i class="ti ti-clock-hour-4" style="font-size:1.6rem;color:var(--am);"></i>
+          <span style="font-size:.78rem;font-weight:700;color:var(--bl);text-align:center;">Órdenes<br>pendientes</span>
+          <span style="font-size:1.2rem;font-weight:800;color:var(--am);">{{ ordenes_pendientes }}</span>
+        </div>
+      </a>
+
+      <a href="/admin/usuarios" style="text-decoration:none;">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:18px 12px;background:rgba(100,181,246,.05);border:1px solid rgba(100,181,246,.18);border-radius:12px;transition:transform .18s,box-shadow .18s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(0,0,0,.25)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+          <i class="ti ti-users" style="font-size:1.6rem;color:#64b5f6;"></i>
+          <span style="font-size:.78rem;font-weight:700;color:var(--bl);text-align:center;">Gestión de<br>usuarios</span>
+          <span style="font-size:1.2rem;font-weight:800;color:#64b5f6;">{{ total_clientes }}</span>
+        </div>
+      </a>
+
+      <a href="/admin/servicios" style="text-decoration:none;">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:18px 12px;background:rgba(0,200,83,.05);border:1px solid rgba(0,200,83,.18);border-radius:12px;transition:transform .18s,box-shadow .18s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(0,0,0,.25)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+          <i class="ti ti-tool" style="font-size:1.6rem;color:var(--va);"></i>
+          <span style="font-size:.78rem;font-weight:700;color:var(--bl);text-align:center;">Catálogo de<br>servicios</span>
+          <span style="font-size:.72rem;font-weight:600;color:var(--va);">Gestionar</span>
+        </div>
+      </a>
+
+      <a href="/admin/reportes" style="text-decoration:none;">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:18px 12px;background:rgba(206,147,216,.05);border:1px solid rgba(206,147,216,.18);border-radius:12px;transition:transform .18s,box-shadow .18s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(0,0,0,.25)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+          <i class="ti ti-chart-bar" style="font-size:1.6rem;color:#ce93d8;"></i>
+          <span style="font-size:.78rem;font-weight:700;color:var(--bl);text-align:center;">Reportes y<br>analítica</span>
+          <span style="font-size:.72rem;font-weight:600;color:#ce93d8;">Ver reportes</span>
+        </div>
+      </a>
+
+      <a href="/admin/ordenes" style="text-decoration:none;">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:18px 12px;background:rgba(105,240,174,.05);border:1px solid rgba(105,240,174,.18);border-radius:12px;transition:transform .18s,box-shadow .18s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(0,0,0,.25)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+          <i class="ti ti-clipboard-check" style="font-size:1.6rem;color:var(--vn);"></i>
+          <span style="font-size:.78rem;font-weight:700;color:var(--bl);text-align:center;">Todas las<br>órdenes</span>
+          <span style="font-size:1.2rem;font-weight:800;color:var(--vn);">{{ ordenes_completadas }}</span>
+        </div>
+      </a>
+
+      <a href="/talleres" style="text-decoration:none;">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:18px 12px;background:rgba(255,145,0,.05);border:1px solid rgba(255,145,0,.18);border-radius:12px;transition:transform .18s,box-shadow .18s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(0,0,0,.25)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+          <i class="ti ti-building-store" style="font-size:1.6rem;color:#ff9100;"></i>
+          <span style="font-size:.78rem;font-weight:700;color:var(--bl);text-align:center;">Ver<br>talleres</span>
+          <span style="font-size:.72rem;font-weight:600;color:#ff9100;">Explorar</span>
+        </div>
+      </a>
+
+    </div>
+  </div>
+</div>
+
 {% endblock %}
